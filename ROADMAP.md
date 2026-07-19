@@ -111,6 +111,7 @@ Consegue gerar senhas, chamar filas e buscar pacientes via `curl` ou Swagger (`/
 | 5 | **QR Code Triagem** | Gera QR Code para o paciente preencher triagem no celular |
 | 6 | **Painel de Senhas** | Tela separada (para TV/monitor da recepção) com senhas sendo chamadas |
 | 7 | **Tela de Erro** | Mensagem amigável quando a impressora falha ou o sistema está offline |
+| 8 | **Formulário de Triagem (Mobile)** | Tela responsiva mockada acessada via QR Code (perguntas do e-SUS APS) |
 
 ### Componentes Reutilizáveis
 - [x] `BigButton` — Botão touchscreen de alto contraste (min 80px altura)
@@ -126,7 +127,7 @@ Consegue gerar senhas, chamar filas e buscar pacientes via `curl` ou Swagger (`/
 - [x] Layout fullscreen sem scrollbar (Kiosk Mode)
 
 ### ✅ Critério de Conclusão
-Todas as 7 telas navegáveis com dados mockados. Visual aprovado pela equipe. Funciona em tela cheia no Chromium.
+Todas as 8 telas navegáveis com dados mockados. Visual aprovado pela equipe. Funciona em tela cheia no Chromium.
 
 ---
 
