@@ -29,3 +29,8 @@ class SenhaRepositoryPort(ABC):
     def listar_ultimas_chamadas(self, limite: int = 4) -> list[Senha]:
         """Retorna as últimas senhas chamadas (histórico para o painel)."""
         ...
+        
+    @abstractmethod
+    def listar_nao_sincronizadas(self) -> list[Senha]:
+        """Retorna todas as senhas que ainda não foram sincronizadas com e-SUS."""
+        ...

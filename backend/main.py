@@ -6,14 +6,45 @@ Inicializa o servidor, registra os routers e configura CORS.
 
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
+import logging
+from contextlib import asynccontextmanager
+from sqlmodel import Session
 
 from app.api import api_router
 from app.core.config import settings
+from app.infrastructure.database.session import engine
+from app.application.services.sync_service import SyncEngine
+from app.infrastructure.database.senha_repository import SenhaRepository
+from app.infrastructure.external.mock_esus_gateway import MockEsusGateway
+
+# Variável global para o engine (poderíamos injetar, mas para background task isso simplifica)
+sync_engine = None
+
+@asynccontextmanager
+async def lifespan(app: FastAPI):
+    # Startup
+    logging.info("Iniciando a API e Serviços de Background...")
+    
+    global sync_engine
+    with Session(engine) as session:
+        senha_repo = SenhaRepository(session)
+        esus_gateway = MockEsusGateway()
+        
+        sync_engine = SyncEngine(senha_repo=senha_repo, esus_gateway=esus_gateway)
+        await sync_engine.start(interval_seconds=10)
+    
+    yield
+    
+    # Shutdown
+    logging.info("Parando serviços...")
+    if sync_engine:
+        await sync_engine.stop()
 
 app = FastAPI(
     title="SUSpicious Totem API",
     description="API do totem de autoatendimento para Unidades Básicas de Saúde (UBS).",
     version="0.1.0",
+    lifespan=lifespan,
 )
 
 app.include_router(api_router, prefix="/api")

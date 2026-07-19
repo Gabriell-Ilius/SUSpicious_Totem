@@ -1,12 +1,24 @@
 import React, { useState, useEffect } from 'react';
-import { Activity, Clock } from 'lucide-react';
+import { Activity, Clock, WifiOff } from 'lucide-react';
 
 const Header = () => {
   const [time, setTime] = useState(new Date());
+  const [isOffline, setIsOffline] = useState(!navigator.onLine);
 
   useEffect(() => {
     const timer = setInterval(() => setTime(new Date()), 1000);
-    return () => clearInterval(timer);
+    
+    const handleOnline = () => setIsOffline(false);
+    const handleOffline = () => setIsOffline(true);
+    
+    window.addEventListener('online', handleOnline);
+    window.addEventListener('offline', handleOffline);
+    
+    return () => {
+      clearInterval(timer);
+      window.removeEventListener('online', handleOnline);
+      window.removeEventListener('offline', handleOffline);
+    };
   }, []);
 
   const formatTime = (date) => {
@@ -27,13 +39,20 @@ const Header = () => {
         </div>
       </div>
       
-      <div className="header-time" style={{ textAlign: 'right' }}>
-        <div style={{ display: 'flex', alignItems: 'center', gap: '8px', justifyContent: 'flex-end' }}>
-          <Clock size={20} />
-          <span>{formatTime(time)}</span>
-        </div>
-        <div style={{ fontSize: '14px', fontWeight: 'normal', textTransform: 'capitalize' }}>
-          {formatDate(time)}
+      <div className="header-right" style={{ display: 'flex', alignItems: 'center', gap: '16px' }}>
+        {isOffline && (
+          <div style={{ display: 'flex', alignItems: 'center', gap: '8px', color: '#fff', backgroundColor: '#e53e3e', padding: '8px 16px', borderRadius: 'var(--radius-md)', fontWeight: 'bold' }}>
+            <WifiOff size={24} /> Offline (Sincronização Pausada)
+          </div>
+        )}
+        <div className="header-time" style={{ textAlign: 'right' }}>
+          <div style={{ display: 'flex', alignItems: 'center', gap: '8px', justifyContent: 'flex-end' }}>
+            <Clock size={20} />
+            <span>{formatTime(time)}</span>
+          </div>
+          <div style={{ fontSize: '14px', fontWeight: 'normal', textTransform: 'capitalize' }}>
+            {formatDate(time)}
+          </div>
         </div>
       </div>
     </header>

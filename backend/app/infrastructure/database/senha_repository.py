@@ -47,3 +47,9 @@ class SenhaRepository(SenhaRepositoryPort):
             Senha.data_hora_chamada.desc()
         ).limit(limite)
         return list(self.session.exec(statement).all())
+
+    def listar_nao_sincronizadas(self) -> list[Senha]:
+        statement = select(Senha).where(Senha.status_sincronizacao == False).order_by(
+            Senha.data_hora_emissao.asc()
+        )
+        return list(self.session.exec(statement).all())
