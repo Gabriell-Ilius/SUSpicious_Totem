@@ -41,3 +41,9 @@ class SenhaRepository(SenhaRepositoryPort):
             Senha.data_hora_emissao.asc()
         )
         return list(self.session.exec(statement).all())
+
+    def listar_ultimas_chamadas(self, limite: int = 4) -> list[Senha]:
+        statement = select(Senha).where(Senha.status == StatusSenha.CHAMADA).order_by(
+            Senha.data_hora_chamada.desc()
+        ).limit(limite)
+        return list(self.session.exec(statement).all())

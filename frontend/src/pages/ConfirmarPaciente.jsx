@@ -7,16 +7,10 @@ import BigButton from '../components/BigButton';
 const ConfirmarPaciente = () => {
   const navigate = useNavigate();
   const location = useLocation();
-  const { tipoAtendimento } = location.state || { tipoAtendimento: 'ESPONTANEA' };
-
-  // Dados mockados para o Marco 2
-  const pacienteMock = {
-    nome: "MARIA JOÃO DA SILVA",
-    cns: "7012 3456 7890 123"
-  };
+  const { tipoAtendimento, paciente } = location.state || { tipoAtendimento: 'ESPONTANEA', paciente: null };
 
   const handleConfirmar = () => {
-    navigate('/senha', { state: { tipoAtendimento } });
+    navigate('/senha', { state: { tipoAtendimento, cpf: paciente?.cpf } });
   };
 
   const handleCorrigir = () => {
@@ -36,10 +30,10 @@ const ConfirmarPaciente = () => {
 
       <div className="glass-panel" style={{ padding: '40px', borderRadius: 'var(--radius-lg)', width: '100%', maxWidth: '600px', textAlign: 'center' }}>
         <h1 style={{ fontSize: '36px', color: 'var(--text-primary)', marginBottom: '16px' }}>
-          {pacienteMock.nome}
+          {paciente ? paciente.nome_completo : "Paciente Desconhecido"}
         </h1>
         <div style={{ fontSize: '20px', color: 'var(--text-secondary)', display: 'flex', justifyContent: 'center', gap: '8px' }}>
-          <strong>CNS:</strong> {pacienteMock.cns}
+          <strong>CNS:</strong> {paciente ? paciente.cartao_sus : "N/A"}
         </div>
       </div>
 

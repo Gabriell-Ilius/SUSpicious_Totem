@@ -7,9 +7,11 @@ class ConsultarFilaAtualUseCase:
 
     def execute(self) -> dict:
         aguardando = self.senha_repo.listar_fila_atual()
+        ultimas_chamadas = self.senha_repo.listar_ultimas_chamadas()
         
         resumo = {
             "total_aguardando": len(aguardando),
-            "senhas": aguardando
+            "senhas": aguardando,
+            "ultimas_chamadas": ultimas_chamadas
         }
         return resumo

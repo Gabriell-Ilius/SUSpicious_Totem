@@ -22,10 +22,10 @@ gantt
     Frontend (Telas do Kiosk)                :done, m2, after m1, 4d
 
     section Marco 3
-    Integração Front ↔ Back                  :active, m3, after m2, 2d
+    Integração Front ↔ Back                  :done, m3, after m2, 2d
 
     section Marco 4
-    Offline-First + e-SUS                    :m4, after m3, 3d
+    Offline-First + e-SUS                    :active, m4, after m3, 3d
 
     section Marco 5
     Hardware (Impressora + Pi)               :m5, after m4, 2d
@@ -130,18 +130,16 @@ Todas as 7 telas navegáveis com dados mockados. Visual aprovado pela equipe. Fu
 
 ---
 
-## Marco 3 — Integração Frontend ↔ Backend 🔗
+## Marco 3 — Integração Front ↔ Back 🔗 ✅ CONCLUÍDO
 > **Objetivo:** Frontend consome a API real do FastAPI. Fluxo completo funciona no navegador.
 
 ### Entregáveis
-- [ ] Camada `services/` no frontend (Axios ou Fetch)
-  - `senhaService.js` — `gerarSenha()`, `chamarProxima()`
-  - `pacienteService.js` — `buscarPorCPF()`, `cadastrar()`
-  - `filaService.js` — `consultarFilas()`
-- [ ] Conectar cada tela ao serviço correspondente
-- [ ] Tratamento de erros na UI (tela de erro quando API falha)
-- [ ] Loading states (spinner enquanto busca paciente)
-- [ ] **CORS** configurado no FastAPI para aceitar requests do frontend
+- [x] Configurar requisições HTTP (`axios` ou `fetch`) no frontend com tratativa de CORS.
+- [x] Telas disparando os *Use Cases* reais da API (`POST /senhas`, `GET /pacientes/{cpf}`).
+- [x] Painel de Senhas atualizando via *polling* a cada N segundos (`GET /filas`).
+- [x] Tratamento de erros de rede (mostrar tela de erro/aviso de impressora).
+- [x] Loading states (spinner enquanto busca paciente)
+- [x] **CORS** configurado no FastAPI para aceitar requests do frontend
 
 ### Fluxo E2E Testável
 ```
@@ -229,7 +227,7 @@ Totem funcional, estável 24h+, com documentação completa. Pronto para apresen
 | **0** | Fundação | Esqueleto de pastas, configs, "Hello World" | ✅ Concluído |
 | **1** | Backend Core | API + Banco + Regras de Negócio | ✅ Concluído |
 | **2** | Frontend | Todas as telas visuais do totem | ✅ Concluído |
-| **3** | Integração | Frontend consumindo API real | 🔄 Próximo |
-| **4** | Offline + e-SUS | PWA, sync engine, integração LEDI | ⏳ Pendente |
+| **3** | Integração | Frontend consumindo API real | ✅ Concluído |
+| **4** | Offline + e-SUS | PWA, sync engine, integração LEDI | 🔄 Próximo |
 | **5** | Hardware | Impressora real + deploy no Pi | ⏳ Pendente |
 | **6** | Polimento | Estabilidade, testes, documentação final | ⏳ Pendente |

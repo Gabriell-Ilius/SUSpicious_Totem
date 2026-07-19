@@ -1,36 +1,41 @@
 import React, { useState, useEffect } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
+import filaService from '../services/filaService';
 
 const PainelSenhas = () => {
-  // Mock data for Marco 2
-  const [senhas, setSenhas] = useState([
-    { id: 1, codigo: 'AGE-042', guiche: 'Guichê 03' },
-    { id: 2, codigo: 'ESP-102', guiche: 'Consultório 01' },
-    { id: 3, codigo: 'VAC-015', guiche: 'Sala de Vacina' },
-    { id: 4, codigo: 'ESP-101', guiche: 'Consultório 02' },
-  ]);
-
-  const [ultimaChamada, setUltimaChamada] = useState(senhas[0]);
-  const historico = senhas.slice(1, 4);
+  const [ultimaChamada, setUltimaChamada] = useState(null);
+  const [historico, setHistorico] = useState([]);
 
   useEffect(() => {
-    // Simula uma nova chamada a cada 10 segundos
-    const timer = setInterval(() => {
-      setSenhas(prev => {
-        const newId = prev.length + 1;
-        const newSenha = { id: newId, codigo: `AGE-0${42 + newId}`, guiche: `Guichê 0${(newId % 4) + 1}` };
-        const newState = [newSenha, ...prev].slice(0, 4);
-        setUltimaChamada(newState[0]);
-        return newState;
-      });
-      
-      // Toca um som de notificação (simulado)
-      // const audio = new Audio('/notificacao.mp3');
-      // audio.play();
-    }, 10000);
+    const fetchFila = async () => {
+      try {
+        const data = await filaService.consultarFilas();
+        
+        if (data.ultimas_chamadas && data.ultimas_chamadas.length > 0) {
+          setUltimaChamada(data.ultimas_chamadas[0]);
+          setHistorico(data.ultimas_chamadas.slice(1, 4));
+        } else {
+          setUltimaChamada(null);
+          setHistorico([]);
+        }
+      } catch (error) {
+        console.error("Erro ao buscar fila", error);
+      }
+    };
+
+    fetchFila(); // call immediately on mount
+    const timer = setInterval(fetchFila, 5000); // pool every 5s
 
     return () => clearInterval(timer);
   }, []);
+
+  if (!ultimaChamada) {
+    return (
+      <div style={{ display: 'flex', height: '100vh', backgroundColor: '#000', justifyContent: 'center', alignItems: 'center', color: 'white', fontSize: '32px' }}>
+        Nenhuma senha chamada ainda.
+      </div>
+    );
+  }
 
   return (
     <div style={{ display: 'flex', height: '100vh', backgroundColor: '#000' }}>
@@ -50,7 +55,7 @@ const PainelSenhas = () => {
               {ultimaChamada.codigo}
             </div>
             <div style={{ fontSize: '60px', fontWeight: 'bold', color: 'var(--sus-yellow)', marginTop: '40px' }}>
-              {ultimaChamada.guiche}
+              Consultório 01
             </div>
           </motion.div>
         </AnimatePresence>
@@ -74,7 +79,7 @@ const PainelSenhas = () => {
                 style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', padding: '24px', background: 'var(--bg-primary)', borderRadius: 'var(--radius-md)' }}
               >
                 <div style={{ fontSize: '48px', fontWeight: 'bold', color: 'var(--text-primary)' }}>{senha.codigo}</div>
-                <div style={{ fontSize: '24px', color: 'var(--text-secondary)' }}>{senha.guiche}</div>
+                <div style={{ fontSize: '24px', color: 'var(--text-secondary)' }}>Consultório 01</div>
               </motion.div>
             ))}
           </AnimatePresence>

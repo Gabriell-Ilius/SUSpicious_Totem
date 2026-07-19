@@ -24,3 +24,8 @@ class SenhaRepositoryPort(ABC):
     def listar_fila_atual(self) -> list[Senha]:
         """Retorna todas as senhas que estão aguardando."""
         ...
+
+    @abstractmethod
+    def listar_ultimas_chamadas(self, limite: int = 4) -> list[Senha]:
+        """Retorna as últimas senhas chamadas (histórico para o painel)."""
+        ...

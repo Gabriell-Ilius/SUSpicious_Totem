@@ -1,26 +1,50 @@
-import React, { useEffect } from 'react';
+import React, { useEffect, useState } from 'react';
 import { useNavigate, useLocation } from 'react-router-dom';
 import { motion } from 'framer-motion';
+import { Loader2 } from 'lucide-react';
 import SenhaCard from '../components/SenhaCard';
+import senhaService from '../services/senhaService';
 
 const SenhaGerada = () => {
   const navigate = useNavigate();
   const location = useLocation();
-  const { tipoAtendimento } = location.state || { tipoAtendimento: 'ESPONTANEA' };
+  const { tipoAtendimento, cpf } = location.state || { tipoAtendimento: 'ESPONTANEA', cpf: null };
 
-  // Mock de senha gerada (no Marco 3 isso virá da API)
-  const senhaMock = {
-    codigo: tipoAtendimento === 'AGENDADA' ? 'AGE-042' : 'ESP-103',
-    tipo: tipoAtendimento
-  };
+  const [senha, setSenha] = useState(null);
+  const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    // Redireciona para o QR Code de triagem após exibir a senha por 6 segundos
-    const timer = setTimeout(() => {
-      navigate('/qrcode');
-    }, 6000);
+    let timer;
+    const fetchSenha = async () => {
+      try {
+        const data = await senhaService.gerarSenha(tipoAtendimento, cpf);
+        setSenha(data);
+        
+        // Redireciona para o QR Code de triagem após exibir a senha por 6 segundos
+        timer = setTimeout(() => {
+          navigate('/qrcode');
+        }, 6000);
+      } catch (error) {
+        console.error("Erro ao gerar senha", error);
+        navigate('/error');
+      } finally {
+        setLoading(false);
+      }
+    };
+    
+    fetchSenha();
+
     return () => clearTimeout(timer);
-  }, [navigate]);
+  }, [navigate, tipoAtendimento, cpf]);
+
+  if (loading) {
+    return (
+      <div className="page-container" style={{ justifyContent: 'center', height: '100%' }}>
+        <Loader2 size={64} className="animate-spin" color="var(--sus-blue)" />
+        <h2 style={{ color: 'var(--text-secondary)', marginTop: '20px' }}>Gerando sua senha...</h2>
+      </div>
+    );
+  }
 
   return (
     <motion.div 
@@ -39,7 +63,7 @@ const SenhaGerada = () => {
         <p className="page-subtitle">Retire a sua ficha na impressora logo abaixo.</p>
       </div>
 
-      <SenhaCard codigo={senhaMock.codigo} tipo={senhaMock.tipo} highlight={true} />
+      <SenhaCard codigo={senha.codigo} tipo={senha.tipo_atendimento} highlight={true} />
 
     </motion.div>
   );

@@ -1,14 +1,16 @@
 import React, { useState } from 'react';
 import { useNavigate, useLocation } from 'react-router-dom';
 import { motion } from 'framer-motion';
-import { ChevronLeft, CheckCircle2 } from 'lucide-react';
+import { ChevronLeft, CheckCircle2, Loader2 } from 'lucide-react';
 import NumPad from '../components/NumPad';
 import BigButton from '../components/BigButton';
+import pacienteService from '../services/pacienteService';
 
 const InserirCPF = () => {
   const navigate = useNavigate();
   const location = useLocation();
   const [cpf, setCpf] = useState('');
+  const [loading, setLoading] = useState(false);
   
   const tipoAtendimento = location.state?.tipoAtendimento || 'ESPONTANEA';
 
@@ -28,13 +30,25 @@ const InserirCPF = () => {
     navigate('/');
   };
 
-  const handleContinuar = () => {
+  const handleContinuar = async () => {
     if (cpf.length === 11) {
-      // Mock logic: se preencheu tudo, vai para confirmar. 
-      // No Marco 3 chamará API.
-      navigate('/confirmar', { state: { cpf, tipoAtendimento } });
+      setLoading(true);
+      try {
+        const paciente = await pacienteService.buscarPorCPF(cpf);
+        if (paciente) {
+          navigate('/confirmar', { state: { paciente, tipoAtendimento } });
+        } else {
+          // Se não encontrou, podemos prosseguir emitindo senha sem paciente
+          // (Ou mostrar mensagem de erro. No momento, o fluxo original pulava).
+          navigate('/senha', { state: { tipoAtendimento, cpf } });
+        }
+      } catch (error) {
+        console.error("Erro na API", error);
+        navigate('/error');
+      } finally {
+        setLoading(false);
+      }
     } else if (cpf.length === 0) {
-      // Permite emitir senha sem CPF (paciente não sabe)
       navigate('/senha', { state: { tipoAtendimento } });
     }
   };
@@ -80,8 +94,11 @@ const InserirCPF = () => {
           className="big-button primary" 
           style={{ flex: 1, justifyContent: 'center', height: '80px', backgroundColor: cpf.length === 11 ? 'var(--sus-green)' : 'var(--sus-blue)' }}
           onClick={handleContinuar}
+          disabled={loading}
         >
-          {cpf.length === 11 ? (
+          {loading ? (
+            <><Loader2 size={32} className="animate-spin" /> Buscando...</>
+          ) : cpf.length === 11 ? (
             <><CheckCircle2 size={32} /> Confirmar CPF</>
           ) : (
             cpf.length === 0 ? "Não tenho / Pular" : "Preencha 11 dígitos"
