@@ -19,10 +19,10 @@ gantt
     Backend Core (API + Banco)               :done, m1, after m0, 3d
 
     section Marco 2
-    Frontend (Telas do Kiosk)                :active, m2, after m1, 4d
+    Frontend (Telas do Kiosk)                :done, m2, after m1, 4d
 
     section Marco 3
-    Integração Front ↔ Back                  :m3, after m2, 2d
+    Integração Front ↔ Back                  :active, m3, after m2, 2d
 
     section Marco 4
     Offline-First + e-SUS                    :m4, after m3, 3d
@@ -97,7 +97,7 @@ Consegue gerar senhas, chamar filas e buscar pacientes via `curl` ou Swagger (`/
 
 ---
 
-## Marco 2 — Frontend (Telas do Kiosk) 🎨
+## Marco 2 — Frontend (Telas do Kiosk) 🎨 ✅ CONCLUÍDO
 > **Objetivo:** Todas as telas do totem navegáveis, com dados mockados no frontend. Visual finalizado.
 
 ### Telas
@@ -113,17 +113,17 @@ Consegue gerar senhas, chamar filas e buscar pacientes via `curl` ou Swagger (`/
 | 7 | **Tela de Erro** | Mensagem amigável quando a impressora falha ou o sistema está offline |
 
 ### Componentes Reutilizáveis
-- [ ] `BigButton` — Botão touchscreen de alto contraste (min 80px altura)
-- [ ] `NumPad` — Teclado numérico virtual
-- [ ] `SenhaCard` — Card exibindo senha com animação de destaque
-- [ ] `Header` — Cabeçalho com logo SUS e nome da UBS
-- [ ] `InactivityTimer` — Volta à tela Home após 60s sem interação
+- [x] `BigButton` — Botão touchscreen de alto contraste (min 80px altura)
+- [x] `NumPad` — Teclado numérico virtual
+- [x] `SenhaCard` — Card exibindo senha com animação de destaque
+- [x] `Header` — Cabeçalho com logo SUS e nome da UBS
+- [x] `InactivityTimer` — Volta à tela Home após 60s sem interação
 
 ### Design
-- [ ] Paleta de cores acessível (alto contraste WCAG AA)
-- [ ] Fontes grandes sem serifa (mínimo 18px corpo, 32px títulos)
-- [ ] Animações de transição entre telas (fade/slide suaves)
-- [ ] Layout fullscreen sem scrollbar (Kiosk Mode)
+- [x] Paleta de cores acessível (alto contraste WCAG AA)
+- [x] Fontes grandes sem serifa (mínimo 18px corpo, 32px títulos)
+- [x] Animações de transição entre telas (fade/slide suaves)
+- [x] Layout fullscreen sem scrollbar (Kiosk Mode)
 
 ### ✅ Critério de Conclusão
 Todas as 7 telas navegáveis com dados mockados. Visual aprovado pela equipe. Funciona em tela cheia no Chromium.
@@ -228,8 +228,8 @@ Totem funcional, estável 24h+, com documentação completa. Pronto para apresen
 |:------|:-----|:---------------|:-------|
 | **0** | Fundação | Esqueleto de pastas, configs, "Hello World" | ✅ Concluído |
 | **1** | Backend Core | API + Banco + Regras de Negócio | ✅ Concluído |
-| **2** | Frontend | Todas as telas visuais do totem | 🔄 Próximo |
-| **3** | Integração | Frontend consumindo API real | ⏳ Pendente |
+| **2** | Frontend | Todas as telas visuais do totem | ✅ Concluído |
+| **3** | Integração | Frontend consumindo API real | 🔄 Próximo |
 | **4** | Offline + e-SUS | PWA, sync engine, integração LEDI | ⏳ Pendente |
 | **5** | Hardware | Impressora real + deploy no Pi | ⏳ Pendente |
 | **6** | Polimento | Estabilidade, testes, documentação final | ⏳ Pendente |
