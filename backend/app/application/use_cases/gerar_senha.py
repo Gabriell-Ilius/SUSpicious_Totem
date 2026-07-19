@@ -30,10 +30,15 @@ class GerarSenhaUseCase:
         senha_salva = self.senha_repo.salvar(nova_senha)
         
         # Imprime a ficha
-        self.printer.imprimir_senha(
+        sucesso = self.printer.imprimir_senha(
             codigo=senha_salva.codigo,
             tipo=senha_salva.tipo_atendimento.value,
-            data_hora=senha_salva.data_hora_emissao.strftime("%d/%m/%Y %H:%M:%S")
+            data_hora=senha_salva.data_hora_emissao.strftime("%d/%m/%Y %H:%M:%S"),
+            senha_id=str(senha_salva.id)
         )
+        
+        if not sucesso:
+            from fastapi import HTTPException
+            raise HTTPException(status_code=503, detail="Falha na impressora. Sem papel ou desconectada.")
         
         return senha_salva

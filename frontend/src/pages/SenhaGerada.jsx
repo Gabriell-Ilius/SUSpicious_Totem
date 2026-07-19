@@ -26,7 +26,11 @@ const SenhaGerada = () => {
         }, 6000);
       } catch (error) {
         console.error("Erro ao gerar senha", error);
-        navigate('/error');
+        if (error.response && error.response.status === 503) {
+          navigate('/error-impressora');
+        } else {
+          navigate('/error');
+        }
       } finally {
         setLoading(false);
       }

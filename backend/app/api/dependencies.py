@@ -5,7 +5,9 @@ from app.infrastructure.database.session import get_session
 from app.infrastructure.database.senha_repository import SenhaRepository
 from app.infrastructure.database.paciente_repository import PacienteRepository
 from app.infrastructure.hardware.mock_printer import MockPrinter
+from app.infrastructure.external.escpos_printer import EscPosPrinter
 from app.infrastructure.external.mock_esus_gateway import MockEsusGateway
+from app.core.config import settings
 
 from app.application.use_cases.gerar_senha import GerarSenhaUseCase
 from app.application.use_cases.validar_cpf import ValidarCPFUseCase
@@ -15,6 +17,8 @@ from app.application.use_cases.consultar_fila_atual import ConsultarFilaAtualUse
 # --- Infra providers ---
 
 def get_printer():
+    if settings.PRINTER_MODE == "escpos":
+        return EscPosPrinter()
     return MockPrinter()
 
 def get_esus_gateway():

@@ -12,8 +12,8 @@ class PrinterPort(ABC):
     """Porta de saída para impressão de senhas."""
 
     @abstractmethod
-    def imprimir_senha(self, codigo: str, tipo: str, data_hora: str) -> None:
-        """Imprime uma senha na impressora térmica (ou simula no terminal)."""
+    def imprimir_senha(self, codigo: str, tipo: str, data_hora: str, senha_id: str = None) -> bool:
+        """Imprime uma senha na impressora térmica (ou simula no terminal). Retorna True se sucesso."""
         ...
 
     @abstractmethod

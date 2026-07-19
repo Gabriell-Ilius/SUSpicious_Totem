@@ -6,6 +6,7 @@ Inicializa o servidor, registra os routers e configura CORS.
 
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
+from fastapi.staticfiles import StaticFiles
 import logging
 from contextlib import asynccontextmanager
 from sqlmodel import Session
@@ -48,6 +49,14 @@ app = FastAPI(
 )
 
 app.include_router(api_router, prefix="/api")
+
+# Servir os arquivos estáticos do frontend em modo de produção
+import os
+frontend_dist = os.path.join(os.path.dirname(__file__), "..", "frontend", "dist")
+if os.path.exists(frontend_dist):
+    app.mount("/", StaticFiles(directory=frontend_dist, html=True), name="frontend")
+else:
+    logging.warning("Diretório frontend/dist não encontrado. Servindo apenas a API.")
 
 # CORS — permite que o frontend (Vite dev server) acesse a API
 app.add_middleware(

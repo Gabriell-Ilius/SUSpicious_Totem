@@ -12,6 +12,7 @@ import SenhaGerada from './pages/SenhaGerada';
 import QRCodeTriagem from './pages/QRCodeTriagem';
 import PainelSenhas from './pages/PainelSenhas';
 import ErrorPage from './pages/ErrorPage';
+import ErrorPrinter from './pages/ErrorPrinter';
 
 function App() {
   const location = useLocation();
@@ -32,6 +33,7 @@ function App() {
               <Route path="/senha" element={<SenhaGerada />} />
               <Route path="/qrcode" element={<QRCodeTriagem />} />
               <Route path="/painel" element={<PainelSenhas />} />
+              <Route path="/error-impressora" element={<ErrorPrinter />} />
               <Route path="*" element={<ErrorPage />} />
             </Routes>
           </AnimatePresence>

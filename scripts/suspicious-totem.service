@@ -1,0 +1,19 @@
+[Unit]
+Description=SUSpicious Totem Backend & Frontend
+After=network.target
+StartLimitIntervalSec=0
+
+[Service]
+Type=simple
+Restart=always
+RestartSec=1
+User=pi
+WorkingDirectory=/home/pi/SUSpicious/backend
+
+# Como o npm roda solto, a melhor forma de iniciar ambos no boot:
+# Criaremos um mini script ou iniciaremos direto.
+# Neste exemplo, iniciamos o Uvicorn. O frontend pode ser built e servido pelo fastapi (StaticFiles).
+ExecStart=/home/pi/SUSpicious/backend/venv/bin/uvicorn main:app --host 0.0.0.0 --port 8000
+
+[Install]
+WantedBy=multi-user.target

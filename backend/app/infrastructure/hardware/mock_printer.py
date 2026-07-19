@@ -11,15 +11,17 @@ from app.application.ports.printer_port import PrinterPort
 class MockPrinter(PrinterPort):
     """Simulação da impressora térmica para ambiente de desenvolvimento."""
 
-    def imprimir_senha(self, codigo: str, tipo: str, data_hora: str) -> None:
-        """Imprime a senha no terminal."""
-        print("=" * 40)
-        print("   🖨️  [MOCK PRINTER] Senha Impressa")
-        print("=" * 40)
-        print(f"   Código:    {codigo}")
-        print(f"   Tipo:      {tipo}")
-        print(f"   Data/Hora: {data_hora}")
-        print("=" * 40)
+    def imprimir_senha(self, codigo: str, tipo: str, data_hora: str, senha_id: str = None) -> bool:
+        print("\n" + "="*30)
+        print(f"| SUSpicious Totem            |")
+        print(f"|-----------------------------|")
+        print(f"| SENHA: {codigo.ljust(21)}|")
+        print(f"| TIPO:  {tipo.ljust(21)}|")
+        print(f"| DATA:  {data_hora.ljust(21)}|")
+        if senha_id:
+            print(f"| QRCODE: {senha_id.ljust(20)}|")
+        print("="*30 + "\n")
+        return True
         print()
 
     def verificar_conexao(self) -> bool:

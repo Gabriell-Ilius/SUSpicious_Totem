@@ -28,10 +28,10 @@ gantt
     Offline-First + e-SUS                    :done, m4, after m3, 3d
 
     section Marco 5
-    Hardware (Impressora + Pi)               :active, m5, after m4, 2d
+    Hardware (Impressora + Pi)               :done, m5, after m4, 2d
 
     section Marco 6
-    Deploy + Polimento                       :m6, after m5, 2d
+    Deploy + Polimento                       :active, m6, after m5, 2d
 ```
 
 ---
@@ -180,23 +180,23 @@ Desligar o Wi-Fi do computador → gerar senhas normalmente → religar Wi-Fi �
 
 ---
 
-## Marco 5 — Hardware (Impressora + Raspberry Pi) 🖨️
+## Marco 5 — Hardware (Impressora + Raspberry Pi) 🖨️ ✅ CONCLUÍDO
 > **Objetivo:** O sistema imprime senhas reais e roda no Raspberry Pi.
 
 ### Entregáveis
 
 #### Impressora
-- [ ] `EscPosPrinter` — implementação real com `python-escpos`
-- [ ] Layout da senha impressa (código, tipo, data/hora, QR code para triagem)
-- [ ] Detecção de impressora desconectada → tela de erro amigável
-- [ ] Regra `udev` configurada
+- [x] `EscPosPrinter` — implementação real com `python-escpos`
+- [x] Layout da senha impressa (código, tipo, data/hora, QR code para triagem)
+- [x] Detecção de impressora desconectada → tela de erro amigável
+- [x] Regra `udev` configurada
 
 #### Raspberry Pi
-- [ ] Testar sistema completo no Pi (backend + frontend)
-- [ ] Chromium em Kiosk Mode apontando para `localhost`
-- [ ] Configurar `tmpfs` para proteger cartão SD
-- [ ] Script de inicialização automática (systemd service)
-- [ ] Desabilitar screen saver e DPMS
+- [x] Testar sistema completo no Pi (backend + frontend)
+- [x] Chromium em Kiosk Mode apontando para `localhost`
+- [x] Configurar `tmpfs` para proteger cartão SD
+- [x] Script de inicialização automática (systemd service)
+- [x] Desabilitar screen saver e DPMS
 
 ### ✅ Critério de Conclusão
 Ligar o Raspberry Pi → sistema inicia automaticamente → tela touch funcional → gerar senha → senha sai na impressora térmica.
@@ -229,5 +229,5 @@ Totem funcional, estável 24h+, com documentação completa. Pronto para apresen
 | **2** | Frontend | Todas as telas visuais do totem | ✅ Concluído |
 | **3** | Integração | Frontend consumindo API real | ✅ Concluído |
 | **4** | Offline + e-SUS | PWA, sync engine, integração LEDI | ✅ Concluído |
-| **5** | Hardware | Impressora real + deploy no Pi | 🔄 Próximo |
-| **6** | Polimento | Estabilidade, testes, documentação final | ⏳ Pendente |
+| **5** | Hardware | Impressora real + deploy no Pi | ✅ Concluído |
+| **6** | Polimento | Estabilidade, testes, documentação final | 🔄 Próximo |
