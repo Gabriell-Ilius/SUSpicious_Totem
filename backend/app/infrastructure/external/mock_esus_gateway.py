@@ -12,7 +12,7 @@ from app.application.ports.esus_gateway_port import EsusGatewayPort
 class MockEsusGateway(EsusGatewayPort):
     """Simulação da API do e-SUS PEC para ambiente de desenvolvimento."""
 
-    async def verificar_paciente(self, cpf: str) -> Optional[dict]:
+    def buscar_paciente(self, cpf: str) -> Optional[dict]:
         """Retorna um paciente fictício para qualquer CPF válido."""
         return {
             "cpf": cpf,
@@ -21,11 +21,11 @@ class MockEsusGateway(EsusGatewayPort):
             "data_nascimento": "1990-01-01",
         }
 
-    async def enviar_registro(self, registro: dict) -> bool:
+    def enviar_registro(self, registro: dict) -> bool:
         """Simula envio bem-sucedido."""
         print(f"[MOCK e-SUS] Registro enviado: {registro.get('tipo', 'N/A')}")
         return True
 
-    async def verificar_conexao(self) -> bool:
+    def verificar_conexao(self) -> bool:
         """Mock sempre retorna True."""
         return True

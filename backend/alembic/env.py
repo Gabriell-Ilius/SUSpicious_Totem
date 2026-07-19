@@ -14,10 +14,8 @@ from alembic import context
 from sqlmodel import SQLModel
 
 # Importar todos os modelos aqui para que o Alembic os detecte
-# (serão adicionados no Marco 1 quando criarmos as entidades)
-# from app.domain.paciente import Paciente
-# from app.domain.senha import Senha
-# from app.domain.fila import Fila
+from app.domain.paciente import Paciente
+from app.domain.senha import Senha
 
 from app.core.config import settings
 

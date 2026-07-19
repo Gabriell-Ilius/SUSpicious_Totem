@@ -1,1 +1,9 @@
-"""SUSpicious Totem — Entidades de domínio (modelos puros, sem dependências externas)."""
+from .paciente import Paciente
+from .senha import Senha, StatusSenha, TipoAtendimento
+
+__all__ = [
+    "Paciente",
+    "Senha",
+    "StatusSenha",
+    "TipoAtendimento",
+]

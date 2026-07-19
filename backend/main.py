@@ -7,6 +7,7 @@ Inicializa o servidor, registra os routers e configura CORS.
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 
+from app.api import api_router
 from app.core.config import settings
 
 app = FastAPI(
@@ -14,6 +15,8 @@ app = FastAPI(
     description="API do totem de autoatendimento para Unidades Básicas de Saúde (UBS).",
     version="0.1.0",
 )
+
+app.include_router(api_router, prefix="/api")
 
 # CORS — permite que o frontend (Vite dev server) acesse a API
 app.add_middleware(

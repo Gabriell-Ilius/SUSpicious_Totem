@@ -16,10 +16,10 @@ gantt
     Fundação (esqueleto + configs)           :done, m0, 2026-07-19, 1d
 
     section Marco 1
-    Backend Core (API + Banco)               :active, m1, after m0, 3d
+    Backend Core (API + Banco)               :done, m1, after m0, 3d
 
     section Marco 2
-    Frontend (Telas do Kiosk)                :m2, after m1, 4d
+    Frontend (Telas do Kiosk)                :active, m2, after m1, 4d
 
     section Marco 3
     Integração Front ↔ Back                  :m3, after m2, 2d
@@ -61,36 +61,36 @@ Backend roda com `uvicorn` e responde no `/health`. Frontend roda com `npm run d
 
 ---
 
-## Marco 1 — Backend Core (API + Banco) 🧠
+## Marco 1 — Backend Core (API + Banco) 🧠 ✅ CONCLUÍDO
 > **Objetivo:** API funcional com as regras de negócio principais, usando MockPrinter.
 
 ### Entregáveis
 
 #### Domain (Entidades)
-- [ ] `Paciente` — CPF, nome, CNS (Cartão Nacional de Saúde), data de nascimento
-- [ ] `Senha` — UUID, código legível (ex: `CE-001`), tipo (consulta/vacinação/espontânea), prioridade, status, timestamp
-- [ ] `Fila` — tipo de atendimento, lista de senhas, senha atual
+- [x] `Paciente` — CPF, nome, CNS (Cartão Nacional de Saúde), data de nascimento
+- [x] `Senha` — UUID, código legível (ex: `CE-001`), tipo (consulta/vacinação/espontânea), prioridade, status, timestamp
+- [x] `Fila` — tipo de atendimento, lista de senhas, senha atual
 
 #### Application (Casos de Uso)
-- [ ] `GerarSenha` — Recebe tipo de atendimento → gera próxima senha → salva no banco → chama PrinterPort
-- [ ] `ValidarCPF` — Valida formato → busca no banco local → retorna paciente ou None
-- [ ] `ChamarProximaSenha` — Avança a fila → retorna a senha chamada
-- [ ] `ConsultarFilaAtual` — Retorna estado atual de todas as filas
+- [x] `GerarSenha` — Recebe tipo de atendimento → gera próxima senha → salva no banco → chama PrinterPort
+- [x] `ValidarCPF` — Valida formato → busca no banco local → retorna paciente ou None
+- [x] `ChamarProximaSenha` — Avança a fila → retorna a senha chamada
+- [x] `ConsultarFilaAtual` — Retorna estado atual de todas as filas
 
 #### Infrastructure
-- [ ] `PacienteRepository` (SQLModel + SQLite)
-- [ ] `SenhaRepository`
+- [x] `PacienteRepository` (SQLModel + SQLite)
+- [x] `SenhaRepository`
 
 #### API (Endpoints REST)
-- [ ] `POST /senhas` — Gerar nova senha
-- [ ] `GET /senhas/proxima` — Chamar próxima senha
-- [ ] `GET /filas` — Estado atual das filas
-- [ ] `GET /pacientes/{cpf}` — Buscar paciente por CPF
-- [ ] `POST /pacientes` — Cadastrar paciente
+- [x] `POST /senhas` — Gerar nova senha
+- [x] `GET /senhas/proxima` — Chamar próxima senha
+- [x] `GET /filas` — Estado atual das filas
+- [x] `GET /pacientes/{cpf}` — Buscar paciente por CPF
+- [x] `POST /pacientes` — Cadastrar paciente
 
 #### Testes
-- [ ] Testes unitários para `GerarSenha`, `ValidarCPF`, `ChamarProximaSenha`
-- [ ] Testes de integração para repositórios (SQLite in-memory)
+- [x] Testes unitários para `GerarSenha`, `ValidarCPF`, `ChamarProximaSenha`
+- [x] Testes de integração para repositórios (SQLite in-memory)
 
 ### ✅ Critério de Conclusão
 Consegue gerar senhas, chamar filas e buscar pacientes via `curl` ou Swagger (`/docs`). Todos os testes passam com `pytest`.
@@ -227,8 +227,8 @@ Totem funcional, estável 24h+, com documentação completa. Pronto para apresen
 | Marco | Nome | Foco Principal | Status |
 |:------|:-----|:---------------|:-------|
 | **0** | Fundação | Esqueleto de pastas, configs, "Hello World" | ✅ Concluído |
-| **1** | Backend Core | API + Banco + Regras de Negócio | 🔄 Próximo |
-| **2** | Frontend | Todas as telas visuais do totem | ⏳ Pendente |
+| **1** | Backend Core | API + Banco + Regras de Negócio | ✅ Concluído |
+| **2** | Frontend | Todas as telas visuais do totem | 🔄 Próximo |
 | **3** | Integração | Frontend consumindo API real | ⏳ Pendente |
 | **4** | Offline + e-SUS | PWA, sync engine, integração LEDI | ⏳ Pendente |
 | **5** | Hardware | Impressora real + deploy no Pi | ⏳ Pendente |
