@@ -13,10 +13,21 @@ import QRCodeTriagem from './pages/QRCodeTriagem';
 import PainelSenhas from './pages/PainelSenhas';
 import ErrorPage from './pages/ErrorPage';
 import ErrorPrinter from './pages/ErrorPrinter';
+import TriagemMobile from './pages/TriagemMobile';
 
 function App() {
   const location = useLocation();
   const isPainel = location.pathname === '/painel';
+
+  const isMobile = location.pathname.startsWith('/triagem');
+
+  if (isMobile) {
+    return (
+      <Routes location={location} key={location.pathname}>
+        <Route path="/triagem/:id" element={<TriagemMobile />} />
+      </Routes>
+    );
+  }
 
   return (
     <div className="app-container">
