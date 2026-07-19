@@ -2,6 +2,14 @@
 
 Bem-vindo ao repositório do **SUSpicious Totem**, uma solução inovadora de autoatendimento para Unidades Básicas de Saúde (UBS). Este projeto visa otimizar o fluxo de pacientes, reduzir filas e melhorar a experiência de acolhimento inicial no Sistema Único de Saúde (SUS).
 
+## 👥 Equipe SUSpicious
+
+| Integrante | Instituição |
+|:-----------|:------------|
+| **Arthur de Paula Dias** | UnB — Universidade de Brasília |
+| **Gabriell de Luccas Rego Lourenço** | UnB — Universidade de Brasília |
+| **Vinicius Carvalho Lima Alcanfor** | UnB — Universidade de Brasília |
+
 ## 🎯 O Projeto
 
 O sistema consiste em um totem interativo posicionado na entrada das UBSs. Ele opera integrado (ou com simulação de integração) ao e-SUS PEC e gerencia:
@@ -86,6 +94,10 @@ test: adiciona testes unitários para GerarSenha
 2. Desenvolva e commite seguindo o padrão acima.
 3. Abra um **Pull Request** para `develop`.
 4. Após revisão e aprovação, faça o merge.
+
+## 🗺️ Roadmap
+
+Consulte o [ROADMAP.md](./ROADMAP.md) para acompanhar os marcos de desenvolvimento e o progresso do projeto.
 
 ## 📄 Licença
 
