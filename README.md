@@ -59,11 +59,29 @@ npm run dev
 Desligue a rede Wi-Fi ou pare o Backend. O Frontend mostrará um *Badge Vermelho* de Sincronização Pausada, mas continuará emitindo senhas perfeitamente.
 
 ### 🖨️ Hardware & Kiosk (Raspberry Pi)
-Na pasta `scripts/`, você encontrará:
-- `setup_kiosk.sh`: Transforma o Pi em um totem 24/7 (kiosk mode, proteção de cartão SD em RAM, regras de impressora USB).
-- `suspicious-totem.service`: Serviço Linux para ligar a aplicação no boot.
 
-> **Nota:** No ambiente de desenvolvimento (Windows), a impressora e os pinos GPIO são simulados automaticamente via interfaces mock. Não é necessário ter o Raspberry Pi conectado.
+Se você tem um **Raspberry Pi com tela Touch Screen** e quer rodar o Totem fisicamente:
+
+#### Passo a Passo (Deploy Físico)
+1. Instale o **Raspberry Pi OS (com Desktop)** no seu MicroSD e conecte a tela touch no Pi.
+2. Ligue o Pi, conecte no Wi-Fi, abra o Terminal e clone este repositório.
+3. Conecte sua impressora térmica na porta USB do Pi.
+4. Execute o nosso script mágico de automação:
+   ```bash
+   cd SUSpicious_Totem
+   bash scripts/setup_kiosk.sh
+   ```
+5. O script instalará o navegador, desativará a proteção de tela, protegerá o seu SD card transferindo logs para a RAM (`tmpfs`), e criará as regras USB para a impressora.
+6. Crie o arquivo `.env` na pasta `backend` contendo `PRINTER_MODE=escpos`.
+7. Reinicie o Raspberry Pi. O sistema iniciará automaticamente em tela cheia (Kiosk Mode)!
+
+#### ⚠️ Pendências Futuras (Ajustes Físicos)
+Como o hardware exato varia por UBS, as seguintes configurações precisam de sintonia fina antes da entrega final no postinho:
+- **Modelo da Impressora:** No arquivo `backend/app/infrastructure/external/escpos_printer.py`, os valores `id_vendor` (0x04b8) e `id_product` (0x0202) representam uma Epson genérica. Eles devem ser trocados pelos IDs reais da impressora comprada (basta rodar `lsusb` no Raspberry Pi para descobrir).
+- **Domínio da Triagem:** O QR Code impresso no cupom está apontando para o IP de desenvolvimento local. Ele deverá ser atualizado para o URL público do sistema web da UBS.
+- **Credenciais do e-SUS:** A integração offline envia dados para o PEC. As senhas da API do e-SUS devem ser preenchidas no `.env` de produção.
+
+> **Nota:** No ambiente de desenvolvimento (Windows), a impressora é simulada automaticamente via interface mock. Não é necessário ter o Raspberry Pi conectado para programar.
 
 ## 🌐 Deploy no Raspberry Pi (Produção)
 
