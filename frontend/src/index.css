@@ -144,23 +144,26 @@ p {
 
 /* Big Button */
 .big-button {
-  width: 100%;
-  max-width: 600px;
-  height: 120px;
-  border-radius: var(--radius-lg);
+  background: var(--gradient-primary);
+  color: white;
   border: none;
-  background: var(--bg-secondary);
-  box-shadow: var(--shadow-sm);
+  border-radius: var(--radius-lg);
+  font-size: 24px;
+  font-weight: bold;
+  padding: 24px 40px;
+  cursor: pointer;
+  box-shadow: 0 8px 20px rgba(0, 86, 168, 0.3);
+  transition: all 0.2s cubic-bezier(0.25, 0.8, 0.25, 1);
   display: flex;
   align-items: center;
-  padding: 0 32px;
-  gap: 24px;
-  cursor: pointer;
-  transition: all 0.2s ease;
-  color: var(--text-primary);
-  font-size: 28px;
-  font-weight: 600;
-  font-family: inherit;
+  justify-content: space-between;
+  text-transform: uppercase;
+  letter-spacing: 1px;
+}
+
+.big-button:hover {
+  box-shadow: 0 12px 28px rgba(0, 86, 168, 0.4);
+  filter: brightness(1.05);
 }
 
 .big-button:active {

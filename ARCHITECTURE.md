@@ -12,6 +12,21 @@ A stack original propunha Flask + HTML/JS puro. Para um sistema de totem comerci
 2. **Backend de Alta Performance e Tipado:** O FastAPI substitui o Flask trazendo documentação automática (Swagger), validação de dados nativa (Pydantic) e suporte a requisições assíncronas nativas — essencial para não travar a fila enquanto a impressora imprime ou o e-SUS responde.
 3. **Hardware Isolado:** A comunicação com a impressora e o Raspberry Pi deve ser totalmente isolada das regras de negócio, permitindo desenvolver e testar no Windows sem hardware.
 
+## 🖨️ 4. Camada de Hardware (Totem Físico)
+
+O código roda embarcado em um **Raspberry Pi** no modo Kiosk (Chromium fullscreen).
+- **Impressão Térmica:** O backend utiliza a biblioteca `python-escpos` para conversar via USB (`pyusb`) com a impressora térmica.
+- **Tolerância a Falhas Físicas:** Se a impressora ficar sem papel, o backend retorna `503 Service Unavailable` e o frontend redireciona para uma tela de aviso (`/error-impressora`), evitando que o paciente gere uma senha fantasma.
+
+## 📡 5. Sincronização Offline-First e e-SUS (LEDI APS)
+
+Como UBSs sofrem com instabilidade de rede, o Totem foi desenhado com arquitetura Local-First:
+1. **Frontend PWA:** O Vite PWA cacheia o shell do React no navegador. O Frontend detecta quedas de rede usando a API nativa e exibe o badge "Offline".
+2. **SyncEngine:** Uma Thread em background no FastAPI (`asyncio.create_task`) que acorda a cada 10s verificando se há senhas não sincronizadas no SQLite e tenta enviá-las para a API do e-SUS PEC (LEDI). Em caso de falha, implementa backoff retries.
+
+---
+_Documento Vivo — Biochallenge v1.0_
+
 ---
 
 ## 📂 Estrutura de Diretórios

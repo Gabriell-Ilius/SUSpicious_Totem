@@ -7,7 +7,7 @@ const BigButton = ({ icon: Icon, title, subtitle, variant = 'primary', onClick }
       className={`big-button ${variant}`}
       onClick={onClick}
       whileHover={{ scale: 1.02 }}
-      whileTap={{ scale: 0.98 }}
+      whileTap={{ scale: 0.95 }}
     >
       {Icon && (
         <div className="icon-wrapper">

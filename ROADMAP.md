@@ -31,7 +31,7 @@ gantt
     Hardware (Impressora + Pi)               :done, m5, after m4, 2d
 
     section Marco 6
-    Deploy + Polimento                       :active, m6, after m5, 2d
+    Deploy + Polimento                       :done, m6, after m5, 2d
 ```
 
 ---
@@ -203,17 +203,17 @@ Ligar o Raspberry Pi → sistema inicia automaticamente → tela touch funcional
 
 ---
 
-## Marco 6 — Polimento + Deploy Final ✨
+## Marco 6 — Polimento + Deploy Final ✨ ✅ CONCLUÍDO
 > **Objetivo:** Sistema pronto para apresentação no Biochallenge.
 
 ### Entregáveis
-- [ ] Revisão final de UX (animações, tempos de resposta, feedback visual)
-- [ ] Testes de estresse (gerar 100+ senhas, filas simultâneas)
-- [ ] Cron job de reinício noturno do Chromium
-- [ ] IP estático + SSH configurado
-- [ ] Documentação final atualizada (README, ARCHITECTURE)
-- [ ] Vídeo de demonstração / screenshots para o Biochallenge
-- [ ] Merge `develop` → `main` (release final)
+- [x] Revisão final de UX (animações, tempos de resposta, feedback visual)
+- [x] Testes de estresse (gerar 100+ senhas, filas simultâneas)
+- [x] Cron job de reinício noturno do Chromium
+- [x] IP estático + SSH configurado
+- [x] Documentação final atualizada (README, ARCHITECTURE)
+- [x] Vídeo de demonstração / screenshots para o Biochallenge
+- [x] Merge `develop` → `main` (release final)
 
 ### ✅ Critério de Conclusão
 Totem funcional, estável 24h+, com documentação completa. Pronto para apresentação.
@@ -230,4 +230,4 @@ Totem funcional, estável 24h+, com documentação completa. Pronto para apresen
 | **3** | Integração | Frontend consumindo API real | ✅ Concluído |
 | **4** | Offline + e-SUS | PWA, sync engine, integração LEDI | ✅ Concluído |
 | **5** | Hardware | Impressora real + deploy no Pi | ✅ Concluído |
-| **6** | Polimento | Estabilidade, testes, documentação final | 🔄 Próximo |
+| **6** | Polimento | Estabilidade, testes, documentação final | ✅ Concluído |

@@ -43,20 +43,25 @@ Após análise profunda do escopo e da solução técnica inicial (que previa Py
 ```bash
 cd backend
 python -m venv venv
-source venv/bin/activate       # Linux/Mac
-# venv\Scripts\activate        # Windows
-
+source venv/Scripts/activate  # ou venv\Scripts\activate no Windows
 pip install -r requirements.txt
-alembic upgrade head           # Aplica migrações do banco
-uvicorn main:app --reload      # Inicia o servidor FastAPI
+python -m uvicorn main:app --reload
 ```
 
 ### Frontend
 ```bash
 cd frontend
 npm install
-npm run dev                    # Inicia o servidor de desenvolvimento Vite
+npm run dev
 ```
+
+### 📡 Testando Resiliência (Offline-First)
+Desligue a rede Wi-Fi ou pare o Backend. O Frontend mostrará um *Badge Vermelho* de Sincronização Pausada, mas continuará emitindo senhas perfeitamente.
+
+### 🖨️ Hardware & Kiosk (Raspberry Pi)
+Na pasta `scripts/`, você encontrará:
+- `setup_kiosk.sh`: Transforma o Pi em um totem 24/7 (kiosk mode, proteção de cartão SD em RAM, regras de impressora USB).
+- `suspicious-totem.service`: Serviço Linux para ligar a aplicação no boot.
 
 > **Nota:** No ambiente de desenvolvimento (Windows), a impressora e os pinos GPIO são simulados automaticamente via interfaces mock. Não é necessário ter o Raspberry Pi conectado.
 
