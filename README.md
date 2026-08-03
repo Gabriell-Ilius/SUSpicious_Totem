@@ -11,7 +11,6 @@ Bem-vindo ao repositório do **SUSpicious Totem**, uma solução inovadora de au
 | **Arthur de Paula Dias** | UnB — Universidade de Brasília |
 | **Gabriell de Luccas Rego Lourenço** | UnB — Universidade de Brasília |
 | **Vinicius Carvalho Lima Alcanfor** | UnB — Universidade de Brasília |
-| **Andrei** | UnB — Universidade de Brasília |
 
 ---
 
