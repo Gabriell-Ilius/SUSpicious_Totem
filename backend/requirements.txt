@@ -1,0 +1,29 @@
+# ======================================================
+# SUSpicious Totem - Dependências do Backend (Python)
+# ======================================================
+
+# Framework Web rápido e assíncrono para rotas e APIs REST
+fastapi>=0.109.0
+
+# Servidor ASGI para rodar a aplicação FastAPI
+uvicorn[standard]>=0.27.0
+
+# ORM moderno que combina Pydantic (validação) com SQLAlchemy (banco SQL)
+sqlmodel>=0.0.14
+
+# Gerenciamento de variáveis de ambiente com Pydantic
+pydantic-settings>=2.1.0
+python-dotenv>=1.0.0
+
+# Ferramenta para controle de versão do banco de dados (migrações)
+alembic>=1.13.0
+
+# Biblioteca para controle de impressoras térmicas ESC/POS (USB/Serial)
+python-escpos>=3.0.0
+
+# Gerador de QR Code em Python (útil para cupom impresso)
+qrcode[pil]>=7.4.2
+
+# Framework de testes unitários e de integração
+pytest>=8.0.0
+httpx>=0.26.0

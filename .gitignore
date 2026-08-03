@@ -1,0 +1,32 @@
+# ==========================================
+# SUSpicious Totem - Arquivo .gitignore
+# Especifica quais arquivos/pastas o Git deve ignorar
+# ==========================================
+
+# Ambientes Virtuais e Cache do Python
+__pycache__/
+*.py[cod]
+*$py.class
+venv/
+.venv/
+env/
+*.env
+!.env.example
+
+# Banco de Dados Local (SQLite)
+*.db
+*.sqlite3
+
+# Node.js e Frontend
+node_modules/
+dist/
+build/
+.output/
+.vite/
+
+# Arquivos de IDE e Sistema Operacional
+.vscode/
+.idea/
+.DS_Store
+Thumbs.db
+*.log
