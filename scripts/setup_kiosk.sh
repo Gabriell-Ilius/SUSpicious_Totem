@@ -22,11 +22,9 @@ source venv/bin/activate
 pip install --upgrade pip
 pip install -r requirements.txt
 
-# Configurar arquivo .env para modo impressora física ESC/POS
+# Configurar arquivo .env para modo de impressora simulada (Mock)
 if [ ! -f .env ]; then
-    echo "PRINTER_MODE=escpos" > .env
-    echo "PRINTER_VENDOR_ID=0x04b8" >> .env
-    echo "PRINTER_PRODUCT_ID=0x0202" >> .env
+    echo "PRINTER_MODE=mock" > .env
     echo "DATABASE_URL=sqlite:///./suspicious_totem.db" >> .env
 fi
 
