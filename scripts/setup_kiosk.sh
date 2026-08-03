@@ -12,7 +12,7 @@ echo "🚀 Iniciando a configuração automática do SUSpicious Totem no Raspber
 # 1. Atualizar repositórios e instalar pacotes essenciais
 echo "📦 1/6: Instalando pacotes do sistema (Python, Node, Chromium, Unclutter)..."
 sudo apt update
-sudo apt install -y python3-pip python3-venv nodejs npm chromium-browser unclutter libusb-1.0-0-dev git
+sudo apt install -y python3-pip python3-venv nodejs npm chromium chromium-browser unclutter libusb-1.0-0-dev git || sudo apt install -y chromium unclutter
 
 # 2. Configurar ambiente do Backend Python
 echo "🐍 2/6: Configurando ambiente virtual Python e dependências do Backend..."
@@ -40,7 +40,7 @@ sudo bash -c 'cat <<EOF > /etc/udev/rules.d/99-escpos.rules
 SUBSYSTEM=="usb", ATTR{idVendor}=="04b8", ATTR{idProduct}=="0202", MODE="0666", GROUP="dialout"
 SUBSYSTEM=="usb", ATTR{idVendor}=="0416", ATTR{idProduct}=="5011", MODE="0666", GROUP="dialout"
 EOF'
-sudo udevadm control --reload-rules && sudo udevadm trigger
+sudo udevadm control --reload-rules && sudo udevadm trigger || true
 
 # 5. Criar Serviços Systemd para o Backend e Frontend (Início Automático no Boot)
 echo "⚙️  5/6: Criando serviços de boot automático (Backend + Frontend)..."
@@ -87,20 +87,40 @@ sudo systemctl daemon-reload
 sudo systemctl enable suspicious-backend.service suspicious-frontend.service
 sudo systemctl restart suspicious-backend.service suspicious-frontend.service
 
-# 6. Configurar Modo Kiosk no Chromium (Compatível com X11 e Wayland/Bookworm)
+# 6. Detectar executável do Chromium e diretório da Área de Trabalho
 echo "🖥️  6/6: Configurando inicialização em Tela Cheia Touch (Kiosk Mode)..."
+
+# Identifica se o comando do navegador é 'chromium' ou 'chromium-browser'
+if command -v chromium &> /dev/null; then
+    CHROMIUM_BIN="chromium"
+elif command -v chromium-browser &> /dev/null; then
+    CHROMIUM_BIN="chromium-browser"
+else
+    CHROMIUM_BIN="chromium"
+fi
+
+# Identifica a pasta da Área de Trabalho (Desktop ou Área de Trabalho em PT-BR)
+DESKTOP_DIR="$HOME/Desktop"
+if [ -d "$HOME/Área de Trabalho" ]; then
+    DESKTOP_DIR="$HOME/Área de Trabalho"
+elif [ -d "$HOME/Área de trabalho" ]; then
+    DESKTOP_DIR="$HOME/Área de trabalho"
+fi
+mkdir -p "$DESKTOP_DIR"
+
 AUTOSTART_DIR="$HOME/.config/autostart"
 LXDE_DIR="$HOME/.config/lxsession/LXDE-pi"
 mkdir -p "$AUTOSTART_DIR" "$LXDE_DIR"
 
-KIOSK_CMD="chromium-browser --kiosk --noerrdialogs --disable-infobars --disable-translate --check-for-update-interval=31536000 http://localhost:5173"
+KIOSK_FLAGS="--kiosk --noerrdialogs --disable-infobars --disable-translate --check-for-update-interval=31536000 http://localhost:5173"
+FULL_KIOSK_CMD="$CHROMIUM_BIN $KIOSK_FLAGS"
 
 # Autostart XDG padrão
 cat <<EOF > "$AUTOSTART_DIR/kiosk.desktop"
 [Desktop Entry]
 Type=Application
 Name=SUSpicious Totem Kiosk
-Exec=bash -c "unclutter -idle 0.1 -root & xset s off & xset -dpms & xset s noblank & $KIOSK_CMD"
+Exec=bash -c "unclutter -idle 0.1 -root & xset s off & xset -dpms & xset s noblank & $FULL_KIOSK_CMD"
 X-GNOME-Autostart-enabled=true
 EOF
 
@@ -110,22 +130,25 @@ cat <<EOF > "$LXDE_DIR/autostart"
 @xset -dpms
 @xset s noblank
 @unclutter -idle 0.1 -root
-@$KIOSK_CMD
+@$FULL_KIOSK_CMD
 EOF
 
 # Script de atalho rápido de teste no desktop
-cat <<EOF > "$HOME/Desktop/Rodar_Totem.sh"
+cat <<EOF > "$DESKTOP_DIR/Rodar_Totem.sh"
 #!/bin/bash
-$KIOSK_CMD &
+$FULL_KIOSK_CMD &
 EOF
-chmod +x "$HOME/Desktop/Rodar_Totem.sh"
+chmod +x "$DESKTOP_DIR/Rodar_Totem.sh"
 
 echo ""
 echo "=========================================================================="
-echo "✅ CONFIGURAÇÃO CONCLUÍDA!"
+echo "✅ CONFIGURAÇÃO CONCLUÍDA COM SUCESSO!"
 echo "=========================================================================="
-echo "1. Se quiser rodar manualmente agora sem reiniciar, digite:"
-echo "   chromium-browser --kiosk http://localhost:5173"
+echo "Navegador Detectado: [$CHROMIUM_BIN]"
+echo "Pasta Área de Trabalho: [$DESKTOP_DIR]"
+echo ""
+echo "1. Para rodar manualmente agora na tela, digite:"
+echo "   $CHROMIUM_BIN --kiosk http://localhost:5173"
 echo "2. Para testar o boot automático:"
 echo "   sudo reboot"
 echo "=========================================================================="
