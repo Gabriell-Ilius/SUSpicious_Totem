@@ -42,11 +42,13 @@ SUBSYSTEM=="usb", ATTR{idVendor}=="0416", ATTR{idProduct}=="5011", MODE="0666", 
 EOF'
 sudo udevadm control --reload-rules && sudo udevadm trigger
 
-# 5. Criar Serviço Systemd para iniciar o Backend automaticamente no Boot
-echo "⚙️  5/6: Criando serviço de boot automático (suspicious-backend.service)..."
-WORKING_DIR="$(cd "$(dirname "$0")/../backend" && pwd)"
+# 5. Criar Serviços Systemd para o Backend e Frontend (Início Automático no Boot)
+echo "⚙️  5/6: Criando serviços de boot automático (Backend + Frontend)..."
+WORKING_DIR_BACKEND="$(cd "$(dirname "$0")/../backend" && pwd)"
+WORKING_DIR_FRONTEND="$(cd "$(dirname "$0")/../frontend" && pwd)"
 USER_NAME="$(whoami)"
 
+# Serviço do Backend FastAPI (Porta 8000)
 sudo bash -c "cat <<EOF > /etc/systemd/system/suspicious-backend.service
 [Unit]
 Description=Backend FastAPI - SUSpicious Totem
@@ -54,38 +56,76 @@ After=network.target
 
 [Service]
 User=$USER_NAME
-WorkingDirectory=$WORKING_DIR
-ExecStart=$WORKING_DIR/venv/bin/python main.py
+WorkingDirectory=$WORKING_DIR_BACKEND
+ExecStart=$WORKING_DIR_BACKEND/venv/bin/python main.py
 Restart=always
-RestartSec=5
+RestartSec=3
 Environment=PYTHONUNBUFFERED=1
 
 [Install]
 WantedBy=multi-user.target
 EOF"
 
-sudo systemctl daemon-reload
-sudo systemctl enable suspicious-backend.service
-sudo systemctl restart suspicious-backend.service
+# Serviço do Frontend React (Porta 5173)
+sudo bash -c "cat <<EOF > /etc/systemd/system/suspicious-frontend.service
+[Unit]
+Description=Frontend Kiosk UI - SUSpicious Totem
+After=network.target
 
-# 6. Configurar Modo Kiosk no Chromium (Autostart da Tela Touch 7")
+[Service]
+User=$USER_NAME
+WorkingDirectory=$WORKING_DIR_FRONTEND
+ExecStart=/usr/bin/python3 -m http.server 5173 --directory $WORKING_DIR_FRONTEND/dist
+Restart=always
+RestartSec=3
+
+[Install]
+WantedBy=multi-user.target
+EOF"
+
+sudo systemctl daemon-reload
+sudo systemctl enable suspicious-backend.service suspicious-frontend.service
+sudo systemctl restart suspicious-backend.service suspicious-frontend.service
+
+# 6. Configurar Modo Kiosk no Chromium (Compatível com X11 e Wayland/Bookworm)
 echo "🖥️  6/6: Configurando inicialização em Tela Cheia Touch (Kiosk Mode)..."
 AUTOSTART_DIR="$HOME/.config/autostart"
-mkdir -p "$AUTOSTART_DIR"
+LXDE_DIR="$HOME/.config/lxsession/LXDE-pi"
+mkdir -p "$AUTOSTART_DIR" "$LXDE_DIR"
 
+KIOSK_CMD="chromium-browser --kiosk --noerrdialogs --disable-infobars --disable-translate --check-for-update-interval=31536000 http://localhost:5173"
+
+# Autostart XDG padrão
 cat <<EOF > "$AUTOSTART_DIR/kiosk.desktop"
 [Desktop Entry]
 Type=Application
 Name=SUSpicious Totem Kiosk
-Exec=bash -c "unclutter -idle 0.1 -root & xset s off & xset -dpms & xset s noblank & chromium-browser --kiosk --noerrdialogs --disable-infobars --disable-translate --check-for-update-interval=31536000 http://localhost:5173"
+Exec=bash -c "unclutter -idle 0.1 -root & xset s off & xset -dpms & xset s noblank & $KIOSK_CMD"
 X-GNOME-Autostart-enabled=true
 EOF
 
+# Autostart LXDE-pi tradicional
+cat <<EOF > "$LXDE_DIR/autostart"
+@xset s off
+@xset -dpms
+@xset s noblank
+@unclutter -idle 0.1 -root
+@$KIOSK_CMD
+EOF
+
+# Script de atalho rápido de teste no desktop
+cat <<EOF > "$HOME/Desktop/Rodar_Totem.sh"
+#!/bin/bash
+$KIOSK_CMD &
+EOF
+chmod +x "$HOME/Desktop/Rodar_Totem.sh"
+
 echo ""
 echo "=========================================================================="
-echo "✅ INSTALAÇÃO CONCLUÍDA COM SUCESSO!"
+echo "✅ CONFIGURAÇÃO CONCLUÍDA!"
 echo "=========================================================================="
-echo "1. Para rodar o frontend local em desenvolvimento: cd frontend && npm run dev"
-echo "2. Reinicie o Raspberry Pi para testar o boot em Kiosk Mode:"
+echo "1. Se quiser rodar manualmente agora sem reiniciar, digite:"
+echo "   chromium-browser --kiosk http://localhost:5173"
+echo "2. Para testar o boot automático:"
 echo "   sudo reboot"
 echo "=========================================================================="
