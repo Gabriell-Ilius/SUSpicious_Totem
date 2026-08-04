@@ -388,6 +388,70 @@ body {
 }
 
 /* ===========================================================
+   ESTILOS DO TECLADO E DISPLAY DE CPF
+   =========================================================== */
+
+.cpf-box-card {
+  width: 100%;
+  max-width: 480px;
+  background: var(--card-bg);
+  border: 1px solid var(--card-border);
+  border-radius: 20px;
+  padding: 24px;
+  backdrop-filter: blur(12px);
+}
+
+.cpf-display-box {
+  background: rgba(255, 255, 255, 0.08);
+  border: 2px solid var(--sus-blue-primary);
+  border-radius: 16px;
+  padding: 14px;
+  font-size: 1.8rem;
+  font-family: var(--font-heading);
+  font-weight: 800;
+  letter-spacing: 3px;
+  color: #38BDF8;
+  margin-bottom: 16px;
+  text-align: center;
+}
+
+.numpad-grid {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 10px;
+  margin-bottom: 16px;
+}
+
+.numpad-btn {
+  padding: 14px;
+  border-radius: 12px;
+  border: 1px solid var(--card-border);
+  background: rgba(255, 255, 255, 0.07);
+  color: #FFF;
+  font-size: 1.6rem;
+  font-weight: 700;
+  cursor: pointer;
+  touch-action: manipulation;
+  transition: background 0.15s ease, transform 0.1s ease;
+}
+
+.numpad-btn:active {
+  transform: scale(0.95);
+  background: rgba(255, 255, 255, 0.15);
+}
+
+.keyboard-hint {
+  font-size: 0.75rem;
+  color: #64748B;
+  text-align: center;
+  margin-top: 10px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
+}
+
+/* ===========================================================
    MEDIA QUERIES PARA TELAS PEQUENAS (Raspberry Pi 7" = 800x480)
    =========================================================== */
 
@@ -441,6 +505,30 @@ body {
 
   .welcome-banner p {
     font-size: 0.7rem;
+  }
+
+  .cpf-box-card {
+    padding: 14px;
+    border-radius: 14px;
+    max-width: 420px;
+  }
+
+  .cpf-display-box {
+    padding: 8px;
+    font-size: 1.4rem;
+    margin-bottom: 10px;
+    border-radius: 10px;
+  }
+
+  .numpad-grid {
+    gap: 6px;
+    margin-bottom: 10px;
+  }
+
+  .numpad-btn {
+    padding: 8px;
+    font-size: 1.3rem;
+    border-radius: 8px;
   }
 
   .services-grid {
@@ -538,11 +626,39 @@ body {
   }
 
   .welcome-banner h1 {
-    font-size: 1rem;
+    font-size: 0.95rem;
   }
 
   .welcome-banner p {
     font-size: 0.65rem;
+  }
+
+  .cpf-box-card {
+    padding: 10px 14px;
+    border-radius: 12px;
+    max-width: 400px;
+  }
+
+  .cpf-display-box {
+    padding: 6px 10px;
+    font-size: 1.25rem;
+    margin-bottom: 8px;
+    border-radius: 8px;
+  }
+
+  .numpad-grid {
+    gap: 5px;
+    margin-bottom: 8px;
+  }
+
+  .numpad-btn {
+    padding: 6px;
+    font-size: 1.15rem;
+    border-radius: 6px;
+  }
+
+  .keyboard-hint {
+    display: none; /* oculta no 480px vertical para economizar espaço */
   }
 
   .services-grid {
@@ -578,14 +694,15 @@ body {
   }
 
   .modal-content {
-    padding: 12px;
-    max-height: 95vh;
+    padding: 10px 14px;
+    max-height: 96vh;
   }
 
   .ticket-number-display {
     font-size: 1.8rem;
   }
 }
+
 
 /* Telas grandes (Desktop / Monitores > 1200px) – Restaura tamanhos generosos */
 @media screen and (min-width: 1200px) and (min-height: 700px) {

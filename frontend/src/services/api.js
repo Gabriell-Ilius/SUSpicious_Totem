@@ -48,11 +48,12 @@ export async function checkCPFSchedule(cpf) {
  * Emite uma nova senha de atendimento no backend (tb_fila_diaria).
  * Em modo offline, executa a emissão de emergência local.
  */
-export async function createTicket(category, priority = 'NORMAL', cpf = null) {
+export async function createTicket(category, priority = 'NORMAL', cpf = null, subPriority = null) {
   const priorityNum = priority === 'PREFERENCIAL' ? 1 : 0;
   const payload = {
     tipo_demanda: category,
     prioridade_fila: priorityNum,
+    sub_prioridade: subPriority,
     cpf_paciente: cpf,
   };
 
@@ -79,6 +80,7 @@ export async function createTicket(category, priority = 'NORMAL', cpf = null) {
       AGENDADO: 'AGN',
       ESPONTANEO: 'ESP',
       VACINACAO: 'VAC',
+      FARMACIA: 'FAR',
       TRIAGEM_DIGITAL: 'TRG',
     };
     const prefix = categoryPrefixes[category] || 'SNH';
@@ -89,6 +91,7 @@ export async function createTicket(category, priority = 'NORMAL', cpf = null) {
       AGENDADO: 'Consultório 02 - Atendimento Agendado',
       ESPONTANEO: 'Balcão 01 - Acolhimento & Triagem',
       VACINACAO: 'Sala de Imunização 02 - Vacinas',
+      FARMACIA: 'Farmácia Básica - Dispensação de Medicamentos',
       TRIAGEM_DIGITAL: 'Balcão de Triagem Digital (QR)',
     };
 
@@ -97,12 +100,13 @@ export async function createTicket(category, priority = 'NORMAL', cpf = null) {
       ticket_number: offlineTicketNumber,
       tipo_demanda: category,
       prioridade_fila: priorityNum,
+      sub_prioridade: subPriority,
       cpf_paciente: cpf,
       setor_destino: defaultSetores[category] || 'Balcão de Triagem',
       status_sincronizacao: false,
       created_at: new Date().toISOString(),
       status: 'WAITING',
-      qr_code_data: category === 'TRIAGEM_DIGITAL' ? `https://ubs-triagem.gov.br/offline?ticket=${offlineTicketNumber}` : null,
+      qr_code_data: (category === 'TRIAGEM_DIGITAL' || category === 'ESPONTANEO') ? `https://ubs-triagem.gov.br/offline?ticket=${offlineTicketNumber}` : null,
       isOffline: true,
     };
 

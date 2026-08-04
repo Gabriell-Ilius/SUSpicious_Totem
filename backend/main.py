@@ -13,7 +13,8 @@ from fastapi.middleware.cors import CORSMiddleware
 
 from app.core.config import settings
 from app.db.session import init_db
-from app.api.v1.endpoints.tickets import router as tickets_router
+from app.api.v1.endpoints.router import api_router
+from seed_data import seed_appointments
 
 
 @asynccontextmanager
@@ -27,6 +28,7 @@ async def lifespan(app: FastAPI):
     print("🚀 Iniciando o backend do SUSpicious Totem...")
     print("📂 Verificando e inicializando banco de dados SQLite local...")
     init_db()
+    seed_appointments()
     print(f"🖨️  Modo de Impressora configurado: [{settings.PRINTER_MODE.upper()}]")
     yield
     # SHUTDOWN: Limpeza ou encerramento de conexões
@@ -57,7 +59,7 @@ app.add_middleware(
 
 
 # Registro dos Roteadores de API
-app.include_router(tickets_router, prefix=settings.API_V1_STR)
+app.include_router(api_router, prefix=settings.API_V1_STR)
 
 
 @app.get("/api/v1/health", tags=["Health Check"])

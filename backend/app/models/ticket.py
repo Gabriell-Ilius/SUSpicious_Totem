@@ -14,13 +14,14 @@ class CategoryType(str, Enum):
     AGENDADO = "AGENDADO"             # Paciente com consulta prever agendada no e-SUS
     ESPONTANEO = "ESPONTANEO"         # Paciente que chegou para acolhimento/demanda espontânea
     VACINACAO = "VACINACAO"           # Fila dedicada para salas de vacina
+    FARMACIA = "FARMACIA"             # Retirada e dispensação de medicamentos
     TRIAGEM_DIGITAL = "TRIAGEM_DIGITAL" # Pré-triagem rápida via QR Code no celular
 
 
 class PriorityType(str, Enum):
     """Níveis de prioridade previstos por lei e pela triagem de acolhimento."""
     NORMAL = "NORMAL"
-    PREFERENCIAL = "PREFERENCIAL"     # Idosos (60+), Gestantes, PCD, Lactantes, Autistas
+    PREFERENCIAL = "PREFERENCIAL"     # Idosos (60+), Idosos (80+), Gestantes, PCD, Lactantes, Autistas
 
 
 class TicketStatus(str, Enum):
@@ -34,8 +35,9 @@ class TicketStatus(str, Enum):
 
 class TicketBase(SQLModel):
     """Campos base compartilhados para criação e leitura de senhas."""
-    tipo_demanda: CategoryType = Field(description="Classificação do paciente ('AGENDADO', 'ESPONTANEO', 'VACINACAO', 'TRIAGEM_DIGITAL')")
+    tipo_demanda: CategoryType = Field(description="Classificação do paciente ('AGENDADO', 'ESPONTANEO', 'VACINACAO', 'FARMACIA', 'TRIAGEM_DIGITAL')")
     prioridade_fila: int = Field(default=0, description="0 = Atendimento Normal, 1 = Atendimento Preferencial")
+    sub_prioridade: Optional[str] = Field(default=None, description="Sub-prioridade por lei: GESTANTE, IDOSO_60, IDOSO_80, PCD, AUTISMO")
     cpf_paciente: Optional[str] = Field(default=None, description="CPF do paciente para busca no e-SUS PEC (ex: 12345678900)")
     patient_name: Optional[str] = Field(default=None, description="Nome do paciente (opcional no totem)")
 
@@ -48,7 +50,7 @@ class Ticket(TicketBase, table=True):
     __tablename__ = "tb_fila_diaria"
 
     id_atendimento: Optional[int] = Field(default=None, primary_key=True, description="Chave primária de controle")
-    ticket_number: str = Field(index=True, description="Número formatado da senha (ex: ESP-001, VAC-P002)")
+    ticket_number: str = Field(index=True, description="Número formatado da senha (ex: ESP-001, VAC-P002, FAR-001)")
     setor_destino: str = Field(default="Triagem", description="Direcionamento físico (ex: 'Consultório 03', 'Sala de Vacinação 02')")
     status_sincronizacao: bool = Field(default=False, description="Booleano validando espelhamento com a API do e-SUS PEC")
     created_at: datetime = Field(
@@ -76,6 +78,7 @@ class TicketCreate(SQLModel):
     """Schema Pydantic recebido na API ao solicitar nova senha pelo Totem."""
     tipo_demanda: CategoryType
     prioridade_fila: int = 0
+    sub_prioridade: Optional[str] = None
     cpf_paciente: Optional[str] = None
     patient_name: Optional[str] = None
 
@@ -86,7 +89,9 @@ class TicketRead(SQLModel):
     ticket_number: str
     tipo_demanda: CategoryType
     prioridade_fila: int
+    sub_prioridade: Optional[str] = None
     cpf_paciente: Optional[str]
+    patient_name: Optional[str] = None
     setor_destino: str
     status_sincronizacao: bool
     created_at: datetime

@@ -25,10 +25,11 @@ class BasePrinter(ABC):
         setor_destino: str,
         date_str: str,
         cpf_paciente: str = None,
-        qr_code_url: str = None
+        qr_code_url: str = None,
+        patient_name: str = None
     ) -> bool:
         """
-        Imprime o cupom contendo número da senha, setor de destino, prioridade, CPF e QR Code.
+        Imprime o cupom contendo número da senha, setor de destino, prioridade, CPF, Nome e QR Code.
         """
         pass
 
@@ -47,9 +48,11 @@ class MockPrinter(BasePrinter):
         setor_destino: str,
         date_str: str,
         cpf_paciente: str = None,
-        qr_code_url: str = None
+        qr_code_url: str = None,
+        patient_name: str = None
     ) -> bool:
         cpf_formatted = f"{cpf_paciente[:3]}.***.***-{cpf_paciente[-2:]}" if cpf_paciente and len(cpf_paciente) == 11 else (cpf_paciente or "NÃO INFORMADO")
+        patient_info_line = f" PACIENTE: {patient_name.upper()}\n" if patient_name else ""
 
         receipt_ascii = f"""
 ========================================
@@ -58,8 +61,7 @@ class MockPrinter(BasePrinter):
 ========================================
  DATA/HORA: {date_str}
  CPF PACIENTE: {cpf_formatted}
-
- DEMANDA: {category_name}
+{patient_info_line} DEMANDA: {category_name}
  PRIORIDADE: {priority_name}
 
    ----------------------------------

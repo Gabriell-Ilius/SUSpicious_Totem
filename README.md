@@ -47,10 +47,11 @@ SUSpicious_Totem/
 │
 ├── backend/                            # 🐍 API REST (FastAPI + Python)
 │   ├── main.py                         # Ponto de entrada da aplicação FastAPI
+│   ├── seed_data.py                    # Script para popular agendamentos simulados para o Pitch
 │   ├── requirements.txt                # Dependências Python
 │   ├── .env.example                    # Exemplo de variáveis de ambiente
 │   ├── .env                            # Variáveis de ambiente reais (NÃO versionado)
-│   ├── suspicious_totem.db             # Banco SQLite (gerado automaticamente)
+│   ├── suspicious_totem.db             # Banco SQLite (gerado e populado automaticamente)
 │   └── app/
 │       ├── core/
 │       │   └── config.py               # Configurações centralizadas (Pydantic Settings)
@@ -136,7 +137,7 @@ pip install -r requirements.txt
 copy .env.example .env
 
 # Iniciar o servidor FastAPI (com hot-reload)
-uvicorn main:app --reload --port 8000
+python -m uvicorn main:app --reload --port 8000
 ```
 
 ✅ **Resultado:** O backend estará rodando em `http://localhost:8000`
@@ -189,6 +190,38 @@ curl -X POST http://localhost:8000/api/v1/tickets/ -H "Content-Type: application
 ### 📡 Testando Resiliência (Offline-First)
 
 Desligue a rede Wi-Fi ou pare o Backend. O Frontend mostrará um *Badge Vermelho* de Sincronização Pausada, mas continuará emitindo senhas perfeitamente.
+
+---
+
+### 🎯 Testando Agendamentos no Banco de Dados (Pitch & Demonstração)
+
+O sistema conta com um módulo de agendamentos (`Appointment`) integrado ao banco de dados SQLite local. Na inicialização, o backend popula automaticamente o banco com dados simulados para a apresentação do Pitch.
+
+#### 1. Como popular/resetar os agendamentos fictícios
+
+Se quiser limpar e recriar os dados de teste com horários atualizados para a hora do Pitch, execute no terminal (no PC ou Raspberry Pi):
+
+```powershell
+cd backend
+python seed_data.py --force
+```
+
+#### 2. CPFs Principais para Teste no Pitch
+
+| CPF para Teste | Paciente | Especialidade | Consultório / Médico | Comportamento no Totem |
+|:---------------|:---------|:--------------|:---------------------|:-----------------------|
+| `111.111.111-11` | **Ana Maria Silva (Demo Pitch)** | Clínica Geral | Consultório 02 - Dra. Camila Rocha | Encontra a consulta de hoje para check-in e roteamento direto. |
+| `123.456.789-00` | **Maria Silva Santos** | Clínica Geral | Consultório 01 - Dra. Ana Costa | Encontra consulta agendada para hoje. |
+| `987.654.321-00` | **João Pereira Oliveira** | Pediatria | Consultório 04 - Dr. Carlos Souza | Encontra consulta agendada para hoje. |
+
+> 💡 **Como testar na interface:** Digite `111.111.111-11` no Totem. O sistema identificará automaticamente a consulta agendada da Ana Maria e direcionará a senha para o **Consultório 02 - Dra. Camila Rocha**.
+
+#### 🛡️ Garantia de Compatibilidade (Sem Alteração no Funcionamento Anterior)
+
+A adição do banco de dados de agendamentos foi feita de forma **100% aditiva e não-invasiva**:
+- **Emissão de Senhas Gerais:** As demandas normais (`ESPONTANEO`, `VACINACAO`, `TRIAGEM_DIGITAL`) continuam funcionando exatamente como antes.
+- **Impressora Térmica:** Os modos `mock` (terminal) e `escpos` (impressora USB física no Raspberry Pi) permanecem inalterados.
+- **Modo Offline-First:** Caso a busca no e-SUS PEC falhe, o sistema consulta a tabela `Appointment` local SQLite; se o CPF não for encontrado, ele faz o fallback seguro para o Acolhimento Espontâneo.
 
 ---
 
