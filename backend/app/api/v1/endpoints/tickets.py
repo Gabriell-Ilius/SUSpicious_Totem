@@ -25,6 +25,7 @@ router = APIRouter(tags=["Tickets / tb_fila_diaria"])
 
 # Mock de Banco de Dados do e-SUS PEC (Agendamentos prévios por CPF - Fallback)
 MOCK_ESUS_SCHEDULES = {
+    "11111111111": {"paciente": "João da Silva Santos (Demo Pitch)", "consultorio": "Consultório 02 - Dra. Camila Rocha", "horario": "14:00"},
     "12345678900": {"paciente": "Maria Silva Santos", "consultorio": "Consultório 03 - Dr. Carlos Andrade", "horario": "14:30"},
     "98765432100": {"paciente": "João Pereira Lima", "consultorio": "Consultório 01 - Dra. Ana Souza", "horario": "15:00"},
     "11122233344": {"paciente": "Francisca Oliveira", "consultorio": "Consultório 05 - Enfermagem Acolhimento", "horario": "14:15"}
