@@ -210,7 +210,7 @@ O totem roda em um **Raspberry Pi 3B+** com tela touchscreen. O navegador Chromi
 ```bash
 # 1. Clone o repositório no Pi
 cd ~
-git clone https://github.com/Gabriell-Ilius/SUSpicious_Totem
+git clone -b totem-andrei https://github.com/Gabriell-Ilius/SUSpicious_Totem
 cd SUSpicious_Totem
 
 # 2. Dê permissão de execução ao script
