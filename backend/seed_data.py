@@ -78,5 +78,3 @@ def seed_appointments(force: bool = False):
 if __name__ == "__main__":
     force_flag = "--force" in sys.argv or "-f" in sys.argv
     seed_appointments(force=force_flag)
-
-

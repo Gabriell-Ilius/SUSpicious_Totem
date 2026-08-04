@@ -1,0 +1,33 @@
+# 1. Entrar na pasta do backend
+cd ~/SUSpicious_Totem/backend
+
+# 2. Criar o ambiente virtual do Python
+python3 -m venv venv
+
+# 3. Ativar o ambiente virtual
+source venv/bin/activate
+
+# 4. Instalar todas as dependências
+pip install --upgrade pip
+pip install -r requirements.txt
+
+# 5. Criar o arquivo de configurações (.env)
+cp .env.example .env
+
+# 6. Criar e popular o banco de dados com as consultas de HOJE
+python seed_data.py
+
+# 1. Entrar na pasta do frontend
+cd ~/SUSpicious_Totem/frontend
+
+# 2. Instalar as dependências do Node.js
+npm install
+
+# 3. Gerar a nova versão da interface (Build)
+npm run build
+
+
+sudo systemctl restart suspicious-totem-backend.service
+sudo systemctl restart suspicious-totem-frontend.service
+
+curl -X GET "http://localhost:8000/api/v1/appointments/search?identifier=12345678900"
