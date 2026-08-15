@@ -11,6 +11,7 @@ from app.core.config import settings
 
 from app.application.use_cases.gerar_senha import GerarSenhaUseCase
 from app.application.use_cases.validar_cpf import ValidarCPFUseCase
+from app.application.use_cases.verificar_agendamento import VerificarAgendamento
 from app.application.use_cases.chamar_proxima_senha import ChamarProximaSenhaUseCase
 from app.application.use_cases.consultar_fila_atual import ConsultarFilaAtualUseCase
 
@@ -33,13 +34,18 @@ def get_validar_cpf_uc(
     repo = PacienteRepository(session)
     return ValidarCPFUseCase(repo, gateway)
 
+def get_verificar_agendamento_uc(
+    session: Session = Depends(get_session)
+) -> VerificarAgendamento:
+    return VerificarAgendamento(session)
+
 def get_gerar_senha_uc(
     session: Session = Depends(get_session),
     printer = Depends(get_printer),
     validar_cpf_uc: ValidarCPFUseCase = Depends(get_validar_cpf_uc)
 ) -> GerarSenhaUseCase:
     repo = SenhaRepository(session)
-    return GerarSenhaUseCase(repo, printer, validar_cpf_uc)
+    return GerarSenhaUseCase(repo, printer, validar_cpf_uc, session=session)
 
 def get_chamar_proxima_senha_uc(
     session: Session = Depends(get_session)

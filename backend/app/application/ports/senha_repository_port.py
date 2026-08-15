@@ -6,7 +6,7 @@ class SenhaRepositoryPort(ABC):
     """Porta de saída para persistência de senhas e filas."""
 
     @abstractmethod
-    def gerar_codigo_senha(self, tipo: TipoAtendimento) -> str:
+    def gerar_codigo_senha(self, tipo: TipoAtendimento, prioridade: int = 0) -> str:
         """Gera o próximo código sequencial para o tipo de atendimento."""
         ...
 

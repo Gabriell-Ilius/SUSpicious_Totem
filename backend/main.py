@@ -1,31 +1,36 @@
 """
 SUSpicious Totem — Ponto de entrada da aplicação FastAPI.
-
-Inicializa o servidor, registra os routers e configura CORS.
+Inicializa o servidor, executa o seed de dados para a demonstração, 
+inicia o SyncEngine para e-SUS offline-first e configura middlewares e CORS.
 """
 
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.staticfiles import StaticFiles
 import logging
+import os
 from contextlib import asynccontextmanager
-from sqlmodel import Session
+from sqlmodel import Session, SQLModel
 
 from app.api import api_router
 from app.core.config import settings
 from app.infrastructure.database.session import engine
 from app.application.services.sync_service import SyncEngine
 from app.infrastructure.database.senha_repository import SenhaRepository
+from app.infrastructure.database.seed_data import seed_agendamentos
 from app.infrastructure.external.mock_esus_gateway import MockEsusGateway
 
-# Variável global para o engine (poderíamos injetar, mas para background task isso simplifica)
 sync_engine = None
 
 @asynccontextmanager
 async def lifespan(app: FastAPI):
-    # Startup
-    logging.info("Iniciando a API e Serviços de Background...")
+    # Startup: Cria tabelas, popula agendamentos de hoje e inicia o motor de sincronização
+    logging.info("🚀 Iniciando a API do SUSpicious Totem...")
+    SQLModel.metadata.create_all(engine)
     
+    # Popula agendamentos do Pitch
+    seed_agendamentos()
+
     global sync_engine
     with Session(engine) as session:
         senha_repo = SenhaRepository(session)
@@ -37,42 +42,47 @@ async def lifespan(app: FastAPI):
     yield
     
     # Shutdown
-    logging.info("Parando serviços...")
+    logging.info("🛑 Parando serviços do SUSpicious Totem...")
     if sync_engine:
         await sync_engine.stop()
 
 app = FastAPI(
-    title="SUSpicious Totem API",
-    description="API do totem de autoatendimento para Unidades Básicas de Saúde (UBS).",
-    version="0.1.0",
+    title=settings.PROJECT_NAME,
+    description="API do Totem de Autoatendimento para Unidades Básicas de Saúde (UBS).",
+    version="1.0.0",
     lifespan=lifespan,
+    docs_url="/docs",
+    redoc_url="/redoc"
 )
 
 app.include_router(api_router, prefix="/api")
 
-# Servir os arquivos estáticos do frontend em modo de produção
-import os
+# Servir os arquivos estáticos do frontend em modo de produção (se compilado)
 frontend_dist = os.path.join(os.path.dirname(__file__), "..", "frontend", "dist")
 if os.path.exists(frontend_dist):
     app.mount("/", StaticFiles(directory=frontend_dist, html=True), name="frontend")
 else:
     logging.warning("Diretório frontend/dist não encontrado. Servindo apenas a API.")
 
-# CORS — permite que o frontend (Vite dev server) acesse a API
+# CORS — permite acesso do Kiosk UI local
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=["http://localhost:5173", "http://127.0.0.1:5173"],
+    allow_origins=["*"],
     allow_credentials=True,
     allow_methods=["*"],
     allow_headers=["*"],
 )
 
-
 @app.get("/health", tags=["Sistema"])
 async def health_check():
-    """Verifica se o servidor está rodando."""
+    """Verifica se o servidor está ativo."""
     return {
-        "status": "ok",
+        "status": "healthy",
+        "app_name": settings.PROJECT_NAME,
         "environment": settings.ENVIRONMENT,
         "printer_mode": settings.PRINTER_MODE,
     }
+
+if __name__ == "__main__":
+    import uvicorn
+    uvicorn.run("main:app", host="0.0.0.0", port=8000, reload=True)

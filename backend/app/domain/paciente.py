@@ -4,6 +4,8 @@ from datetime import date
 from sqlmodel import SQLModel, Field
 
 class Paciente(SQLModel, table=True):
+    __tablename__ = "pacientes"
+
     id: uuid.UUID = Field(default_factory=uuid.uuid4, primary_key=True)
     cpf: str = Field(index=True, unique=True, max_length=11)
     nome: str

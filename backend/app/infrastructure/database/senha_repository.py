@@ -8,18 +8,25 @@ class SenhaRepository(SenhaRepositoryPort):
     def __init__(self, session: Session):
         self.session = session
 
-    def gerar_codigo_senha(self, tipo: TipoAtendimento) -> str:
+    def gerar_codigo_senha(self, tipo: TipoAtendimento, prioridade: int = 0) -> str:
         hoje = agora_sp().replace(hour=0, minute=0, second=0, microsecond=0)
         count = self.session.exec(
             select(func.count(Senha.id)).where(
                 Senha.tipo_atendimento == tipo,
                 Senha.data_hora_emissao >= hoje
             )
-        ).one()
+        ).one() or 0
         
-        prefixo = "AGE" if tipo == TipoAtendimento.AGENDADA else ("ESP" if tipo == TipoAtendimento.ESPONTANEA else "VAC")
-        # +1 para ser o próximo
-        return f"{prefixo}-{count + 1:03d}"
+        prefixos = {
+            TipoAtendimento.AGENDADA: "AGN",
+            TipoAtendimento.ESPONTANEA: "ESP",
+            TipoAtendimento.VACINACAO: "VAC",
+            TipoAtendimento.FARMACIA: "FAR",
+            TipoAtendimento.TRIAGEM_DIGITAL: "TRG"
+        }
+        prefixo = prefixos.get(tipo, "SNH")
+        p_flag = "P" if prioridade == 1 else ""
+        return f"{prefixo}-{p_flag}{count + 1:03d}"
 
     def salvar(self, senha: Senha) -> Senha:
         self.session.add(senha)
@@ -28,7 +35,6 @@ class SenhaRepository(SenhaRepositoryPort):
         return senha
 
     def buscar_proxima_senha(self) -> Optional[Senha]:
-        # Busca a próxima aguardando, ordem: maior prioridade primeiro, depois a mais antiga
         statement = select(Senha).where(Senha.status == StatusSenha.AGUARDANDO).order_by(
             Senha.prioridade.desc(),
             Senha.data_hora_emissao.asc()

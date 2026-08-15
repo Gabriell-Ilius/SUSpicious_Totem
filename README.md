@@ -10,36 +10,49 @@ Bem-vindo ao repositório do **SUSpicious Totem**, uma solução inovadora de au
 | **Gabriell de Luccas Rego Lourenço** | UnB — Universidade de Brasília |
 | **Vinicius Carvalho Lima Alcanfor** | UnB — Universidade de Brasília |
 
+---
+
 ## 🎯 O Projeto
 
-O sistema consiste em um totem interativo posicionado na entrada das UBSs. Ele opera integrado (ou com simulação de integração) ao e-SUS PEC e gerencia:
-- **Consultas Agendadas:** Direcionamento rápido do paciente ao consultório.
-- **Consultas Espontâneas:** Emissão de senhas e encaminhamento para triagem.
-- **Vacinação:** Organização de filas com base na prioridade.
-- **Triagem Digital:** Geração de QR Code para pacientes preencherem dados via smartphone, evitando lentidão no totem.
+O sistema consiste em um totem interativo posicionado na entrada das UBSs. Ele opera com arquitetura **Local-First / Offline-First** integrado (ou com simulação de espelhamento) ao e-SUS PEC:
+- **Fluxo CPF-First:** Reconhece agendamentos do e-SUS e direciona automaticamente o paciente ao consultório e médico de destino.
+- **Consultas Espontâneas & Acolhimento:** Emissão de senhas e encaminhamento para triagem.
+- **Vacinação & Imunização:** Organização de filas com base na prioridade.
+- **Farmácia Básica:** Fila dedicada para retirada de medicamentos com receita.
+- **Pré-Triagem Digital (QR Code):** Geração de QR Code no cupom impresso com formulário clínico para o paciente preencher no smartphone enquanto aguarda.
+- **Painel de Senhas para TV (`/painel`):** Interface visual para monitor na sala de espera.
+
+---
+
+## 🎭 CPFs de Demonstração para o Pitch
+
+O backend inclui um mecanismo de *seed dinâmico* que roda na inicialização e garante que os seguintes CPFs sempre tenham agendamentos válidos para a **data e hora de hoje**:
+
+| CPF | Paciente | Destino Mockado | Horário |
+|:----|:---------|:----------------|:--------|
+| `111.111.111-11` | **João da Silva Santos (Demo Pitch)** | Consultório 02 - Dra. Camila Rocha | Hoje (+1h) |
+| `123.456.789-00` | Maria Silva Santos | Consultório 01 - Dra. Ana Costa | Hoje |
+| `987.654.321-00` | João Pereira Oliveira | Consultório 04 - Dr. Carlos Souza | Hoje (+2h) |
+| `111.222.333-44` | Francisca Rodrigues | Consultório 01 - Dra. Ana Costa | Hoje (+3h) |
+
+> 💡 **Para testar o fluxo sem agendamento prévio:** Digite qualquer outro CPF (ex: `000.000.000-00`) ou clique em **"Não Sei / Pular CPF"**.
+
+---
 
 ## 🚀 Arquitetura Tecnológica
 
-Após análise profunda do escopo e da solução técnica inicial (que previa Python/Flask + Vanilla JS), **evoluímos a stack tecnológica** para garantir maior manutenibilidade, performance e uma interface mais fluida (essencial para um totem touch):
-
 | Camada | Tecnologia | Motivo |
 |:-------|:-----------|:-------|
-| **Backend / Hardware** | [FastAPI](https://fastapi.tiangolo.com/) (Python) | Rápido, async nativo, tipagem forte (Pydantic), documentação Swagger automática. Ideal para integrar com GPIO e impressora. |
-| **Frontend (Kiosk UI)** | [React](https://react.dev/) (Vite) | Componentização, estado reativo, animações fluidas. Interface responsiva para touchscreen. |
-| **Banco de Dados** | [SQLite](https://www.sqlite.org/) + [SQLModel](https://sqlmodel.tiangolo.com/) | Leve, sem servidor, resiliência offline. SQLModel integra tipagem Python com o ORM. |
-| **Migrações** | [Alembic](https://alembic.sqlalchemy.org/) | Versionamento do schema do banco. Essencial para evoluir tabelas sem perder dados. |
-| **Impressora** | [python-escpos](https://python-escpos.readthedocs.io/) | Padrão da indústria para impressoras térmicas ESC/POS via USB/Serial. |
+| **Backend / Hardware** | [FastAPI](https://fastapi.tiangolo.com/) (Python) | Rápido, async nativo, Clean Architecture, Pydantic, documentação Swagger automática. |
+| **Frontend (Kiosk UI)** | [React](https://react.dev/) (Vite) | Componentização, Framer Motion, suporte a Touchscreen e Teclado Numérico USB físico. |
+| **Banco de Dados** | [SQLite](https://www.sqlite.org/) + [SQLModel](https://sqlmodel.tiangolo.com/) | Leve, sem servidor, resiliência offline. |
+| **Impressora** | [python-escpos](https://python-escpos.readthedocs.io/) | Padrão da indústria para impressoras térmicas ESC/POS via USB (com fallback para terminal). |
 
-> 📖 **Detalhes completos da arquitetura, padrões de código e organização de pastas:** [ARCHITECTURE.md](./ARCHITECTURE.md)
+---
 
-## 🛠 Como Rodar Localmente
+## 🛠️ Como Rodar Localmente (Desenvolvimento)
 
-### Pré-requisitos
-- Python 3.11+
-- Node.js 18+
-- Git
-
-### Backend
+### 1. Backend
 ```bash
 cd backend
 python -m venv venv
@@ -47,80 +60,37 @@ source venv/Scripts/activate  # ou venv\Scripts\activate no Windows
 pip install -r requirements.txt
 python -m uvicorn main:app --reload
 ```
+A API estará em `http://localhost:8000` (Swagger interativo em `/docs`).
 
-### Frontend
+### 2. Frontend
 ```bash
 cd frontend
 npm install
 npm run dev
 ```
+O Totem estará em `http://localhost:5173`.
 
-### 📡 Testando Resiliência (Offline-First)
-Desligue a rede Wi-Fi ou pare o Backend. O Frontend mostrará um *Badge Vermelho* de Sincronização Pausada, mas continuará emitindo senhas perfeitamente.
+---
 
-### 🖨️ Hardware & Kiosk (Raspberry Pi)
+## 🖨️ Hardware & Deploy no Raspberry Pi
 
-Se você tem um **Raspberry Pi com tela Touch Screen** e quer rodar o Totem fisicamente:
-
-#### Passo a Passo (Deploy Físico)
-1. Instale o **Raspberry Pi OS (com Desktop)** no seu MicroSD e conecte a tela touch no Pi.
-2. Ligue o Pi, conecte no Wi-Fi, abra o Terminal e clone este repositório.
-3. Conecte sua impressora térmica na porta USB do Pi.
-4. Execute o nosso script mágico de automação:
-   ```bash
-   cd SUSpicious_Totem
-   bash scripts/setup_kiosk.sh
-   ```
-5. O script instalará o navegador, desativará a proteção de tela, protegerá o seu SD card transferindo logs para a RAM (`tmpfs`), e criará as regras USB para a impressora.
-6. Crie o arquivo `.env` na pasta `backend` contendo `PRINTER_MODE=escpos`.
-7. Reinicie o Raspberry Pi. O sistema iniciará automaticamente em tela cheia (Kiosk Mode)!
-
-#### ⚠️ Pendências Futuras (Ajustes Físicos)
-Como o hardware exato varia por UBS, as seguintes configurações precisam de sintonia fina antes da entrega final no postinho:
-- **Modelo da Impressora:** No arquivo `backend/app/infrastructure/external/escpos_printer.py`, os valores `id_vendor` (0x04b8) e `id_product` (0x0202) representam uma Epson genérica. Eles devem ser trocados pelos IDs reais da impressora comprada (basta rodar `lsusb` no Raspberry Pi para descobrir).
-- **Domínio da Triagem:** O QR Code impresso no cupom está apontando para o IP de desenvolvimento local. Ele deverá ser atualizado para o URL público do sistema web da UBS.
-- **Credenciais do e-SUS:** A integração offline envia dados para o PEC. As senhas da API do e-SUS devem ser preenchidas no `.env` de produção.
-
-> **Nota:** No ambiente de desenvolvimento (Windows), a impressora é simulada automaticamente via interface mock. Não é necessário ter o Raspberry Pi conectado para programar.
-
-## 🌐 Deploy no Raspberry Pi (Produção)
-
-O totem roda em um Raspberry Pi com tela touchscreen. O navegador Chromium é iniciado em **Kiosk Mode** apontando para o frontend local.
+O repositório inclui um instalador automatizado para Raspberry Pi 3B+, 4 e 5:
 
 ```bash
-chromium-browser --kiosk --noerrdialogs --disable-translate http://localhost:5173
+cd ~
+git clone https://github.com/Gabriell-Ilius/SUSpicious_Totem
+cd SUSpicious_Totem
+chmod +x scripts/setup_kiosk.sh
+sudo ./scripts/setup_kiosk.sh
 ```
 
-Consulte a seção **Resiliência do Raspberry Pi** no [ARCHITECTURE.md](./ARCHITECTURE.md) para configurações de produção (RAM disk, reinício automático, IP estático).
+O script configura:
+- Pacotes do sistema e drivers de Touch Screen DSI/HDMI (`xinput`, `dtoverlay`).
+- Proteção do Cartão SD via RAM Disk (`tmpfs` em `/var/log` e `/tmp`).
+- Serviço Systemd de auto-inicialização no boot.
+- Autostart do Chromium em tela cheia (Kiosk Mode) e atalho `Rodar_Totem.sh` no Desktop.
 
-## 🤝 Guia de Contribuição
-
-### Branches
-| Branch | Uso |
-|:-------|:----|
-| `main` | Código estável e revisado. Nunca commite diretamente aqui. |
-| `develop` | Branch de integração. PRs de features são mergeados aqui. |
-| `feature/*` | Uma branch por funcionalidade (ex: `feature/tela-triagem`). |
-| `fix/*` | Correções de bugs (ex: `fix/impressora-timeout`). |
-
-### Padrão de Commits (Conventional Commits)
-```
-feat: adiciona tela de inserção de CPF
-fix: corrige timeout da impressora após 30s
-docs: atualiza README com instruções de deploy
-refactor: extrai lógica de fila para FilaService
-test: adiciona testes unitários para GerarSenha
-```
-
-### Fluxo de Trabalho
-1. Crie uma branch a partir de `develop`: `git checkout -b feature/nome-da-feature develop`
-2. Desenvolva e commite seguindo o padrão acima.
-3. Abra um **Pull Request** para `develop`.
-4. Após revisão e aprovação, faça o merge.
-
-## 🗺️ Roadmap
-
-Consulte o [ROADMAP.md](./ROADMAP.md) para acompanhar os marcos de desenvolvimento e o progresso do projeto.
+---
 
 ## 📄 Licença
 

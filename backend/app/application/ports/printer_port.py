@@ -1,22 +1,32 @@
 """
 Interface abstrata para a impressora térmica.
-
-Os casos de uso chamam esta interface. A implementação concreta
-(EscPosPrinter ou MockPrinter) é injetada em tempo de execução.
+Permite que o sistema imprima tanto na impressora USB real (ESC/POS) quanto no terminal (Mock).
 """
 
 from abc import ABC, abstractmethod
+from typing import Optional
 
 
 class PrinterPort(ABC):
-    """Porta de saída para impressão de senhas."""
+    """Porta de saída para impressão de senhas e comprovantes de atendimento."""
 
     @abstractmethod
-    def imprimir_senha(self, codigo: str, tipo: str, data_hora: str, senha_id: str = None) -> bool:
-        """Imprime uma senha na impressora térmica (ou simula no terminal). Retorna True se sucesso."""
+    def imprimir_senha(
+        self,
+        codigo: str,
+        tipo: str,
+        data_hora: str,
+        senha_id: Optional[str] = None,
+        setor_destino: Optional[str] = None,
+        prioridade: Optional[str] = None,
+        cpf: Optional[str] = None,
+        patient_name: Optional[str] = None,
+        qr_code_url: Optional[str] = None
+    ) -> bool:
+        """Imprime o cupom de senha no formato físico ou mockado."""
         ...
 
     @abstractmethod
     def verificar_conexao(self) -> bool:
-        """Verifica se a impressora está conectada e pronta."""
+        """Verifica se a impressora está conectada e pronta para imprimir."""
         ...

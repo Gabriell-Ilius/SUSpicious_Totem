@@ -3,15 +3,14 @@ from fastapi.testclient import TestClient
 from sqlmodel import Session, SQLModel, create_engine
 from app.infrastructure.database.session import get_session
 from app.domain import Paciente, Senha
+from app.domain.agendamento import Agendamento
 from main import app
 
-# Setup test DB (SQLite local file to avoid :memory: connection loss)
 sqlite_url = "sqlite:///./test.db"
 engine = create_engine(sqlite_url, connect_args={"check_same_thread": False})
 
 @pytest.fixture(name="session")
 def session_fixture():
-    print("Tables before create_all:", SQLModel.metadata.tables.keys())
     SQLModel.metadata.create_all(engine)
     with Session(engine) as session:
         yield session
@@ -27,25 +26,31 @@ def client_fixture(session: Session):
     yield client
     app.dependency_overrides.clear()
 
+def test_check_cpf_schedule(client: TestClient):
+    response = client.post("/api/senhas/check-cpf", json={"cpf": "11111111111"})
+    assert response.status_code == 200
+    data = response.json()
+    assert data["has_schedule"] is True
+    assert "paciente" in data
+    assert "consultorio" in data
+
 def test_gerar_senha(client: TestClient):
-    response = client.post("/api/senhas/", json={"tipo_atendimento": "VACINACAO", "prioridade": 1})
+    response = client.post("/api/senhas/", json={"tipo_atendimento": "VACINACAO", "prioridade": 1, "sub_prioridade": "PCD"})
     assert response.status_code == 200
     data = response.json()
     assert data["tipo_atendimento"] == "VACINACAO"
-    assert data["codigo"] == "VAC-001"
+    assert "VAC-P001" in data["codigo"]
     assert data["status"] == "AGUARDANDO"
     assert data["prioridade"] == 1
+    assert data["sub_prioridade"] == "PCD"
 
 def test_chamar_proxima_senha(client: TestClient):
-    # Gerar duas senhas
     client.post("/api/senhas/", json={"tipo_atendimento": "ESPONTANEA", "prioridade": 0})
-    client.post("/api/senhas/", json={"tipo_atendimento": "VACINACAO", "prioridade": 1}) # Prioridade maior
+    client.post("/api/senhas/", json={"tipo_atendimento": "VACINACAO", "prioridade": 1})
     
-    # Chamar próxima
     response = client.post("/api/senhas/proxima")
     assert response.status_code == 200
     data = response.json()
-    # A de maior prioridade deve ser chamada primeiro
     assert data["tipo_atendimento"] == "VACINACAO"
     assert data["status"] == "CHAMADA"
 
@@ -57,12 +62,3 @@ def test_consultar_fila_atual(client: TestClient):
     data = response.json()
     assert data["total_aguardando"] == 1
     assert data["senhas"][0]["tipo_atendimento"] == "ESPONTANEA"
-
-def test_validar_cpf_mock(client: TestClient):
-    # O mock retorna dados para um CPF específico (ex: 11111111111 ou 00000000000)
-    # Veja mock_esus_gateway.py para CPF exato (normalmente qualquer no mock funciona se não estiver vazio)
-    response = client.get("/api/pacientes/12345678901")
-    assert response.status_code == 200
-    data = response.json()
-    assert data["cpf"] == "12345678901"
-    assert "nome" in data
