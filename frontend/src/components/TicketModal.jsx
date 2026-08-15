@@ -1,6 +1,7 @@
 import React, { useState } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
-import { X, Check, AlertCircle, Sparkles, Heart, Baby, Accessibility, ShieldCheck, Printer } from 'lucide-react';
+import { QRCodeSVG } from 'qrcode.react';
+import { X, Check, AlertCircle, Sparkles, Heart, Baby, Accessibility, ShieldCheck, Printer, QrCode, ExternalLink } from 'lucide-react';
 
 const TicketModal = ({ service, cpf, onClose, onConfirm }) => {
   const [priority, setPriority] = useState(0); // 0 = Normal, 1 = Preferencial
@@ -131,23 +132,54 @@ const TicketModal = ({ service, cpf, onClose, onConfirm }) => {
             </div>
           </div>
         ) : (
-          <div style={{ textAlign: 'center', padding: '16px 0' }}>
-            <div style={{ display: 'inline-flex', padding: '12px', background: '#DCFCE7', borderRadius: '50%', color: '#16A34A', marginBottom: '12px' }}>
-              <Check size={40} />
+          <div style={{ textAlign: 'center', padding: '12px 0' }}>
+            <div style={{ display: 'inline-flex', padding: '10px', background: '#DCFCE7', borderRadius: '50%', color: '#16A34A', marginBottom: '8px' }}>
+              <Check size={36} />
             </div>
-            <h3 style={{ fontSize: '1.3rem', color: '#166534', margin: '0 0 8px' }}>Senha Emitida com Sucesso!</h3>
-            <div className="ticket-number-display" style={{ fontSize: '2.8rem', fontWeight: 800, color: '#0056A8', margin: '12px 0' }}>
+            <h3 style={{ fontSize: '1.25rem', color: '#166534', margin: '0 0 6px' }}>Senha Emitida com Sucesso!</h3>
+            
+            <div className="ticket-number-display" style={{ fontSize: '2.8rem', fontWeight: 800, color: '#0056A8', margin: '8px 0' }}>
               {generatedTicket.codigo}
             </div>
+
             {generatedTicket.setor_destino && (
-              <div style={{ background: '#EFF6FF', border: '1px solid #BFDBFE', borderRadius: '8px', padding: '10px', color: '#1E40AF', fontWeight: 'bold', margin: '12px 0' }}>
+              <div style={{ background: '#EFF6FF', border: '1px solid #BFDBFE', borderRadius: '8px', padding: '8px 12px', color: '#1E40AF', fontWeight: 'bold', margin: '8px 0', fontSize: '0.95rem' }}>
                 DIRIJA-SE AO: {generatedTicket.setor_destino.toUpperCase()}
               </div>
             )}
-            <p style={{ color: '#64748B', fontSize: '0.95rem' }}>
+
+            {/* QR Code na tela para a Triagem Digital / Celular */}
+            <div style={{
+              background: '#F8FAFC', border: '1px solid #E2E8F0',
+              borderRadius: '16px', padding: '14px', margin: '14px 0',
+              display: 'flex', flexDirection: 'column', alignItems: 'center', gap: '8px'
+            }}>
+              <span style={{ fontSize: '0.85rem', fontWeight: 700, color: '#0056A8', display: 'flex', alignItems: 'center', gap: '6px' }}>
+                <QrCode size={18} /> Pré-Triagem no Celular (Escaneie o QR Code):
+              </span>
+              <div style={{ background: '#FFF', padding: '10px', borderRadius: '10px', border: '1px solid #CBD5E1', display: 'inline-block' }}>
+                <QRCodeSVG
+                  value={`http://${window.location.hostname}:5173/triagem/${generatedTicket.codigo}`}
+                  size={120}
+                  level="M"
+                  includeMargin={false}
+                />
+              </div>
+              <a
+                href={`/triagem/${generatedTicket.codigo}`}
+                target="_blank"
+                rel="noreferrer"
+                style={{ fontSize: '0.8rem', color: '#0284C7', textDecoration: 'underline', display: 'flex', alignItems: 'center', gap: '4px' }}
+              >
+                <span>Ou clique aqui para abrir a pré-triagem</span>
+                <ExternalLink size={14} />
+              </a>
+            </div>
+
+            <p style={{ color: '#64748B', fontSize: '0.9rem', margin: '8px 0' }}>
               Retire o cupom na impressora e aguarde a chamada no painel.
             </p>
-            <button className="action-btn-primary" onClick={onClose} style={{ marginTop: '16px' }}>
+            <button className="action-btn-primary" onClick={onClose} style={{ marginTop: '12px' }}>
               Concluir
             </button>
           </div>

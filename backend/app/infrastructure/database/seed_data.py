@@ -74,4 +74,4 @@ def seed_agendamentos():
 
         session.add_all(mock_appointments)
         session.commit()
-        print("✅ [SEED] Banco de dados renovado com agendamentos de demonstração para HOJE!")
+        print("[SEED] Banco de dados renovado com agendamentos de demonstracao para HOJE!")

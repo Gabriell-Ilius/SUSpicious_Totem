@@ -25,7 +25,7 @@ sync_engine = None
 @asynccontextmanager
 async def lifespan(app: FastAPI):
     # Startup: Cria tabelas, popula agendamentos de hoje e inicia o motor de sincronização
-    logging.info("🚀 Iniciando a API do SUSpicious Totem...")
+    logging.info("Iniciando a API do SUSpicious Totem...")
     SQLModel.metadata.create_all(engine)
     
     # Popula agendamentos do Pitch
@@ -42,7 +42,7 @@ async def lifespan(app: FastAPI):
     yield
     
     # Shutdown
-    logging.info("🛑 Parando serviços do SUSpicious Totem...")
+    logging.info("Parando servicos do SUSpicious Totem...")
     if sync_engine:
         await sync_engine.stop()
 

@@ -1,10 +1,11 @@
 import React, { useState, useEffect } from 'react';
 import { Routes, Route, useLocation } from 'react-router-dom';
 import { AnimatePresence } from 'framer-motion';
+import { QRCodeSVG } from 'qrcode.react';
 import {
   Calendar, Stethoscope, Syringe, Pill,
   QrCode, CheckCircle, Navigation, Delete,
-  ArrowRight, Keyboard
+  ArrowRight, Keyboard, ExternalLink
 } from 'lucide-react';
 
 import Header from './components/Header';
@@ -324,19 +325,46 @@ function TotemKiosk() {
               </div>
 
               {scheduledInfo?.horario && (
-                <p style={{ fontSize: '0.9rem', color: '#64748B' }}>
+                <p style={{ fontSize: '0.9rem', color: '#64748B', marginBottom: '12px' }}>
                   Horário: <strong style={{ color: '#0F172A' }}>{scheduledInfo.horario}</strong>
                 </p>
               )}
+
+              {/* QR Code na tela para o paciente acompanhar */}
+              <div style={{
+                background: '#FFFFFF', border: '1px solid #E2E8F0',
+                borderRadius: '12px', padding: '10px', marginTop: '10px',
+                display: 'flex', flexDirection: 'column', alignItems: 'center', gap: '6px'
+              }}>
+                <span style={{ fontSize: '0.8rem', fontWeight: 700, color: '#0056A8', display: 'flex', alignItems: 'center', gap: '4px' }}>
+                  <QrCode size={16} /> Triagem Digital / Acompanhamento:
+                </span>
+                <div style={{ padding: '6px', background: '#FFF', borderRadius: '8px', border: '1px solid #CBD5E1', display: 'inline-block' }}>
+                  <QRCodeSVG
+                    value={`http://${window.location.hostname}:5173/triagem/${scheduledTicket.codigo}`}
+                    size={95}
+                    level="M"
+                  />
+                </div>
+                <a
+                  href={`/triagem/${scheduledTicket.codigo}`}
+                  target="_blank"
+                  rel="noreferrer"
+                  style={{ fontSize: '0.75rem', color: '#0284C7', textDecoration: 'underline', display: 'flex', alignItems: 'center', gap: '3px' }}
+                >
+                  <span>Abrir no navegador</span>
+                  <ExternalLink size={12} />
+                </a>
+              </div>
             </div>
 
-            <div style={{ color: 'var(--sus-blue)', fontSize: '1rem', fontWeight: 600, margin: '12px 0' }}>
+            <div style={{ color: 'var(--sus-blue)', fontSize: '1rem', fontWeight: 600, margin: '8px 0' }}>
               Retire o cupom impresso abaixo
             </div>
             <p style={{ fontSize: '0.85rem', color: '#94A3B8' }}>
               Retornando ao início em <strong>{countdown}s</strong>...
             </p>
-            <button className="action-btn-secondary" style={{ marginTop: '8px' }} onClick={resetToStart}>
+            <button className="action-btn-secondary" style={{ marginTop: '4px' }} onClick={resetToStart}>
               Encerrar
             </button>
           </div>
