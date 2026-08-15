@@ -324,16 +324,16 @@ function TotemKiosk() {
               {/* QR Code na tela para o paciente acompanhar */}
               <div style={{
                 background: '#0B192C', border: '1px solid rgba(56, 189, 248, 0.25)',
-                borderRadius: '12px', padding: '10px', marginTop: '10px',
-                display: 'flex', flexDirection: 'column', alignItems: 'center', gap: '6px'
+                borderRadius: '16px', padding: '16px', marginTop: '12px',
+                display: 'flex', flexDirection: 'column', alignItems: 'center', gap: '10px'
               }}>
-                <span style={{ fontSize: '0.8rem', fontWeight: 700, color: '#38BDF8', display: 'flex', alignItems: 'center', gap: '4px' }}>
-                  <QrCode size={16} /> Triagem Digital / Acompanhamento:
+                <span style={{ fontSize: '0.9rem', fontWeight: 800, color: '#38BDF8', display: 'flex', alignItems: 'center', gap: '6px' }}>
+                  <QrCode size={20} /> Pré-Triagem / Acompanhamento:
                 </span>
-                <div style={{ padding: '6px', background: '#FFF', borderRadius: '8px', border: '1px solid #CBD5E1', display: 'inline-block' }}>
+                <div style={{ padding: '12px', background: '#FFF', borderRadius: '14px', border: '2px solid #CBD5E1', display: 'inline-block', boxShadow: '0 6px 16px rgba(0, 0, 0, 0.4)' }}>
                   <QRCodeSVG
                     value={`http://${(window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1') ? '192.168.15.34' : window.location.hostname}:5173/triagem/${scheduledTicket.codigo}`}
-                    size={95}
+                    size={180}
                     level="M"
                   />
                 </div>
@@ -341,10 +341,10 @@ function TotemKiosk() {
                   href={`/triagem/${scheduledTicket.codigo}`}
                   target="_blank"
                   rel="noreferrer"
-                  style={{ fontSize: '0.75rem', color: '#38BDF8', textDecoration: 'underline', display: 'flex', alignItems: 'center', gap: '3px' }}
+                  style={{ fontSize: '0.85rem', color: '#38BDF8', textDecoration: 'underline', display: 'flex', alignItems: 'center', gap: '4px', fontWeight: 600 }}
                 >
                   <span>Abrir no navegador</span>
-                  <ExternalLink size={12} />
+                  <ExternalLink size={14} />
                 </a>
               </div>
             </div>

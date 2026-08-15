@@ -150,17 +150,17 @@ const TicketModal = ({ service, cpf, onClose, onConfirm }) => {
 
             {/* QR Code na tela para a Triagem Digital / Celular */}
             <div style={{
-              background: '#071324', border: '1px solid rgba(56, 189, 248, 0.25)',
-              borderRadius: '16px', padding: '14px', margin: '14px 0',
-              display: 'flex', flexDirection: 'column', alignItems: 'center', gap: '8px'
+              background: '#071324', border: '1px solid rgba(56, 189, 248, 0.3)',
+              borderRadius: '20px', padding: '20px', margin: '16px 0',
+              display: 'flex', flexDirection: 'column', alignItems: 'center', gap: '12px'
             }}>
-              <span style={{ fontSize: '0.85rem', fontWeight: 700, color: '#38BDF8', display: 'flex', alignItems: 'center', gap: '6px' }}>
-                <QrCode size={18} /> Pré-Triagem Opcional (Preencha no celular enquanto aguarda):
+              <span style={{ fontSize: '1rem', fontWeight: 800, color: '#38BDF8', display: 'flex', alignItems: 'center', gap: '8px' }}>
+                <QrCode size={22} /> Pré-Triagem Opcional (Escaneie com a câmera do celular):
               </span>
-              <div style={{ background: '#FFF', padding: '10px', borderRadius: '10px', border: '1px solid #CBD5E1', display: 'inline-block' }}>
+              <div style={{ background: '#FFF', padding: '16px', borderRadius: '16px', border: '2px solid #CBD5E1', display: 'inline-block', boxShadow: '0 8px 20px rgba(0, 0, 0, 0.4)' }}>
                 <QRCodeSVG
                   value={`http://${(window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1') ? '192.168.15.34' : window.location.hostname}:5173/triagem/${generatedTicket.codigo}`}
-                  size={120}
+                  size={220}
                   level="M"
                   includeMargin={false}
                 />
@@ -169,10 +169,10 @@ const TicketModal = ({ service, cpf, onClose, onConfirm }) => {
                 href={`/triagem/${generatedTicket.codigo}`}
                 target="_blank"
                 rel="noreferrer"
-                style={{ fontSize: '0.8rem', color: '#38BDF8', textDecoration: 'underline', display: 'flex', alignItems: 'center', gap: '4px' }}
+                style={{ fontSize: '0.9rem', color: '#38BDF8', textDecoration: 'underline', display: 'flex', alignItems: 'center', gap: '6px', fontWeight: 600 }}
               >
-                <span>Ou clique aqui para abrir a pré-triagem</span>
-                <ExternalLink size={14} />
+                <span>Ou clique aqui para abrir a pré-triagem no navegador</span>
+                <ExternalLink size={16} />
               </a>
             </div>
 
