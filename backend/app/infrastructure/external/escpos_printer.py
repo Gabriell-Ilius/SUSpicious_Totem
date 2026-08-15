@@ -28,7 +28,7 @@ class EscPosPrinter(PrinterPort):
     ) -> bool:
         try:
             from escpos.printer import Usb
-            p = Usb(self.id_vendor, self.id_product, profile="TM-T20")
+            p = Usb(self.id_vendor, self.id_product, timeout=1000, profile="TM-T20")
             
             p.set(align='center', font='a', width=1, height=1)
             p.text("UNIDADE BASICA DE SAUDE (UBS)\n")
