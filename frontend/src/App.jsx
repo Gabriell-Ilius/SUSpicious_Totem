@@ -53,15 +53,6 @@ const SERVICES_CONFIG = [
     category: 'FARMACIA',
     icon: Pill,
     iconBgClass: 'icon-purple'
-  },
-  {
-    id: 'triagem',
-    title: 'Pré-Triagem Digital (QR)',
-    description: 'Agilize o atendimento preenchendo no seu celular',
-    tag: 'CELULAR (QR)',
-    category: 'TRIAGEM_DIGITAL',
-    icon: QrCode,
-    iconBgClass: 'icon-cyan'
   }
 ];
 

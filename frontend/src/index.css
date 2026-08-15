@@ -225,13 +225,13 @@ html, body {
   margin-top: 4px;
 }
 
-/* Services Grid */
+/* Services Grid (4 Serviços: 2x2 Simétrico) */
 .services-grid {
   display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+  grid-template-columns: repeat(2, 1fr);
   gap: 16px;
   width: 100%;
-  max-width: 960px;
+  max-width: 900px;
   padding: 0 20px;
   margin: 0 auto 20px;
 }

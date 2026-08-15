@@ -155,7 +155,7 @@ const TicketModal = ({ service, cpf, onClose, onConfirm }) => {
               display: 'flex', flexDirection: 'column', alignItems: 'center', gap: '8px'
             }}>
               <span style={{ fontSize: '0.85rem', fontWeight: 700, color: '#0056A8', display: 'flex', alignItems: 'center', gap: '6px' }}>
-                <QrCode size={18} /> Pré-Triagem no Celular (Escaneie o QR Code):
+                <QrCode size={18} /> Pré-Triagem Opcional (Preencha no celular enquanto aguarda):
               </span>
               <div style={{ background: '#FFF', padding: '10px', borderRadius: '10px', border: '1px solid #CBD5E1', display: 'inline-block' }}>
                 <QRCodeSVG
