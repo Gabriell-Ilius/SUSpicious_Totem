@@ -1,13 +1,5 @@
-"""
-Mock do gateway e-SUS para desenvolvimento.
-
-Retorna dados fictícios sem precisar de conexão com o PEC real.
-"""
-
 from typing import Optional
-
 from app.application.ports.esus_gateway_port import EsusGatewayPort
-
 
 class MockEsusGateway(EsusGatewayPort):
     """Simulação da API do e-SUS PEC para ambiente de desenvolvimento."""
@@ -22,10 +14,10 @@ class MockEsusGateway(EsusGatewayPort):
         }
 
     def enviar_registro(self, registro: dict) -> bool:
-        """Simula envio bem-sucedido."""
-        print(f"[MOCK e-SUS] Registro enviado: {registro.get('tipo', 'N/A')}")
+        return True
+
+    def enviar_senha(self, senha) -> bool:
         return True
 
     def verificar_conexao(self) -> bool:
-        """Mock sempre retorna True."""
         return True

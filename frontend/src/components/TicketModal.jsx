@@ -159,7 +159,7 @@ const TicketModal = ({ service, cpf, onClose, onConfirm }) => {
               </span>
               <div style={{ background: '#FFF', padding: '10px', borderRadius: '10px', border: '1px solid #CBD5E1', display: 'inline-block' }}>
                 <QRCodeSVG
-                  value={`http://${window.location.hostname}:5173/triagem/${generatedTicket.codigo}`}
+                  value={`http://${(window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1') ? '192.168.15.34' : window.location.hostname}:5173/triagem/${generatedTicket.codigo}`}
                   size={120}
                   level="M"
                   includeMargin={false}

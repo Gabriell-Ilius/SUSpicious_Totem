@@ -332,7 +332,7 @@ function TotemKiosk() {
                 </span>
                 <div style={{ padding: '6px', background: '#FFF', borderRadius: '8px', border: '1px solid #CBD5E1', display: 'inline-block' }}>
                   <QRCodeSVG
-                    value={`http://${window.location.hostname}:5173/triagem/${scheduledTicket.codigo}`}
+                    value={`http://${(window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1') ? '192.168.15.34' : window.location.hostname}:5173/triagem/${scheduledTicket.codigo}`}
                     size={95}
                     level="M"
                   />
