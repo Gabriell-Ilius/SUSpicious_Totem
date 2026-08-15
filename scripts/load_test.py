@@ -11,7 +11,7 @@ CONCURRENCY_LIMIT = 20
 async def gerar_senha(client: httpx.AsyncClient, index: int, semaphore: asyncio.Semaphore):
     async with semaphore:
         # Alternando tipos para dar variedade ao load test
-        tipos = ["ESPONTANEA", "AGENDADA", "RETORNO_ACOLHIMENTO", "VACINACAO"]
+        tipos = ["ESPONTANEA", "AGENDADA", "VACINACAO", "FARMACIA", "TRIAGEM_DIGITAL"]
         tipo = tipos[index % len(tipos)]
         
         payload = {
@@ -25,21 +25,20 @@ async def gerar_senha(client: httpx.AsyncClient, index: int, semaphore: asyncio.
             response = await client.post(API_URL, json=payload, headers={"Content-Type": "application/json"})
             if response.status_code == 200:
                 data = response.json()
-                print(f"[{index:03d}] ✅ Senha GERADA: {data.get('codigo')} ({tipo})")
+                print(f"[{index:03d}] [OK] Senha GERADA: {data.get('codigo')} ({tipo})")
                 return True
-            # Pode ocorrer 503 se o printer_mode for escpos e não houver impressora conectada
             elif response.status_code == 503:
-                 print(f"[{index:03d}] ⚠️ Senha GERADA mas impressora falhou (503). Normal se sem impressora.")
+                 print(f"[{index:03d}] [AVISO] Senha GERADA mas impressora falhou (503).")
                  return True
             else:
-                print(f"[{index:03d}] ❌ Erro: {response.status_code} - {response.text}")
+                print(f"[{index:03d}] [ERRO] {response.status_code} - {response.text}")
                 return False
         except Exception as e:
-            print(f"[{index:03d}] ❌ Falha na requisição: {e}")
+            print(f"[{index:03d}] [FALHA] Requisicao falhou: {e}")
             return False
 
 async def main():
-    print(f"🚀 Iniciando Load Test - {NUM_REQUESTS} Requisições...")
+    print(f"Iniciando Load Test - {NUM_REQUESTS} Requisicoes...")
     start_time = time.time()
     
     semaphore = asyncio.Semaphore(CONCURRENCY_LIMIT)
@@ -55,7 +54,7 @@ async def main():
     duracao = end_time - start_time
     
     print("\n" + "="*40)
-    print("📊 RESULTADO DO LOAD TEST")
+    print("RESULTADO DO LOAD TEST")
     print("="*40)
     print(f"Total disparos : {NUM_REQUESTS}")
     print(f"Sucessos       : {sucessos}")
