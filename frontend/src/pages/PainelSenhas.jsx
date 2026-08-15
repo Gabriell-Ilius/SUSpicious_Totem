@@ -1,6 +1,6 @@
 import React, { useState, useEffect, useRef } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
-import { Activity, Clock, Bell, Users, Volume2, ArrowRight, CheckCircle2, Ticket, Stethoscope, Sparkles } from 'lucide-react';
+import { Activity, Clock, Bell, Users, Volume2, ArrowRight, CheckCircle2, Ticket, Stethoscope, Sparkles, Trash2 } from 'lucide-react';
 import filaService from '../services/filaService';
 
 // Som de chamada hospitalar "Ding-Dong" (Web Audio API)
@@ -104,6 +104,20 @@ const PainelSenhas = () => {
       console.log("Nenhuma senha aguardando para chamar.");
     } finally {
       setCalling(false);
+    }
+  };
+
+  // Função para zerar a fila de senhas e começar demonstração limpa
+  const handleResetarFila = async () => {
+    try {
+      await filaService.resetarFila();
+      setUltimaChamada(null);
+      setHistoricoChamadas([]);
+      setUltimasEmitidas([]);
+      setTotalAguardando(0);
+      prevChamadaIdRef.current = null;
+    } catch (err) {
+      console.error("Erro ao resetar fila:", err);
     }
   };
 
@@ -443,24 +457,41 @@ const PainelSenhas = () => {
           <span>Sincronização Ativa (1s)</span>
         </div>
 
-        {/* Botão de Demonstração */}
-        <button
-          onClick={handleChamarProxima}
-          disabled={calling || totalAguardando === 0}
-          style={{
-            background: totalAguardando > 0 ? 'linear-gradient(90deg, #0056A8 0%, #0284C7 100%)' : '#334155',
-            color: '#FFF', border: 'none',
-            borderRadius: '8px', padding: '7px 16px',
-            fontSize: '0.85rem', fontWeight: 700,
-            cursor: totalAguardando > 0 ? 'pointer' : 'not-allowed',
-            display: 'flex', alignItems: 'center', gap: '8px',
-            boxShadow: totalAguardando > 0 ? '0 2px 8px rgba(0, 86, 168, 0.4)' : 'none'
-          }}
-        >
-          <Bell size={15} />
-          <span>{calling ? 'Chamando...' : 'Chamar Próxima Senha da Fila'}</span>
-          <ArrowRight size={14} />
-        </button>
+        {/* Botões de Ação do Pitch */}
+        <div style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
+          <button
+            onClick={handleResetarFila}
+            title="Zera a fila e o histórico para um novo teste"
+            style={{
+              background: 'rgba(239, 68, 68, 0.15)',
+              color: '#F87171', border: '1px solid rgba(239, 68, 68, 0.3)',
+              borderRadius: '8px', padding: '6px 14px',
+              fontSize: '0.8rem', fontWeight: 600, cursor: 'pointer',
+              display: 'flex', alignItems: 'center', gap: '6px'
+            }}
+          >
+            <Trash2 size={14} />
+            <span>Zerar Fila (Pitch Demo)</span>
+          </button>
+
+          <button
+            onClick={handleChamarProxima}
+            disabled={calling || totalAguardando === 0}
+            style={{
+              background: totalAguardando > 0 ? 'linear-gradient(90deg, #0056A8 0%, #0284C7 100%)' : '#334155',
+              color: '#FFF', border: 'none',
+              borderRadius: '8px', padding: '7px 16px',
+              fontSize: '0.85rem', fontWeight: 700,
+              cursor: totalAguardando > 0 ? 'pointer' : 'not-allowed',
+              display: 'flex', alignItems: 'center', gap: '8px',
+              boxShadow: totalAguardando > 0 ? '0 2px 8px rgba(0, 86, 168, 0.4)' : 'none'
+            }}
+          >
+            <Bell size={15} />
+            <span>{calling ? 'Chamando...' : 'Chamar Próxima Senha da Fila'}</span>
+            <ArrowRight size={14} />
+          </button>
+        </div>
       </footer>
     </div>
   );

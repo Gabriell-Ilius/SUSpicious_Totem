@@ -1,32 +1,37 @@
 from typing import Optional
-from sqlalchemy import func
-from sqlmodel import Session, select
-from app.domain.senha import Senha, TipoAtendimento, StatusSenha, agora_sp
+from sqlmodel import Session, select, func
+from app.domain.senha import Senha, StatusSenha, TipoAtendimento, agora_sp
 from app.application.ports.senha_repository_port import SenhaRepositoryPort
 
 class SenhaRepository(SenhaRepositoryPort):
     def __init__(self, session: Session):
         self.session = session
 
-    def gerar_codigo_senha(self, tipo: TipoAtendimento, prioridade: int = 0) -> str:
-        hoje = agora_sp().replace(hour=0, minute=0, second=0, microsecond=0)
-        count = self.session.exec(
-            select(func.count(Senha.id)).where(
-                Senha.tipo_atendimento == tipo,
-                Senha.data_hora_emissao >= hoje
-            )
-        ).one() or 0
-        
-        prefixos = {
+    def proximo_numero_sequencial(self, tipo: TipoAtendimento) -> int:
+        hoje_inicio = agora_sp().replace(hour=0, minute=0, second=0, microsecond=0)
+        statement = (
+            select(func.count(Senha.id))
+            .where(Senha.tipo_atendimento == tipo)
+            .where(Senha.data_hora_emissao >= hoje_inicio)
+        )
+        total = self.session.exec(statement).one()
+        return total + 1
+
+    def gerar_codigo(self, tipo: TipoAtendimento, prioridade: int = 0) -> str:
+        seq = self.proximo_numero_sequencial(tipo)
+        prefix_map = {
             TipoAtendimento.AGENDADA: "AGN",
             TipoAtendimento.ESPONTANEA: "ESP",
             TipoAtendimento.VACINACAO: "VAC",
             TipoAtendimento.FARMACIA: "FAR",
-            TipoAtendimento.TRIAGEM_DIGITAL: "TRG"
+            TipoAtendimento.TRIAGEM_DIGITAL: "TRG",
         }
-        prefixo = prefixos.get(tipo, "SNH")
-        p_flag = "P" if prioridade == 1 else ""
-        return f"{prefixo}-{p_flag}{count + 1:03d}"
+        prefix = prefix_map.get(tipo, "ATD")
+        flag = "P" if prioridade == 1 else ""
+        return f"{prefix}-{flag}{seq:03d}"
+
+    def gerar_codigo_senha(self, tipo: TipoAtendimento, prioridade: int = 0) -> str:
+        return self.gerar_codigo(tipo, prioridade)
 
     def salvar(self, senha: Senha) -> Senha:
         self.session.add(senha)
@@ -48,7 +53,7 @@ class SenhaRepository(SenhaRepositoryPort):
         )
         return list(self.session.exec(statement).all())
 
-    def listar_ultimas_chamadas(self, limite: int = 4) -> list[Senha]:
+    def listar_ultimas_chamadas(self, limite: int = 6) -> list[Senha]:
         statement = select(Senha).where(Senha.status == StatusSenha.CHAMADA).order_by(
             Senha.data_hora_chamada.desc()
         ).limit(limite)
@@ -59,3 +64,11 @@ class SenhaRepository(SenhaRepositoryPort):
             Senha.data_hora_emissao.asc()
         )
         return list(self.session.exec(statement).all())
+
+    def limpar_todas_senhas(self) -> int:
+        statement = select(Senha)
+        senhas = list(self.session.exec(statement).all())
+        for s in senhas:
+            self.session.delete(s)
+        self.session.commit()
+        return len(senhas)

@@ -1,11 +1,14 @@
 from fastapi import APIRouter, Depends, HTTPException
 from typing import Optional
 from pydantic import BaseModel
+from sqlmodel import Session
 from app.domain.senha import Senha, TipoAtendimento
 from app.application.use_cases.gerar_senha import GerarSenhaUseCase
 from app.application.use_cases.verificar_agendamento import VerificarAgendamento
 from app.application.use_cases.chamar_proxima_senha import ChamarProximaSenhaUseCase
 from app.api.dependencies import get_gerar_senha_uc, get_chamar_proxima_senha_uc, get_verificar_agendamento_uc
+from app.infrastructure.database.session import get_session
+from app.infrastructure.database.senha_repository import SenhaRepository
 
 class CPFCheckRequest(BaseModel):
     cpf: str
@@ -47,3 +50,12 @@ def chamar_proxima_senha(uc: ChamarProximaSenhaUseCase = Depends(get_chamar_prox
     if not senha:
         raise HTTPException(status_code=404, detail="Não há senhas aguardando.")
     return senha
+
+@router.post("/reset")
+def resetar_senhas(session: Session = Depends(get_session)):
+    """
+    Zera a fila e o histórico de senhas para uma apresentação limpa do Pitch.
+    """
+    repo = SenhaRepository(session)
+    count = repo.limpar_todas_senhas()
+    return {"message": f"{count} senhas removidas. Fila zerada com sucesso!"}

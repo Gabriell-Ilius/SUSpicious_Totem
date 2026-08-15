@@ -4,7 +4,7 @@ const filaService = {
   consultarFilas: async () => {
     try {
       const response = await api.get('/filas/');
-      return response.data; // { total_aguardando, senhas, ultimas_chamadas }
+      return response.data; // { total_aguardando, senhas, ultimas_emitidas, ultimas_chamadas }
     } catch (error) {
       console.error('Erro ao consultar filas:', error);
       throw error;
@@ -17,6 +17,16 @@ const filaService = {
       return response.data;
     } catch (error) {
       console.error('Erro ao chamar próxima senha:', error);
+      throw error;
+    }
+  },
+
+  resetarFila: async () => {
+    try {
+      const response = await api.post('/senhas/reset');
+      return response.data;
+    } catch (error) {
+      console.error('Erro ao resetar fila:', error);
       throw error;
     }
   }
