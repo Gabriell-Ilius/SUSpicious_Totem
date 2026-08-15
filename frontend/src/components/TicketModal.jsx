@@ -78,9 +78,9 @@ const TicketModal = ({ service, cpf, onClose, onConfirm }) => {
               <motion.div
                 initial={{ opacity: 0, height: 0 }}
                 animate={{ opacity: 1, height: 'auto' }}
-                style={{ marginBottom: '20px', padding: '12px', background: '#F8FAFC', borderRadius: '12px', border: '1px solid #E2E8F0' }}
+                style={{ marginBottom: '20px', padding: '14px', background: '#071324', borderRadius: '12px', border: '1px solid rgba(56, 189, 248, 0.2)' }}
               >
-                <span style={{ fontSize: '0.85rem', fontWeight: 'bold', color: '#475569', display: 'block', marginBottom: '8px' }}>
+                <span style={{ fontSize: '0.85rem', fontWeight: 'bold', color: '#94A3B8', display: 'block', marginBottom: '8px' }}>
                   Identificação do Atendimento Preferencial (Opcional):
                 </span>
                 <div style={{ display: 'grid', gridTemplateColumns: '1fr', gap: '8px' }}>
@@ -95,9 +95,9 @@ const TicketModal = ({ service, cpf, onClose, onConfirm }) => {
                         style={{
                           display: 'flex', alignItems: 'center', gap: '10px',
                           padding: '10px 14px', borderRadius: '8px',
-                          border: isSelected ? `2px solid ${opt.color}` : '1px solid #CBD5E1',
-                          background: isSelected ? `${opt.color}15` : '#FFF',
-                          color: '#1E293B', textAlign: 'left', cursor: 'pointer'
+                          border: isSelected ? `2px solid ${opt.color}` : '1px solid rgba(255, 255, 255, 0.1)',
+                          background: isSelected ? `${opt.color}25` : '#0F243E',
+                          color: '#F8FAFC', textAlign: 'left', cursor: 'pointer'
                         }}
                       >
                         <IconComponent size={18} color={opt.color} />
@@ -133,28 +133,28 @@ const TicketModal = ({ service, cpf, onClose, onConfirm }) => {
           </div>
         ) : (
           <div style={{ textAlign: 'center', padding: '12px 0' }}>
-            <div style={{ display: 'inline-flex', padding: '10px', background: '#DCFCE7', borderRadius: '50%', color: '#16A34A', marginBottom: '8px' }}>
+            <div style={{ display: 'inline-flex', padding: '12px', background: 'rgba(16, 185, 129, 0.15)', borderRadius: '50%', color: '#34D399', marginBottom: '8px' }}>
               <Check size={36} />
             </div>
-            <h3 style={{ fontSize: '1.25rem', color: '#166534', margin: '0 0 6px' }}>Senha Emitida com Sucesso!</h3>
+            <h3 style={{ fontSize: '1.3rem', color: '#34D399', margin: '0 0 6px' }}>Senha Emitida com Sucesso!</h3>
             
-            <div className="ticket-number-display" style={{ fontSize: '2.8rem', fontWeight: 800, color: '#0056A8', margin: '8px 0' }}>
+            <div className="ticket-number-display" style={{ fontSize: '3rem', fontWeight: 900, color: '#38BDF8', margin: '8px 0', letterSpacing: '1px' }}>
               {generatedTicket.codigo}
             </div>
 
             {generatedTicket.setor_destino && (
-              <div style={{ background: '#EFF6FF', border: '1px solid #BFDBFE', borderRadius: '8px', padding: '8px 12px', color: '#1E40AF', fontWeight: 'bold', margin: '8px 0', fontSize: '0.95rem' }}>
+              <div style={{ background: '#071324', border: '1px solid #FFD100', borderRadius: '10px', padding: '10px 14px', color: '#FFD100', fontWeight: 'bold', margin: '8px 0', fontSize: '1rem' }}>
                 DIRIJA-SE AO: {generatedTicket.setor_destino.toUpperCase()}
               </div>
             )}
 
             {/* QR Code na tela para a Triagem Digital / Celular */}
             <div style={{
-              background: '#F8FAFC', border: '1px solid #E2E8F0',
+              background: '#071324', border: '1px solid rgba(56, 189, 248, 0.25)',
               borderRadius: '16px', padding: '14px', margin: '14px 0',
               display: 'flex', flexDirection: 'column', alignItems: 'center', gap: '8px'
             }}>
-              <span style={{ fontSize: '0.85rem', fontWeight: 700, color: '#0056A8', display: 'flex', alignItems: 'center', gap: '6px' }}>
+              <span style={{ fontSize: '0.85rem', fontWeight: 700, color: '#38BDF8', display: 'flex', alignItems: 'center', gap: '6px' }}>
                 <QrCode size={18} /> Pré-Triagem Opcional (Preencha no celular enquanto aguarda):
               </span>
               <div style={{ background: '#FFF', padding: '10px', borderRadius: '10px', border: '1px solid #CBD5E1', display: 'inline-block' }}>
@@ -169,14 +169,14 @@ const TicketModal = ({ service, cpf, onClose, onConfirm }) => {
                 href={`/triagem/${generatedTicket.codigo}`}
                 target="_blank"
                 rel="noreferrer"
-                style={{ fontSize: '0.8rem', color: '#0284C7', textDecoration: 'underline', display: 'flex', alignItems: 'center', gap: '4px' }}
+                style={{ fontSize: '0.8rem', color: '#38BDF8', textDecoration: 'underline', display: 'flex', alignItems: 'center', gap: '4px' }}
               >
                 <span>Ou clique aqui para abrir a pré-triagem</span>
                 <ExternalLink size={14} />
               </a>
             </div>
 
-            <p style={{ color: '#64748B', fontSize: '0.9rem', margin: '8px 0' }}>
+            <p style={{ color: '#94A3B8', fontSize: '0.9rem', margin: '8px 0' }}>
               Retire o cupom na impressora e aguarde a chamada no painel.
             </p>
             <button className="action-btn-primary" onClick={onClose} style={{ marginTop: '12px' }}>

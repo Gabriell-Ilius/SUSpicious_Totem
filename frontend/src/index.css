@@ -1,22 +1,24 @@
 :root {
-  /* Cores Oficiais do Sistema Único de Saúde (SUS) */
-  --sus-blue: #0056A8;
-  --sus-blue-dark: #003B75;
-  --sus-green: #008B45;
+  /* Cores Oficiais do Sistema Único de Saúde (SUS) adaptadas para Dark Mode */
+  --sus-blue: #38BDF8;
+  --sus-blue-dark: #0284C7;
+  --sus-green: #34D399;
   --sus-yellow: #FFD100;
   
-  /* Paleta Base - Alto Contraste para Kiosk */
-  --bg-primary: #F0F4F8;
-  --bg-secondary: #FFFFFF;
+  /* Paleta Base Dark High-Contrast */
+  --bg-primary: #071324;
+  --bg-secondary: #0B192C;
+  --card-bg: #0F243E;
+  --card-border: rgba(56, 189, 248, 0.2);
   
-  --text-primary: #0F172A;
-  --text-secondary: #475569;
+  --text-primary: #F8FAFC;
+  --text-secondary: #94A3B8;
   --text-on-color: #FFFFFF;
 
   /* Cores de Feedback */
-  --color-success: #16A34A;
-  --color-error: #DC2626;
-  --color-warning: #D97706;
+  --color-success: #10B981;
+  --color-error: #EF4444;
+  --color-warning: #F59E0B;
   
   /* Tokens de Design */
   --radius-sm: 8px;
@@ -24,9 +26,9 @@
   --radius-lg: 20px;
   --radius-full: 9999px;
   
-  --shadow-sm: 0 2px 4px rgba(0, 0, 0, 0.05);
-  --shadow-md: 0 4px 12px rgba(0, 0, 0, 0.08);
-  --shadow-lg: 0 10px 25px rgba(0, 0, 0, 0.12);
+  --shadow-sm: 0 2px 4px rgba(0, 0, 0, 0.3);
+  --shadow-md: 0 4px 12px rgba(0, 0, 0, 0.4);
+  --shadow-lg: 0 10px 25px rgba(0, 0, 0, 0.6);
   
   --font-sans: 'Inter', system-ui, -apple-system, sans-serif;
 }
@@ -61,7 +63,7 @@ html, body {
   flex-direction: column;
   height: 100vh;
   width: 100vw;
-  background: radial-gradient(circle at top right, #E2E8F0 0%, #F1F5F9 100%);
+  background: radial-gradient(circle at top, #0A192F 0%, #030A14 100%);
   position: relative;
   overflow: hidden;
 }
@@ -69,12 +71,13 @@ html, body {
 /* Header */
 .app-header {
   height: 80px;
-  background: #FFFFFF;
+  background: #0B192C;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.08);
   display: flex;
   align-items: center;
   justify-content: space-between;
   padding: 0 32px;
-  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.06);
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.4);
   z-index: 10;
 }
 
@@ -93,7 +96,7 @@ html, body {
 .header-time {
   font-size: 1.3rem;
   font-weight: 700;
-  color: var(--text-secondary);
+  color: #FFD100;
 }
 
 /* Welcome Banner */
@@ -105,7 +108,7 @@ html, body {
 .welcome-banner h1 {
   font-size: 1.8rem;
   font-weight: 800;
-  color: var(--sus-blue);
+  color: #38BDF8;
   margin-bottom: 4px;
 }
 
@@ -118,8 +121,8 @@ html, body {
 .cpf-box-card {
   width: 100%;
   max-width: 440px;
-  background: #FFFFFF;
-  border: 1px solid #E2E8F0;
+  background: #0B192C;
+  border: 1px solid rgba(56, 189, 248, 0.25);
   border-radius: var(--radius-lg);
   padding: 24px;
   box-shadow: var(--shadow-lg);
@@ -129,8 +132,8 @@ html, body {
 }
 
 .cpf-display-box {
-  background: #F8FAFC;
-  border: 2px solid var(--sus-blue);
+  background: #050B14;
+  border: 2px solid #38BDF8;
   border-radius: var(--radius-md);
   height: 64px;
   display: flex;
@@ -139,7 +142,7 @@ html, body {
   font-size: 2.2rem;
   font-weight: 800;
   letter-spacing: 4px;
-  color: var(--sus-blue);
+  color: #38BDF8;
 }
 
 /* NumPad Touch Grid */
@@ -152,12 +155,12 @@ html, body {
 .numpad-btn {
   height: 64px;
   border-radius: var(--radius-md);
-  border: 1px solid #E2E8F0;
-  background: #FFFFFF;
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  background: #0F243E;
   font-size: 1.8rem;
   font-weight: 700;
-  color: var(--text-primary);
-  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.04);
+  color: #F8FAFC;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.3);
   cursor: pointer;
   display: flex;
   align-items: center;
@@ -166,13 +169,13 @@ html, body {
 }
 
 .numpad-btn:active {
-  background: #E2E8F0;
+  background: #1E3A5F;
   transform: scale(0.95);
 }
 
 /* Action Buttons */
 .action-btn-primary {
-  background: var(--sus-blue);
+  background: linear-gradient(90deg, #0056A8 0%, #0284C7 100%);
   color: #FFFFFF;
   border: none;
   border-radius: var(--radius-md);
@@ -180,7 +183,7 @@ html, body {
   font-weight: 700;
   padding: 16px 24px;
   cursor: pointer;
-  box-shadow: 0 4px 12px rgba(0, 86, 168, 0.25);
+  box-shadow: 0 4px 14px rgba(2, 132, 199, 0.35);
   transition: all 0.15s ease;
   width: 100%;
 }
@@ -191,15 +194,16 @@ html, body {
 }
 
 .action-btn-primary:disabled {
-  background: #94A3B8;
+  background: #334155;
+  color: #64748B;
   cursor: not-allowed;
   box-shadow: none;
 }
 
 .action-btn-secondary {
-  background: #F1F5F9;
-  color: #475569;
-  border: 1px solid #CBD5E1;
+  background: #1E293B;
+  color: #E2E8F0;
+  border: 1px solid rgba(255, 255, 255, 0.12);
   border-radius: var(--radius-md);
   font-size: 1rem;
   font-weight: 600;
@@ -210,7 +214,7 @@ html, body {
 }
 
 .action-btn-secondary:active {
-  background: #E2E8F0;
+  background: #334155;
   transform: scale(0.97);
 }
 
@@ -220,7 +224,7 @@ html, body {
   align-items: center;
   justify-content: center;
   gap: 8px;
-  color: #64748B;
+  color: #94A3B8;
   font-size: 0.85rem;
   margin-top: 4px;
 }
@@ -237,8 +241,8 @@ html, body {
 }
 
 .service-card {
-  background: #FFFFFF;
-  border: 1px solid #E2E8F0;
+  background: #0B192C;
+  border: 1px solid rgba(56, 189, 248, 0.2);
   border-radius: var(--radius-lg);
   padding: 20px;
   display: flex;
@@ -246,6 +250,10 @@ html, body {
   gap: 16px;
   box-shadow: var(--shadow-md);
   transition: all 0.2s ease;
+}
+
+.service-card:hover {
+  border-color: #38BDF8;
 }
 
 .service-icon-wrapper {
@@ -272,7 +280,7 @@ html, body {
   font-size: 0.75rem;
   font-weight: 700;
   text-transform: uppercase;
-  color: var(--sus-blue);
+  color: #38BDF8;
   letter-spacing: 0.5px;
   display: block;
   margin-bottom: 2px;
@@ -295,7 +303,7 @@ html, body {
 .modal-overlay {
   position: fixed;
   inset: 0;
-  background: rgba(15, 23, 42, 0.75);
+  background: rgba(3, 7, 18, 0.8);
   display: flex;
   align-items: center;
   justify-content: center;
@@ -306,18 +314,21 @@ html, body {
 .modal-content-card {
   width: 100%;
   max-width: 520px;
-  background: #FFFFFF;
+  background: #0B192C;
+  border: 1px solid rgba(56, 189, 248, 0.3);
   border-radius: var(--radius-lg);
   padding: 28px;
   box-shadow: var(--shadow-lg);
+  color: var(--text-primary);
 }
 
 .priority-btn {
   flex: 1;
   padding: 14px;
   border-radius: var(--radius-md);
-  border: 2px solid #CBD5E1;
-  background: #FFFFFF;
+  border: 2px solid rgba(255, 255, 255, 0.12);
+  background: #0F243E;
+  color: #E2E8F0;
   font-weight: 700;
   font-size: 1rem;
   cursor: pointer;
@@ -325,15 +336,15 @@ html, body {
 }
 
 .priority-btn.active-normal {
-  border-color: var(--sus-blue);
-  background: #EFF6FF;
-  color: var(--sus-blue);
+  border-color: #38BDF8;
+  background: rgba(56, 189, 248, 0.15);
+  color: #38BDF8;
 }
 
 .priority-btn.active-preferential {
-  border-color: #D97706;
-  background: #FFFBEB;
-  color: #B45309;
+  border-color: #F59E0B;
+  background: rgba(245, 158, 11, 0.15);
+  color: #FBBF24;
 }
 
 /* Painel de Senhas (TV da Recepção) */
@@ -342,7 +353,7 @@ html, body {
   flex-direction: column;
   height: 100vh;
   width: 100vw;
-  background: #0B192C;
+  background: #071324;
   color: #FFFFFF;
   padding: 24px 32px;
 }
@@ -364,7 +375,7 @@ html, body {
 }
 
 .painel-current-card {
-  background: #1E3E62;
+  background: #0D2847;
   border-radius: 24px;
   padding: 32px;
   display: flex;
@@ -372,11 +383,11 @@ html, body {
   align-items: center;
   justify-content: center;
   text-align: center;
-  box-shadow: 0 12px 30px rgba(0, 0, 0, 0.4);
+  box-shadow: 0 12px 30px rgba(0, 0, 0, 0.5);
 }
 
 .painel-history-card {
-  background: rgba(255, 255, 255, 0.05);
+  background: #0B192C;
   border-radius: 24px;
   padding: 24px;
   display: flex;

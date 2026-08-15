@@ -271,63 +271,63 @@ function TotemKiosk() {
         }}>
           <div style={{
             width: '100%', maxWidth: '480px',
-            background: '#FFFFFF', border: '1px solid #E2E8F0',
-            borderRadius: '24px', padding: '32px',
+            background: '#0B192C', border: '1px solid rgba(56, 189, 248, 0.3)',
+            borderRadius: '24px', padding: '28px',
             boxShadow: 'var(--shadow-lg)', textAlign: 'center'
           }}>
-            <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '8px', color: '#16A34A', marginBottom: '16px' }}>
-              <CheckCircle size={36} />
-              <span style={{ fontSize: '1.4rem', fontWeight: 800 }}>Consulta Confirmada!</span>
+            <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '8px', color: '#34D399', marginBottom: '16px' }}>
+              <CheckCircle size={34} />
+              <span style={{ fontSize: '1.35rem', fontWeight: 800 }}>Consulta Confirmada!</span>
             </div>
 
-            <div style={{ background: '#F8FAFC', border: '1px dashed #CBD5E1', borderRadius: '16px', padding: '20px', margin: '16px 0' }}>
-              <p style={{ textTransform: 'uppercase', fontSize: '0.8rem', letterSpacing: '1px', color: '#64748B', fontWeight: 700 }}>
+            <div style={{ background: '#071324', border: '1px dashed rgba(56, 189, 248, 0.35)', borderRadius: '16px', padding: '20px', margin: '14px 0' }}>
+              <p style={{ textTransform: 'uppercase', fontSize: '0.8rem', letterSpacing: '1px', color: '#94A3B8', fontWeight: 700 }}>
                 UNIDADE BÁSICA DE SAÚDE - SUS
               </p>
 
-              <div style={{ fontSize: '3rem', fontWeight: 900, color: 'var(--sus-blue)', margin: '12px 0' }}>
+              <div style={{ fontSize: '3rem', fontWeight: 900, color: '#38BDF8', margin: '10px 0', letterSpacing: '1px' }}>
                 {scheduledTicket.codigo}
               </div>
 
               {scheduledInfo?.paciente && (
                 <div style={{
-                  background: '#EFF6FF', border: '1px solid #BFDBFE',
-                  borderRadius: '8px', padding: '10px', margin: '10px 0',
-                  color: '#1E40AF', fontWeight: 800, fontSize: '1rem'
+                  background: 'rgba(56, 189, 248, 0.12)', border: '1px solid rgba(56, 189, 248, 0.3)',
+                  borderRadius: '8px', padding: '8px', margin: '10px 0',
+                  color: '#38BDF8', fontWeight: 800, fontSize: '1rem'
                 }}>
                   {scheduledInfo.paciente}
                 </div>
               )}
 
               <div style={{
-                background: '#0F2942', color: '#FFF', padding: '14px',
-                borderRadius: '12px', margin: '12px 0',
+                background: '#0F2942', border: '1px solid #FFD100', color: '#FFF', padding: '12px',
+                borderRadius: '12px', margin: '10px 0',
                 display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '10px'
               }}>
-                <Navigation size={24} color="#38BDF8" />
+                <Navigation size={22} color="#FFD100" />
                 <div style={{ textAlign: 'left' }}>
                   <span style={{ fontSize: '0.75rem', textTransform: 'uppercase', letterSpacing: '1px', color: '#93C5FD', display: 'block' }}>
                     Dirija-se a:
                   </span>
-                  <strong style={{ fontSize: '1.1rem', color: '#FFF' }}>
+                  <strong style={{ fontSize: '1.05rem', color: '#FFD100' }}>
                     {scheduledTicket.setor_destino || scheduledInfo?.consultorio}
                   </strong>
                 </div>
               </div>
 
               {scheduledInfo?.horario && (
-                <p style={{ fontSize: '0.9rem', color: '#64748B', marginBottom: '12px' }}>
-                  Horário: <strong style={{ color: '#0F172A' }}>{scheduledInfo.horario}</strong>
+                <p style={{ fontSize: '0.9rem', color: '#94A3B8', marginBottom: '10px' }}>
+                  Horário: <strong style={{ color: '#F8FAFC' }}>{scheduledInfo.horario}</strong>
                 </p>
               )}
 
               {/* QR Code na tela para o paciente acompanhar */}
               <div style={{
-                background: '#FFFFFF', border: '1px solid #E2E8F0',
+                background: '#0B192C', border: '1px solid rgba(56, 189, 248, 0.25)',
                 borderRadius: '12px', padding: '10px', marginTop: '10px',
                 display: 'flex', flexDirection: 'column', alignItems: 'center', gap: '6px'
               }}>
-                <span style={{ fontSize: '0.8rem', fontWeight: 700, color: '#0056A8', display: 'flex', alignItems: 'center', gap: '4px' }}>
+                <span style={{ fontSize: '0.8rem', fontWeight: 700, color: '#38BDF8', display: 'flex', alignItems: 'center', gap: '4px' }}>
                   <QrCode size={16} /> Triagem Digital / Acompanhamento:
                 </span>
                 <div style={{ padding: '6px', background: '#FFF', borderRadius: '8px', border: '1px solid #CBD5E1', display: 'inline-block' }}>
@@ -341,7 +341,7 @@ function TotemKiosk() {
                   href={`/triagem/${scheduledTicket.codigo}`}
                   target="_blank"
                   rel="noreferrer"
-                  style={{ fontSize: '0.75rem', color: '#0284C7', textDecoration: 'underline', display: 'flex', alignItems: 'center', gap: '3px' }}
+                  style={{ fontSize: '0.75rem', color: '#38BDF8', textDecoration: 'underline', display: 'flex', alignItems: 'center', gap: '3px' }}
                 >
                   <span>Abrir no navegador</span>
                   <ExternalLink size={12} />
@@ -349,7 +349,7 @@ function TotemKiosk() {
               </div>
             </div>
 
-            <div style={{ color: 'var(--sus-blue)', fontSize: '1rem', fontWeight: 600, margin: '8px 0' }}>
+            <div style={{ color: '#38BDF8', fontSize: '1rem', fontWeight: 600, margin: '8px 0' }}>
               Retire o cupom impresso abaixo
             </div>
             <p style={{ fontSize: '0.85rem', color: '#94A3B8' }}>
