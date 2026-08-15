@@ -28,14 +28,19 @@ O sistema consiste em um totem interativo posicionado na entrada das UBSs. Ele o
 
 O backend inclui um mecanismo de *seed dinâmico* que roda na inicialização e garante que os seguintes CPFs sempre tenham agendamentos válidos para a **data e hora de hoje**:
 
-| CPF | Paciente | Destino Mockado | Horário |
+| CPF | Paciente | Especialidade / Destino | Médico(a) |
 |:----|:---------|:----------------|:--------|
-| `111.111.111-11` | **João da Silva Santos (Demo Pitch)** | Consultório 02 - Dra. Camila Rocha | Hoje (+1h) |
-| `123.456.789-00` | Maria Silva Santos | Consultório 01 - Dra. Ana Costa | Hoje |
-| `987.654.321-00` | João Pereira Oliveira | Consultório 04 - Dr. Carlos Souza | Hoje (+2h) |
-| `111.222.333-44` | Francisca Rodrigues | Consultório 01 - Dra. Ana Costa | Hoje (+3h) |
+| `111.111.111-11` | **João da Silva Santos (Demo Pitch)** | Clínica Geral • Consultório 02 | Dra. Camila Rocha |
+| `222.222.222-22` | **Maria Aparecida Lima** | Cardiologia • Consultório 03 | Dr. Roberto Alves |
+| `333.333.333-33` | **Carlos Eduardo Pereira** | Pediatria • Consultório 04 | Dr. Carlos Souza |
+| `444.444.444-44` | **Ana Paula Fernandes** | Saúde da Mulher • Consultório 01 | Dra. Ana Costa |
+| `555.555.555-55` | **Sr. Antonio Gomes (80+)** | Geriatria • Consultório 05 | Dr. Marcos Vinicius |
+| `123.456.789-00` | **Juliana Martins Costa** | Clínica Geral • Consultório 01 | Dra. Ana Costa |
+| `987.654.321-00` | **Lucas Henrique Souza** | Odontologia • Consultório 04 | Dr. Carlos Souza |
+| `111.222.333-44` | **Francisca Rodrigues** | Enfermagem • Consultório 02 | Dra. Camila Rocha |
 
 > 💡 **Para testar o fluxo sem agendamento prévio:** Digite qualquer outro CPF (ex: `000.000.000-00`) ou clique em **"Não Sei / Pular CPF"**.
+> 📖 **Guia completo de demonstração:** Consulte o arquivo [GUIA_TESTES.md](file:///c:/Users/gollu/Documents/AntiGravity/SUSpicious/GUIA_TESTES.md).
 
 ---
 
