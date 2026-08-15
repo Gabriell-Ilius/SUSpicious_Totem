@@ -7,11 +7,15 @@ class ConsultarFilaAtualUseCase:
 
     def execute(self) -> dict:
         aguardando = self.senha_repo.listar_fila_atual()
-        ultimas_chamadas = self.senha_repo.listar_ultimas_chamadas()
+        ultimas_chamadas = self.senha_repo.listar_ultimas_chamadas(limite=6)
         
-        resumo = {
+        # Ordena as senhas emitidas mais recentes primeiro
+        ultimas_emitidas = sorted(aguardando, key=lambda s: s.data_hora_emissao, reverse=True)[:6]
+
+        return {
             "total_aguardando": len(aguardando),
             "senhas": aguardando,
+            "aguardando": aguardando,
+            "ultimas_emitidas": ultimas_emitidas,
             "ultimas_chamadas": ultimas_chamadas
         }
-        return resumo
