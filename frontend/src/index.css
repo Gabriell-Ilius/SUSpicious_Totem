@@ -40,19 +40,19 @@
 }
 
 html, body {
-  width: 100vw;
-  height: 100vh;
-  overflow: hidden;
+  width: 100%;
+  min-height: 100vh;
+  overflow-x: hidden;
+  overflow-y: auto;
   font-family: var(--font-sans);
   background-color: var(--bg-primary);
   color: var(--text-primary);
-  user-select: none;
-  touch-action: pan-y;
+  touch-action: manipulation;
 }
 
 #root {
   width: 100%;
-  height: 100%;
+  min-height: 100vh;
   display: flex;
   flex-direction: column;
 }
@@ -66,6 +66,7 @@ html, body {
   background: radial-gradient(circle at top, #0A192F 0%, #030A14 100%);
   position: relative;
   overflow: hidden;
+  user-select: none;
 }
 
 /* Header */
