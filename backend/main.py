@@ -15,6 +15,7 @@ from sqlmodel import Session, SQLModel
 from app.api import api_router
 from app.core.config import settings
 from app.infrastructure.database.session import engine
+from app.domain.triagem import Triagem
 from app.application.services.sync_service import SyncEngine
 from app.infrastructure.database.senha_repository import SenhaRepository
 from app.infrastructure.database.seed_data import seed_agendamentos

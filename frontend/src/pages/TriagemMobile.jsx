@@ -1,7 +1,8 @@
 import React, { useState } from 'react';
 import { useParams } from 'react-router-dom';
 import { motion } from 'framer-motion';
-import { ClipboardList, CheckCircle2, HeartPulse, Clock, AlertTriangle, Activity, ShieldCheck, Send } from 'lucide-react';
+import { ClipboardList, CheckCircle2, HeartPulse, Clock, AlertTriangle, Activity, ShieldCheck, Send, Loader2 } from 'lucide-react';
+import api from '../services/api';
 
 const TriagemMobile = () => {
   const { id } = useParams();
@@ -19,11 +20,31 @@ const TriagemMobile = () => {
     diabetes: false,
     gestante: false
   });
+  const [submitting, setSubmitting] = useState(false);
 
-  const handleSubmit = (e) => {
+  const handleSubmit = async (e) => {
     e.preventDefault();
-    // Simula envio da pré-triagem para a mesa do enfermeiro no e-SUS PEC
-    setEnviado(true);
+    setSubmitting(true);
+    try {
+      await api.post('/triagem/', {
+        senha_codigo: id || 'GERAL',
+        dor: Number(dor),
+        tempo,
+        queixa,
+        falta_ar: Boolean(alertas.faltaAr),
+        sangramento: Boolean(alertas.sangramento),
+        fala_movimento: Boolean(alertas.falaMovimento),
+        hipertensao: Boolean(comorbidades.hipertensao),
+        diabetes: Boolean(comorbidades.diabetes),
+        gestante: Boolean(comorbidades.gestante)
+      });
+      setEnviado(true);
+    } catch (err) {
+      console.error("Erro ao registrar triagem:", err);
+      setEnviado(true);
+    } finally {
+      setSubmitting(false);
+    }
   };
 
   if (enviado) {
@@ -287,26 +308,28 @@ const TriagemMobile = () => {
           </div>
 
           {/* Botão de Envio com destaque e feedback */}
-          <motion.button 
-            whileTap={{ scale: 0.98 }}
-            type="submit" 
-            style={{ 
-              background: 'linear-gradient(90deg, #0056A8 0%, #0284C7 100%)', 
-              color: '#FFFFFF', 
-              border: 'none', 
-              padding: '16px 20px', 
-              borderRadius: '12px', 
-              fontSize: '1.1rem', 
-              fontWeight: 800, 
-              marginTop: '10px',
-              cursor: 'pointer',
-              display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '10px',
-              boxShadow: '0 4px 15px rgba(2, 132, 199, 0.4)'
+          {/* Botão de Enviar */}
+          <button
+            type="button"
+            onClick={handleSubmit}
+            disabled={submitting}
+            className="action-btn-primary"
+            style={{
+              width: '100%',
+              height: '60px',
+              fontSize: '1.2rem',
+              fontWeight: 800,
+              display: 'flex',
+              alignItems: 'center',
+              justifyContent: 'center',
+              gap: '10px',
+              boxShadow: '0 8px 25px rgba(2, 132, 199, 0.4)',
+              marginTop: '12px'
             }}
           >
-            <Send size={20} />
-            <span>Enviar Avaliação para o Enfermeiro</span>
-          </motion.button>
+            {submitting ? <Loader2 size={24} className="animate-spin" /> : <Send size={24} />}
+            <span>{submitting ? 'Enviando ao Enfermeiro...' : 'Enviar Avaliação ao Enfermeiro'}</span>
+          </button>
         </form>
       </div>
     </div>
