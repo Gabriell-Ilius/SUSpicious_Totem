@@ -20,41 +20,70 @@ const TicketModal = ({ service, cpf, onClose, onConfirm }) => {
   const handleEmitTicket = async () => {
     setLoading(true);
     try {
-      const ticket = await onConfirm(service.id, priority, subPriority);
+      // Passa service.category ('ESPONTANEA', 'VACINACAO', etc), prioridade, cpf e sub-prioridade
+      const category = service.category || service.id.toUpperCase();
+      const ticket = await onConfirm(category, priority, cpf, subPriority);
       setGeneratedTicket(ticket);
     } catch (error) {
       console.error('Erro ao emitir senha:', error);
+      alert('Erro ao emitir senha. Verifique o servidor e tente novamente.');
     } finally {
       setLoading(false);
     }
   };
 
   return (
-    <div className="modal-overlay">
+    <div style={{
+      position: 'fixed',
+      inset: 0,
+      backgroundColor: 'rgba(3, 7, 18, 0.85)',
+      backdropFilter: 'blur(8px)',
+      display: 'flex',
+      alignItems: 'center',
+      justifyContent: 'center',
+      zIndex: 100,
+      padding: '20px'
+    }}>
       <motion.div
         initial={{ opacity: 0, scale: 0.9, y: 20 }}
         animate={{ opacity: 1, scale: 1, y: 0 }}
         exit={{ opacity: 0, scale: 0.9, y: 20 }}
-        className="modal-container"
-        style={{ maxWidth: '580px', width: '92%' }}
+        style={{
+          width: '100%',
+          maxWidth: '580px',
+          backgroundColor: '#0B192C',
+          border: '2px solid rgba(56, 189, 248, 0.35)',
+          borderRadius: '24px',
+          padding: '28px',
+          boxShadow: '0 25px 60px rgba(0, 0, 0, 0.9)',
+          color: '#F8FAFC',
+          boxSizing: 'border-box'
+        }}
       >
-        <div className="modal-header">
+        <div style={{
+          display: 'flex',
+          alignItems: 'center',
+          justifyContent: 'space-between',
+          borderBottom: '1px solid rgba(255, 255, 255, 0.1)',
+          paddingBottom: '16px',
+          marginBottom: '20px'
+        }}>
           <div>
-            <h2 style={{ fontSize: '1.4rem', fontWeight: 800, margin: 0, color: 'var(--text-primary)' }}>
+            <h2 style={{ fontSize: '1.4rem', fontWeight: 800, margin: 0, color: '#FFF' }}>
               {service.title}
             </h2>
-            <span style={{ fontSize: '0.85rem', color: 'var(--text-secondary)' }}>
+            <span style={{ fontSize: '0.85rem', color: '#94A3B8' }}>
               {cpf ? `CPF Identificado: ${cpf.replace(/(\d{3})(\d{3})(\d{3})(\d{2})/, "$1.$2.$3-$4")}` : 'Atendimento sem CPF'}
             </span>
           </div>
-          <button onClick={onClose} style={{ background: 'none', border: 'none', cursor: 'pointer', color: '#64748B' }}>
+          <button onClick={onClose} style={{ background: 'none', border: 'none', cursor: 'pointer', color: '#94A3B8' }}>
             <X size={24} />
           </button>
         </div>
 
         {!generatedTicket ? (
           <div>
-            <p style={{ fontSize: '1rem', color: 'var(--text-secondary)', marginBottom: '16px' }}>
+            <p style={{ fontSize: '1rem', color: '#CBD5E1', marginBottom: '16px' }}>
               Selecione o tipo de atendimento para a emissão da senha:
             </p>
 
@@ -117,14 +146,14 @@ const TicketModal = ({ service, cpf, onClose, onConfirm }) => {
             )}
 
             <div style={{ display: 'flex', gap: '12px', marginTop: '24px' }}>
-              <button className="action-btn-secondary" onClick={onClose} disabled={loading}>
+              <button className="action-btn-secondary" onClick={onClose} disabled={loading} style={{ flex: 1 }}>
                 Voltar
               </button>
               <button
                 className="action-btn-primary"
                 onClick={handleEmitTicket}
                 disabled={loading}
-                style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '8px' }}
+                style={{ flex: 1.6, display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '8px' }}
               >
                 <Printer size={20} />
                 <span>{loading ? 'Imprimindo...' : 'Confirmar e Emitir Senha'}</span>
@@ -197,7 +226,7 @@ const TicketModal = ({ service, cpf, onClose, onConfirm }) => {
             <p style={{ color: '#94A3B8', fontSize: '0.9rem', margin: '8px 0' }}>
               Retire o cupom na impressora abaixo.
             </p>
-            <button className="action-btn-primary" onClick={onClose} style={{ marginTop: '12px' }}>
+            <button className="action-btn-primary" onClick={onClose} style={{ marginTop: '12px', width: '100%' }}>
               Concluir
             </button>
           </div>
