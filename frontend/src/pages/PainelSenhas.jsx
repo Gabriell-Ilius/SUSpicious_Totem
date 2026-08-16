@@ -1,6 +1,6 @@
 import React, { useState, useEffect, useRef } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
-import { Activity, Clock, Bell, Users, Volume2, ArrowRight, CheckCircle2, Trash2 } from 'lucide-react';
+import { Activity, Clock, Bell, Users, Volume2, ArrowRight, CheckCircle2, Trash2, ShieldAlert, Sparkles, Star } from 'lucide-react';
 import filaService from '../services/filaService';
 
 // Som de chamada hospitalar "Ding-Dong" (Web Audio API)
@@ -130,99 +130,123 @@ const PainelSenhas = () => {
       {/* 1. CABEÇALHO DA TV                                            */}
       {/* ============================================================ */}
       <header style={{
-        height: '96px', background: '#0B192C',
-        borderBottom: '2px solid rgba(255, 255, 255, 0.1)',
-        display: 'flex', alignItems: 'center', justifyContent: 'space-between',
-        padding: '0 40px', flexShrink: 0
+        height: '84px',
+        backgroundColor: '#0B192C',
+        borderBottom: '2px solid rgba(56, 189, 248, 0.25)',
+        display: 'flex',
+        alignItems: 'center',
+        justifyContent: 'space-between',
+        padding: '0 40px',
+        boxShadow: '0 10px 30px rgba(0, 0, 0, 0.5)',
+        flexShrink: 0
       }}>
-        <div style={{ display: 'flex', alignItems: 'center', gap: '18px' }}>
-          <div style={{ background: '#0056A8', padding: '12px', borderRadius: '16px', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
-            <Activity size={40} color="#FFF" />
+        <div style={{ display: 'flex', alignItems: 'center', gap: '20px' }}>
+          <div style={{
+            background: '#0056A8', padding: '10px 18px', borderRadius: '12px',
+            color: '#FFF', fontWeight: 900, fontSize: '1.4rem', letterSpacing: '2px'
+          }}>
+            SUS
           </div>
           <div>
-            <h1 style={{ fontSize: '1.8rem', fontWeight: 900, margin: 0, color: '#FFF', letterSpacing: '0.5px' }}>
-              UNIDADE BÁSICA DE SAÚDE — SUS
+            <h1 style={{ fontSize: '1.5rem', fontWeight: 900, margin: 0, color: '#FFF' }}>
+              Unidade Básica de Saúde
             </h1>
-            <span style={{ fontSize: '1rem', color: '#38BDF8', textTransform: 'uppercase', letterSpacing: '1.5px', fontWeight: 700 }}>
-              Painel Eletrônico de Atendimento
+            <span style={{ fontSize: '0.85rem', color: '#38BDF8', fontWeight: 700, letterSpacing: '1px' }}>
+              Painel Eletrônico de Atendimento • e-SUS APS
             </span>
           </div>
         </div>
 
-        {/* Relógio e Contador */}
-        <div style={{ display: 'flex', alignItems: 'center', gap: '32px' }}>
-          <div style={{
-            display: 'flex', alignItems: 'center', gap: '10px',
-            background: 'rgba(56, 189, 248, 0.12)', border: '1px solid rgba(56, 189, 248, 0.3)',
-            padding: '10px 20px', borderRadius: '12px', color: '#38BDF8'
-          }}>
-            <Users size={24} />
-            <span style={{ fontSize: '1.15rem', fontWeight: 800 }}>
-              {totalAguardando} {totalAguardando === 1 ? 'paciente na fila' : 'pacientes na fila'}
-            </span>
-          </div>
-
+        {/* Data e Hora */}
+        <div style={{ display: 'flex', alignItems: 'center', gap: '24px' }}>
           <div style={{ textAlign: 'right' }}>
-            <div style={{ fontSize: '2.2rem', fontWeight: 900, color: '#FFD100', letterSpacing: '1px', fontFamily: 'monospace' }}>
+            <div style={{ fontSize: '1.85rem', fontWeight: 900, color: '#FFD100', letterSpacing: '1px' }}>
               {formatClock(time)}
             </div>
-            <div style={{ fontSize: '0.9rem', color: '#94A3B8', textTransform: 'capitalize' }}>
+            <span style={{ fontSize: '0.85rem', color: '#94A3B8', textTransform: 'capitalize' }}>
               {formatDate(time)}
-            </div>
+            </span>
           </div>
         </div>
       </header>
 
       {/* ============================================================ */}
-      {/* 2. CORPO PRINCIPAL (LETRA GIGANTE + HISTÓRICO RECENTE)        */}
+      {/* 2. CORPO PRINCIPAL: SENHA ATUAL (65%) + HISTÓRICO (35%)      */}
       {/* ============================================================ */}
-      <div style={{ display: 'flex', flex: 1, padding: '24px 36px', gap: '32px', overflow: 'hidden' }}>
+      <div style={{
+        flex: 1,
+        display: 'flex',
+        gap: '24px',
+        padding: '24px 32px',
+        boxSizing: 'border-box',
+        overflow: 'hidden'
+      }}>
         
-        {/* --- LADO ESQUERDO (65%): SENHA ATUAL CHAMADA (LETRA GIGANTE) --- */}
+        {/* --- LADO ESQUERDO (65%): SENHA PRINCIPAL CHAMADA --- */}
         <div style={{
-          flex: '1.8',
-          background: ultimaChamada 
-            ? 'linear-gradient(135deg, #0A2540 0%, #0056A8 100%)'
-            : 'linear-gradient(135deg, #0B192C 0%, #071324 100%)',
+          flex: '1.85',
+          background: 'linear-gradient(135deg, #0B192C 0%, #0D2847 100%)',
           borderRadius: '28px',
-          border: ultimaChamada ? '3px solid #38BDF8' : '2px solid rgba(255, 255, 255, 0.1)',
-          boxShadow: '0 25px 60px rgba(0, 0, 0, 0.6)',
-          display: 'flex', flexDirection: 'column',
-          alignItems: 'center', justifyContent: 'center',
-          padding: '36px', position: 'relative', overflow: 'hidden'
+          border: '2px solid rgba(56, 189, 248, 0.3)',
+          display: 'flex',
+          flexDirection: 'column',
+          alignItems: 'center',
+          justifyContent: 'center',
+          padding: '24px 36px',
+          boxShadow: '0 20px 50px rgba(0, 0, 0, 0.6)',
+          position: 'relative',
+          overflow: 'hidden'
         }}>
           {ultimaChamada ? (
             <AnimatePresence mode="wait">
               <motion.div
-                key={ultimaChamada.id || ultimaChamada.codigo}
-                initial={{ opacity: 0, scale: 0.8, y: 30 }}
+                key={ultimaChamada.id + ultimaChamada.codigo}
+                initial={{ opacity: 0, scale: 0.9, y: 15 }}
                 animate={{ opacity: 1, scale: 1, y: 0 }}
                 exit={{ opacity: 0, scale: 0.95 }}
                 transition={{ type: "spring", stiffness: 280, damping: 20 }}
                 style={{ textAlign: 'center', width: '100%', display: 'flex', flexDirection: 'column', alignItems: 'center' }}
               >
-                {/* Badge Alerta */}
-                <div style={{
-                  display: 'inline-flex', alignItems: 'center', gap: '12px',
-                  background: '#FFD100', color: '#071324',
-                  padding: '10px 32px', borderRadius: '999px',
-                  fontSize: '1.4rem', fontWeight: 900, letterSpacing: '3px',
-                  boxShadow: '0 6px 20px rgba(255, 209, 0, 0.5)',
-                  marginBottom: '16px'
-                }}>
-                  <Bell size={26} />
-                  <span>SENHA CHAMADA</span>
-                </div>
+                {/* Badge Alerta: Preferencial vs Normal */}
+                {ultimaChamada.prioridade === 1 ? (
+                  <div style={{
+                    display: 'inline-flex', alignItems: 'center', gap: '10px',
+                    background: 'linear-gradient(90deg, #DC2626 0%, #B91C1C 100%)',
+                    color: '#FFFFFF',
+                    padding: '10px 32px', borderRadius: '999px',
+                    fontSize: '1.25rem', fontWeight: 900, letterSpacing: '2px',
+                    boxShadow: '0 6px 25px rgba(220, 38, 38, 0.6)',
+                    marginBottom: '10px'
+                  }}>
+                    <Star size={24} fill="#FFD100" color="#FFD100" />
+                    <span>ATENDIMENTO PREFERENCIAL {ultimaChamada.sub_prioridade ? `• ${ultimaChamada.sub_prioridade.toUpperCase()}` : ''}</span>
+                  </div>
+                ) : (
+                  <div style={{
+                    display: 'inline-flex', alignItems: 'center', gap: '10px',
+                    background: '#FFD100', color: '#071324',
+                    padding: '10px 32px', borderRadius: '999px',
+                    fontSize: '1.3rem', fontWeight: 900, letterSpacing: '3px',
+                    boxShadow: '0 6px 20px rgba(255, 209, 0, 0.5)',
+                    marginBottom: '10px'
+                  }}>
+                    <Bell size={24} />
+                    <span>SENHA CHAMADA</span>
+                  </div>
+                )}
 
-                {/* Código Gigante da Senha */}
+                {/* Código Gigante da Senha (Garantido em 1 Linha com whiteSpace nowrap) */}
                 <div style={{
-                  fontSize: 'clamp(140px, 17vw, 240px)',
+                  fontSize: ultimaChamada.codigo.length > 7 ? 'clamp(95px, 12vw, 175px)' : 'clamp(120px, 15vw, 210px)',
                   fontWeight: 900,
-                  lineHeight: 0.95,
-                  letterSpacing: '-3px',
+                  lineHeight: 1,
+                  letterSpacing: '-2px',
                   color: '#FFFFFF',
-                  textShadow: '0 12px 35px rgba(0, 0, 0, 0.7)',
-                  margin: '12px 0 20px'
+                  textShadow: '0 12px 35px rgba(0, 0, 0, 0.8)',
+                  margin: '8px 0 16px',
+                  whiteSpace: 'nowrap',
+                  maxWidth: '100%',
+                  overflow: 'visible'
                 }}>
                   {ultimaChamada.codigo}
                 </div>
@@ -232,36 +256,28 @@ const PainelSenhas = () => {
                   background: '#071324',
                   border: '3px solid #FFD100',
                   borderRadius: '22px',
-                  padding: '24px 44px',
+                  padding: '20px 36px',
                   width: '92%',
                   maxWidth: '750px',
                   boxShadow: '0 15px 35px rgba(0, 0, 0, 0.6)',
-                  marginTop: '8px'
+                  marginTop: '4px'
                 }}>
-                  <span style={{ fontSize: '1.2rem', textTransform: 'uppercase', letterSpacing: '3px', color: '#94A3B8', display: 'block', marginBottom: '4px', fontWeight: 700 }}>
+                  <span style={{ fontSize: '1.1rem', textTransform: 'uppercase', letterSpacing: '3px', color: '#94A3B8', display: 'block', marginBottom: '4px', fontWeight: 700 }}>
                     DIRIJA-SE AO LOCAL:
                   </span>
-                  <strong style={{ fontSize: 'clamp(2rem, 3.4vw, 3.2rem)', color: '#FFD100', fontWeight: 900 }}>
+                  <strong style={{ fontSize: 'clamp(1.8rem, 3.2vw, 2.9rem)', color: '#FFD100', fontWeight: 900, display: 'block', lineHeight: 1.15 }}>
                     {(ultimaChamada.setor_destino || 'Consultório 01').toUpperCase()}
                   </strong>
                 </div>
 
-                {/* Tipo / Prioridade */}
-                <div style={{ marginTop: '20px', display: 'flex', gap: '14px' }}>
+                {/* Tag de Demanda / Tipo de Atendimento */}
+                <div style={{ marginTop: '16px', display: 'flex', gap: '12px' }}>
                   <span style={{
-                    background: 'rgba(255,255,255,0.2)', padding: '8px 20px',
-                    borderRadius: '10px', fontSize: '1.15rem', fontWeight: 800
+                    background: 'rgba(255,255,255,0.15)', padding: '6px 18px',
+                    borderRadius: '10px', fontSize: '1.05rem', fontWeight: 800, color: '#CBD5E1'
                   }}>
-                    {ultimaChamada.tipo_atendimento}
+                    Demanda: {ultimaChamada.tipo_atendimento}
                   </span>
-                  {ultimaChamada.prioridade === 1 && (
-                    <span style={{
-                      background: '#DC2626', color: '#FFF', padding: '8px 20px',
-                      borderRadius: '10px', fontSize: '1.15rem', fontWeight: 900
-                    }}>
-                      PREFERENCIAL {ultimaChamada.sub_prioridade ? `(${ultimaChamada.sub_prioridade})` : ''}
-                    </span>
-                  )}
                 </div>
               </motion.div>
             </AnimatePresence>
@@ -279,7 +295,7 @@ const PainelSenhas = () => {
                 Aguardando Chamada de Atendimento
               </h2>
               <p style={{ fontSize: '1.4rem', color: '#94A3B8', maxWidth: '550px', margin: '0 auto 28px', lineHeight: '1.4' }}>
-                As chamadas para os consultórios e salas aparecerão aqui na tela com aviso sonoro.
+                As chamadas para os consultórios e guichês aparecerão aqui na tela com aviso sonoro.
               </p>
               <div style={{ display: 'inline-flex', alignItems: 'center', gap: '10px', background: 'rgba(56, 189, 248, 0.15)', padding: '12px 24px', borderRadius: '14px', color: '#38BDF8', fontWeight: 800, fontSize: '1.1rem' }}>
                 <CheckCircle2 size={24} />
@@ -295,23 +311,23 @@ const PainelSenhas = () => {
           background: '#0B192C',
           borderRadius: '28px',
           border: '1px solid rgba(255, 255, 255, 0.1)',
-          padding: '28px',
+          padding: '24px 28px',
           display: 'flex', flexDirection: 'column',
           boxShadow: '0 15px 40px rgba(0, 0, 0, 0.4)',
           overflow: 'hidden'
         }}>
           <h2 style={{
-            fontSize: '1.4rem', fontWeight: 900, color: '#38BDF8',
+            fontSize: '1.35rem', fontWeight: 900, color: '#38BDF8',
             textTransform: 'uppercase', letterSpacing: '1.5px',
             borderBottom: '2px solid rgba(255,255,255,0.08)',
-            paddingBottom: '16px', margin: '0 0 20px 0',
+            paddingBottom: '14px', margin: '0 0 16px 0',
             display: 'flex', alignItems: 'center', justifyContent: 'space-between'
           }}>
             <span>Últimas Chamadas</span>
             <Clock size={24} />
           </h2>
 
-          <div style={{ display: 'flex', flexDirection: 'column', gap: '14px', flex: 1, overflowY: 'auto' }}>
+          <div style={{ display: 'flex', flexDirection: 'column', gap: '12px', flex: 1, overflowY: 'auto' }}>
             {historicoChamadas.length > 0 ? (
               historicoChamadas.map((senha, idx) => (
                 <motion.div
@@ -320,29 +336,36 @@ const PainelSenhas = () => {
                   animate={{ opacity: 1, x: 0 }}
                   transition={{ delay: idx * 0.05 }}
                   style={{
-                    background: 'rgba(255, 255, 255, 0.05)',
-                    border: '1px solid rgba(255, 255, 255, 0.08)',
+                    background: senha.prioridade === 1 ? 'rgba(239, 68, 68, 0.1)' : 'rgba(255, 255, 255, 0.05)',
+                    border: senha.prioridade === 1 ? '1px solid rgba(239, 68, 68, 0.4)' : '1px solid rgba(255, 255, 255, 0.08)',
                     borderRadius: '16px',
-                    padding: '16px 20px',
+                    padding: '14px 18px',
                     display: 'flex', alignItems: 'center', justifyContent: 'space-between'
                   }}
                 >
                   <div>
-                    <div style={{ fontSize: '2.4rem', fontWeight: 900, color: '#FFF', lineHeight: 1.1 }}>
-                      {senha.codigo}
-                    </div>
-                    <div style={{ fontSize: '0.95rem', color: '#94A3B8', fontWeight: 700, marginTop: '4px' }}>
-                      {senha.tipo_atendimento}
+                    <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+                      <span style={{ fontSize: '2.1rem', fontWeight: 900, color: '#FFF', lineHeight: 1, whiteSpace: 'nowrap' }}>
+                        {senha.codigo}
+                      </span>
                       {senha.prioridade === 1 && (
-                        <span style={{ color: '#F87171', marginLeft: '6px' }}>
-                          • {senha.sub_prioridade || 'PREFERENCIAL'}
+                        <span style={{ background: '#DC2626', color: '#FFF', fontSize: '0.7rem', fontWeight: 900, padding: '2px 6px', borderRadius: '4px' }}>
+                          PREF
+                        </span>
+                      )}
+                    </div>
+                    <div style={{ fontSize: '0.85rem', color: '#94A3B8', fontWeight: 700, marginTop: '4px' }}>
+                      {senha.tipo_atendimento}
+                      {senha.prioridade === 1 && senha.sub_prioridade && (
+                        <span style={{ color: '#FCA5A5', marginLeft: '4px' }}>
+                          ({senha.sub_prioridade})
                         </span>
                       )}
                     </div>
                   </div>
 
                   <div style={{ textAlign: 'right' }}>
-                    <div style={{ fontSize: '1.35rem', fontWeight: 800, color: '#FFD100' }}>
+                    <div style={{ fontSize: '1.25rem', fontWeight: 800, color: '#FFD100' }}>
                       {senha.setor_destino || 'Consultório 01'}
                     </div>
                   </div>
@@ -361,10 +384,10 @@ const PainelSenhas = () => {
       {/* 3. BARRA DE CONTROLE DISCRETA PARA O PITCH                    */}
       {/* ============================================================ */}
       <footer style={{
-        height: '56px', background: '#0B192C',
+        height: '52px', background: '#0B192C',
         borderTop: '1px solid rgba(255, 255, 255, 0.08)',
         display: 'flex', alignItems: 'center', justifyContent: 'space-between',
-        padding: '0 40px', fontSize: '0.9rem', color: '#64748B'
+        padding: '0 40px', fontSize: '0.85rem', color: '#64748B'
       }}>
         <div style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
           <span style={{ width: '10px', height: '10px', borderRadius: '50%', background: '#22C55E', display: 'inline-block' }}></span>
@@ -378,31 +401,12 @@ const PainelSenhas = () => {
             style={{
               background: 'rgba(239, 68, 68, 0.15)',
               color: '#F87171', border: '1px solid rgba(239, 68, 68, 0.3)',
-              borderRadius: '8px', padding: '6px 14px',
-              fontSize: '0.85rem', fontWeight: 700, cursor: 'pointer',
-              display: 'flex', alignItems: 'center', gap: '6px'
+              borderRadius: '8px', padding: '6px 14px', fontSize: '0.8rem',
+              fontWeight: 700, cursor: 'pointer', display: 'flex', alignItems: 'center', gap: '6px'
             }}
           >
-            <Trash2 size={15} />
-            <span>Zerar Fila (Pitch)</span>
-          </button>
-
-          <button
-            onClick={handleChamarProxima}
-            disabled={calling || totalAguardando === 0}
-            style={{
-              background: totalAguardando > 0 ? 'linear-gradient(90deg, #0056A8 0%, #0284C7 100%)' : '#334155',
-              color: '#FFF', border: 'none',
-              borderRadius: '10px', padding: '8px 18px',
-              fontSize: '0.9rem', fontWeight: 800,
-              cursor: totalAguardando > 0 ? 'pointer' : 'not-allowed',
-              display: 'flex', alignItems: 'center', gap: '8px',
-              boxShadow: totalAguardando > 0 ? '0 2px 10px rgba(0, 86, 168, 0.4)' : 'none'
-            }}
-          >
-            <Bell size={16} />
-            <span>{calling ? 'Chamando...' : 'Chamar Próxima Senha'}</span>
-            <ArrowRight size={15} />
+            <Trash2 size={13} />
+            <span>Zerar Painel</span>
           </button>
         </div>
       </footer>
