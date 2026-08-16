@@ -6,7 +6,7 @@ import {
   ShieldAlert, ShieldCheck, RefreshCw, Eye, X,
   Settings, Calendar, FileText, Activity, Volume2,
   PhoneCall, ChevronRight, Zap, Check, HeartPulse,
-  DoorOpen, Building, Sparkles
+  DoorOpen, Building, Sparkles, Trash2
 } from 'lucide-react';
 import filaService from '../services/filaService';
 import api from '../services/api';
@@ -170,6 +170,22 @@ const TelaAtendente = () => {
     }
   };
 
+  // Zerar Fila e Histórico de Triagens
+  const handleZerarTudo = async () => {
+    if (!window.confirm("Deseja realmente zerar todas as senhas da fila e o histórico de triagens?")) return;
+    try {
+      await api.post('/senhas/reset');
+      setFila([]);
+      setTriagens([]);
+      setPacienteAtual(null);
+      setHistoricoAtendidos([]);
+      setAlertaRiscoAtivo(null);
+      setTotalAguardando(0);
+    } catch (e) {
+      console.error("Erro ao resetar", e);
+    }
+  };
+
   // Encontra pré-triagem vinculada a um código de senha
   const getTriagemDaSenha = (codigo) => {
     if (!codigo) return null;
@@ -279,32 +295,48 @@ const TelaAtendente = () => {
           </div>
         </div>
 
-        {/* Seleção do Meu Guichê (Default) */}
-        <div style={{
-          display: 'flex', alignItems: 'center', gap: '12px',
-          background: 'rgba(56, 189, 248, 0.08)', border: '1px solid rgba(56, 189, 248, 0.3)',
-          padding: '8px 16px', borderRadius: '14px'
-        }}>
-          <Building size={22} color="#38BDF8" />
-          <div>
-            <span style={{ fontSize: '0.72rem', color: '#94A3B8', display: 'block', textTransform: 'uppercase', fontWeight: 800 }}>
-              MEU GUICHÊ DE ATENDIMENTO (PADRÃO):
-            </span>
-            <select
-              value={meuGuiche}
-              onChange={(e) => setMeuGuiche(e.target.value)}
-              style={{
-                background: '#071324', color: '#FFD100',
-                border: '1px solid #38BDF8', borderRadius: '8px',
-                padding: '6px 12px', fontSize: '0.95rem', fontWeight: 800,
-                outline: 'none', cursor: 'pointer'
-              }}
-            >
-              {GUICHES_ATENDENTE.map((g) => (
-                <option key={g} value={g}>{g}</option>
-              ))}
-            </select>
+        {/* Seleção do Meu Guichê (Default) e Ações */}
+        <div style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
+          <div style={{
+            display: 'flex', alignItems: 'center', gap: '12px',
+            background: 'rgba(56, 189, 248, 0.08)', border: '1px solid rgba(56, 189, 248, 0.3)',
+            padding: '8px 16px', borderRadius: '14px'
+          }}>
+            <Building size={22} color="#38BDF8" />
+            <div>
+              <span style={{ fontSize: '0.72rem', color: '#94A3B8', display: 'block', textTransform: 'uppercase', fontWeight: 800 }}>
+                MEU GUICHÊ DE ATENDIMENTO (PADRÃO):
+              </span>
+              <select
+                value={meuGuiche}
+                onChange={(e) => setMeuGuiche(e.target.value)}
+                style={{
+                  background: '#071324', color: '#FFD100',
+                  border: '1px solid #38BDF8', borderRadius: '8px',
+                  padding: '6px 12px', fontSize: '0.95rem', fontWeight: 800,
+                  outline: 'none', cursor: 'pointer'
+                }}
+              >
+                {GUICHES_ATENDENTE.map((g) => (
+                  <option key={g} value={g}>{g}</option>
+                ))}
+              </select>
+            </div>
           </div>
+
+          <button
+            onClick={handleZerarTudo}
+            title="Zerar todas as senhas e triagens para reiniciar apresentação"
+            style={{
+              background: 'rgba(239, 68, 68, 0.15)', color: '#F87171',
+              border: '1px solid rgba(239, 68, 68, 0.4)', borderRadius: '12px',
+              padding: '10px 14px', fontSize: '0.85rem', fontWeight: 800,
+              cursor: 'pointer', display: 'flex', alignItems: 'center', gap: '6px'
+            }}
+          >
+            <Trash2 size={16} />
+            <span>Zerar Fila & Risco</span>
+          </button>
         </div>
       </header>
 

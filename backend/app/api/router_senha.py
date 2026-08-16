@@ -1,8 +1,9 @@
 from fastapi import APIRouter, Depends, HTTPException
 from typing import Optional
 from pydantic import BaseModel
-from sqlmodel import Session
+from sqlmodel import Session, select
 from app.domain.senha import Senha, StatusSenha, TipoAtendimento
+from app.domain.triagem import Triagem
 from app.application.use_cases.gerar_senha import GerarSenhaUseCase
 from app.application.use_cases.verificar_agendamento import VerificarAgendamento
 from app.application.use_cases.chamar_proxima_senha import ChamarProximaSenhaUseCase
@@ -79,8 +80,15 @@ def concluir_atendimento(senha_id: str, session: Session = Depends(get_session))
 @router.post("/reset")
 def resetar_senhas(session: Session = Depends(get_session)):
     """
-    Zera a fila e o histórico de senhas para uma apresentação limpa do Pitch.
+    Zera a fila e todo o histórico de senhas e triagens para uma apresentação limpa do Pitch.
     """
     repo = SenhaRepository(session)
     count = repo.limpar_todas_senhas()
-    return {"message": f"{count} senhas removidas. Fila zerada com sucesso!"}
+    
+    # Limpa também as triagens da Central de Risco
+    triagens = list(session.exec(select(Triagem)).all())
+    for t in triagens:
+        session.delete(t)
+    session.commit()
+    
+    return {"message": f"{count} senhas e {len(triagens)} triagens removidas. Fila e Central de Risco 100% zeradas!"}

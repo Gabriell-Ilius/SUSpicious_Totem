@@ -3,9 +3,10 @@ import { Routes, Route, useLocation } from 'react-router-dom';
 import { AnimatePresence } from 'framer-motion';
 import { QRCodeSVG } from 'qrcode.react';
 import { 
-  User, CheckCircle2, QrCode, AlertCircle, Clock, Calendar, 
+  User, CheckCircle2, CheckCircle, QrCode, AlertCircle, Clock, Calendar, 
   Stethoscope, Syringe, Pill, HeartPulse, ChevronRight, 
-  ArrowLeft, Check, Navigation, ShieldCheck, Sparkles, ExternalLink, Tv
+  ArrowLeft, ArrowRight, Check, Navigation, ShieldCheck, Sparkles, ExternalLink, Tv,
+  Delete, Keyboard
 } from 'lucide-react';
 
 import Header from './components/Header';
