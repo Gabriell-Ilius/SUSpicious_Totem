@@ -1,3 +1,4 @@
+import uuid
 from typing import Optional
 from sqlmodel import Session, select, func
 from app.domain.senha import Senha, StatusSenha, TipoAtendimento, agora_sp
@@ -40,7 +41,21 @@ class SenhaRepository(SenhaRepositoryPort):
         return senha
 
     def buscar_por_id(self, senha_id: str) -> Optional[Senha]:
-        statement = select(Senha).where(Senha.id == senha_id)
+        if not senha_id:
+            return None
+        
+        # Tenta buscar por UUID objeto
+        try:
+            uid = uuid.UUID(str(senha_id))
+            statement = select(Senha).where(Senha.id == uid)
+            senha = self.session.exec(statement).first()
+            if senha:
+                return senha
+        except Exception:
+            pass
+
+        # Tenta buscar por código textual da senha (ex: "ESP-001", "AGN-001")
+        statement = select(Senha).where(Senha.codigo == str(senha_id).upper())
         return self.session.exec(statement).first()
 
     def buscar_proxima_senha(self) -> Optional[Senha]:
