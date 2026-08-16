@@ -8,6 +8,7 @@ class Triagem(SQLModel, table=True):
 
     id: Optional[int] = Field(default=None, primary_key=True)
     senha_codigo: str = Field(index=True)
+    cpf: Optional[str] = Field(default=None, index=True)
     dor: int = Field(default=0)  # 0 a 10
     tempo: str = Field(default="hoje")
     queixa: Optional[str] = Field(default="")

@@ -29,6 +29,17 @@ async def lifespan(app: FastAPI):
     logging.info("Iniciando a API do SUSpicious Totem...")
     SQLModel.metadata.create_all(engine)
     
+    # Migra colunas novas no SQLite se necessário
+    try:
+        with engine.connect() as conn:
+            from sqlalchemy import text
+            cols = [r[1] for r in conn.execute(text("PRAGMA table_info(triagens)")).fetchall()]
+            if "cpf" not in cols:
+                conn.execute(text("ALTER TABLE triagens ADD COLUMN cpf TEXT"))
+                conn.commit()
+    except Exception as e:
+        logging.warning(f"Migracao automatica da tabela triagens: {e}")
+    
     # Popula agendamentos do Pitch
     seed_agendamentos()
 

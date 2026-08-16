@@ -5,9 +5,11 @@ from sqlmodel import Session, select
 from app.infrastructure.database.session import get_session
 from app.domain.triagem import Triagem
 from app.domain.senha import Senha, agora_sp
+from app.infrastructure.database.senha_repository import SenhaRepository
 
 class TriagemCreateRequest(BaseModel):
     senha_codigo: str
+    cpf: Optional[str] = None
     dor: int = 0
     tempo: str = "hoje"
     queixa: Optional[str] = ""
@@ -38,12 +40,26 @@ def calcular_classificacao_manchester(req: TriagemCreateRequest) -> tuple[str, i
         return "VERDE - POUCO URGENTE", 1
     return "AZUL - NÃO URGENTE", 0
 
+@router.post("", response_model=Triagem)
 @router.post("/", response_model=Triagem)
 def registrar_triagem(req: TriagemCreateRequest, session: Session = Depends(get_session)):
     classificacao, nivel = calcular_classificacao_manchester(req)
     
+    # Se enviou CPF e a Senha no banco não tinha CPF, vincula para sincronização e-SUS na nuvem
+    repo_senha = SenhaRepository(session)
+    senha_obj = repo_senha.buscar_por_id(req.senha_codigo)
+    cpf_final = req.cpf
+    if senha_obj:
+        if not senha_obj.cpf and req.cpf:
+            senha_obj.cpf = req.cpf
+            senha_obj.status_sincronizacao = False
+            repo_senha.salvar(senha_obj)
+        elif senha_obj.cpf and not cpf_final:
+            cpf_final = senha_obj.cpf
+
     triagem = Triagem(
         senha_codigo=req.senha_codigo.upper(),
+        cpf=cpf_final,
         dor=req.dor,
         tempo=req.tempo,
         queixa=req.queixa,
@@ -63,6 +79,7 @@ def registrar_triagem(req: TriagemCreateRequest, session: Session = Depends(get_
     session.refresh(triagem)
     return triagem
 
+@router.get("", response_model=List[Triagem])
 @router.get("/", response_model=List[Triagem])
 def listar_triagens(session: Session = Depends(get_session)):
     statement = select(Triagem).order_by(Triagem.data_hora.desc()).limit(30)

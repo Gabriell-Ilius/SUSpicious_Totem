@@ -49,6 +49,18 @@ def gerar_senha(request: GerarSenhaRequest, uc: GerarSenhaUseCase = Depends(get_
     )
     return senha
 
+@router.get("/codigo/{codigo}", response_model=Optional[Senha])
+def buscar_senha_por_codigo(codigo: str, session: Session = Depends(get_session)):
+    """
+    Busca informações da senha pelo código impresso no totem (ex: ESP-001, AGN-001).
+    Usado pelo celular na pré-triagem para identificar se o paciente já digitou o CPF no totem.
+    """
+    repo = SenhaRepository(session)
+    senha = repo.buscar_por_id(codigo)
+    if not senha:
+        raise HTTPException(status_code=404, detail="Senha não encontrada.")
+    return senha
+
 @router.post("/proxima", response_model=Senha)
 def chamar_proxima_senha(
     request: Optional[ChamarSenhaRequest] = None,

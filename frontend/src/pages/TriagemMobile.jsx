@@ -1,11 +1,12 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { useParams } from 'react-router-dom';
 import { motion, AnimatePresence } from 'framer-motion';
 import {
   ClipboardList, CheckCircle2, HeartPulse, Clock,
   AlertTriangle, Activity, ShieldCheck, Send,
   Loader2, Sparkles, Smile, Meh, Frown, Flame,
-  Stethoscope, Info, Check, Zap, ArrowRight, Tv
+  Stethoscope, Info, Check, Zap, ArrowRight, Tv,
+  Cloud, Lock, UserCheck, Shield
 } from 'lucide-react';
 import api from '../services/api';
 
@@ -33,7 +34,13 @@ const TriagemMobile = () => {
   const [enviado, setEnviado] = useState(false);
   const [submitting, setSubmitting] = useState(false);
 
-  // Estados do formulário
+  // Dados da Senha & CPF do Paciente
+  const [cpf, setCpf] = useState('');
+  const [cpfVeioDoTotem, setCpfVeioDoTotem] = useState(false);
+  const [nomePacienteTotem, setNomePacienteTotem] = useState('');
+  const [loadingSenha, setLoadingSenha] = useState(true);
+
+  // Estados do formulário clínico
   const [dor, setDor] = useState(3);
   const [tempo, setTempo] = useState('hoje');
   const [queixa, setQueixa] = useState('');
@@ -50,6 +57,49 @@ const TriagemMobile = () => {
     diabetes: false,
     gestante: false
   });
+
+  // Busca dados da senha emitida no totem ao abrir a página móvel
+  useEffect(() => {
+    const buscarInfoSenha = async () => {
+      if (!id) {
+        setLoadingSenha(false);
+        return;
+      }
+      try {
+        const res = await api.get(`/senhas/codigo/${id.toUpperCase()}`);
+        if (res.data) {
+          if (res.data.cpf) {
+            setCpf(res.data.cpf);
+            setCpfVeioDoTotem(true);
+          }
+          if (res.data.patient_name) {
+            setNomePacienteTotem(res.data.patient_name);
+          }
+        }
+      } catch (err) {
+        console.log("Senha não encontrada ou emitida localmente sem sincronização imediata.");
+      } finally {
+        setLoadingSenha(false);
+      }
+    };
+
+    buscarInfoSenha();
+  }, [id]);
+
+  // Formatação de CPF para digitação no celular
+  const handleCpfChange = (e) => {
+    const raw = e.target.value.replace(/\D/g, '').slice(0, 11);
+    setCpf(raw);
+  };
+
+  const formatCpfMask = (val) => {
+    if (!val) return '';
+    const clean = val.replace(/\D/g, '');
+    if (clean.length <= 3) return clean;
+    if (clean.length <= 6) return `${clean.slice(0, 3)}.${clean.slice(3)}`;
+    if (clean.length <= 9) return `${clean.slice(0, 3)}.${clean.slice(3, 6)}.${clean.slice(6)}`;
+    return `${clean.slice(0, 3)}.${clean.slice(3, 6)}.${clean.slice(6, 9)}-${clean.slice(9, 11)}`;
+  };
 
   // Alterna chip de sintoma rápido
   const handleToggleSintoma = (sintoma) => {
@@ -82,10 +132,12 @@ const TriagemMobile = () => {
     setSubmitting(true);
 
     const queixaFinal = queixa.trim() || (sintomasSelecionados.length > 0 ? sintomasSelecionados.join(', ') : 'Consulta Geral / Avaliação');
+    const cleanCpf = cpf.replace(/\D/g, '');
 
     try {
       await api.post('/triagem/', {
         senha_codigo: id || 'GERAL',
+        cpf: cleanCpf.length === 11 ? cleanCpf : null,
         dor: Number(dor),
         tempo,
         queixa: queixaFinal,
@@ -135,7 +187,7 @@ const TriagemMobile = () => {
           Pré-Triagem Concluída!
         </h2>
         <p style={{ color: '#34D399', fontSize: '1.05rem', fontWeight: 700, margin: '0 0 20px' }}>
-          ✓ Informações enviadas para a equipe médica
+          ✓ Informações integradas ao Prontuário na Nuvem (e-SUS PEC)
         </p>
         
         {/* Card da Senha */}
@@ -150,8 +202,14 @@ const TriagemMobile = () => {
           <strong style={{ fontSize: '2.8rem', color: '#38BDF8', fontWeight: 900, letterSpacing: '1px', display: 'block', margin: '4px 0' }}>
             {id || 'ATENDIMENTO'}
           </strong>
-          <span style={{ fontSize: '0.85rem', color: '#CBD5E1', display: 'block' }}>
-            Nível de Dor Informado: <strong style={{ color: dorInfo.color }}>{dor}/10 ({dorInfo.label})</strong>
+          {cpf && (
+            <div style={{ fontSize: '0.85rem', color: '#93C5FD', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '6px', margin: '6px 0' }}>
+              <Shield size={15} color="#34D399" />
+              <span>CPF Conectado: <strong>{formatCpfMask(cpf)}</strong></span>
+            </div>
+          )}
+          <span style={{ fontSize: '0.85rem', color: '#CBD5E1', display: 'block', marginTop: '4px' }}>
+            Nível de Dor: <strong style={{ color: dorInfo.color }}>{dor}/10 ({dorInfo.label})</strong>
           </span>
         </div>
 
@@ -167,14 +225,14 @@ const TriagemMobile = () => {
               Fique atento ao Painel da TV!
             </strong>
             <span style={{ fontSize: '0.85rem', color: '#E2E8F0' }}>
-              O enfermeiro já visualizou sua queixa na mesa de acolhimento. Aguarde sua senha ser chamada na TV da sala de espera.
+              O enfermeiro e o médico já receberam sua pré-triagem. Aguarde sua senha ser chamada na TV da sala de espera.
             </span>
           </div>
         </div>
 
         <div style={{ display: 'inline-flex', alignItems: 'center', gap: '8px', background: 'rgba(255, 255, 255, 0.05)', padding: '10px 18px', borderRadius: '12px', color: '#94A3B8', fontSize: '0.85rem' }}>
           <ShieldCheck size={18} color="#38BDF8" />
-          <span>Protocolo Clínico Manchester • e-SUS APS</span>
+          <span>Protocolo Manchester • Nuvem e-SUS APS</span>
         </div>
       </div>
     );
@@ -223,17 +281,75 @@ const TriagemMobile = () => {
           )}
         </header>
 
-        {/* Banner Explicativo */}
+        {/* ============================================================ */}
+        {/* 0. ABA DE IDENTIFICAÇÃO POR CPF & CONEXÃO EM NUVEM           */}
+        {/* ============================================================ */}
         <div style={{
-          background: 'linear-gradient(135deg, rgba(56, 189, 248, 0.15) 0%, rgba(0, 86, 168, 0.2) 100%)',
-          border: '1px solid rgba(56, 189, 248, 0.3)',
-          borderRadius: '14px', padding: '14px 16px', marginBottom: '20px',
-          display: 'flex', alignItems: 'center', gap: '12px'
+          background: cpfVeioDoTotem 
+            ? 'linear-gradient(135deg, rgba(16, 185, 129, 0.15) 0%, rgba(5, 150, 105, 0.2) 100%)'
+            : 'linear-gradient(135deg, rgba(56, 189, 248, 0.12) 0%, rgba(0, 86, 168, 0.18) 100%)',
+          border: cpfVeioDoTotem ? '2px solid #10B981' : '1px solid rgba(56, 189, 248, 0.35)',
+          borderRadius: '18px', padding: '16px 18px', marginBottom: '18px',
+          boxShadow: '0 8px 25px rgba(0, 0, 0, 0.3)'
         }}>
-          <Info size={24} color="#38BDF8" style={{ flexShrink: 0 }} />
-          <p style={{ margin: 0, fontSize: '0.85rem', color: '#E0F2FE', lineHeight: '1.4' }}>
-            <strong>Agilize seu atendimento:</strong> Responda as perguntas rápidas abaixo para que o enfermeiro já saiba o motivo da sua visita antes mesmo de chamar seu nome.
-          </p>
+          {cpfVeioDoTotem ? (
+            <div>
+              <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: '6px' }}>
+                <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+                  <UserCheck size={20} color="#34D399" />
+                  <strong style={{ fontSize: '0.95rem', color: '#34D399' }}>
+                    CPF Identificado no Totem
+                  </strong>
+                </div>
+                <span style={{ background: '#059669', color: '#FFF', fontSize: '0.7rem', fontWeight: 800, padding: '2px 8px', borderRadius: '6px', display: 'flex', alignItems: 'center', gap: '4px' }}>
+                  <Lock size={11} /> Conectado
+                </span>
+              </div>
+              <div style={{ fontSize: '1.1rem', fontWeight: 800, color: '#FFF', letterSpacing: '1px', marginTop: '4px' }}>
+                {formatCpfMask(cpf)}
+              </div>
+              {nomePacienteTotem && (
+                <div style={{ fontSize: '0.85rem', color: '#CBD5E1', marginTop: '2px' }}>
+                  Paciente: <strong style={{ color: '#FFD100' }}>{nomePacienteTotem}</strong>
+                </div>
+              )}
+              <span style={{ fontSize: '0.75rem', color: '#A7F3D0', display: 'block', marginTop: '6px' }}>
+                ✓ Sua pré-triagem será salva diretamente no seu Prontuário Eletrônico do Cidadão (e-SUS PEC).
+              </span>
+            </div>
+          ) : (
+            <div>
+              <div style={{ display: 'flex', alignItems: 'center', gap: '8px', marginBottom: '6px' }}>
+                <Cloud size={20} color="#38BDF8" />
+                <strong style={{ fontSize: '0.95rem', color: '#38BDF8' }}>
+                  Conectar Prontuário na Nuvem (CPF)
+                </strong>
+              </div>
+              <p style={{ margin: '0 0 10px', fontSize: '0.8rem', color: '#CBD5E1', lineHeight: '1.3' }}>
+                Você iniciou o atendimento sem CPF. Digite abaixo caso queira sincronizar esta avaliação com seu histórico no SUS:
+              </p>
+
+              <div style={{ position: 'relative' }}>
+                <input
+                  type="tel"
+                  value={formatCpfMask(cpf)}
+                  onChange={handleCpfChange}
+                  placeholder="000.000.000-00 (Opcional)"
+                  style={{
+                    width: '100%', padding: '12px 14px', borderRadius: '12px',
+                    border: '1px solid rgba(56, 189, 248, 0.4)',
+                    background: '#071324', color: '#FFF', fontSize: '1.05rem',
+                    fontWeight: 700, letterSpacing: '1px', boxSizing: 'border-box', outline: 'none'
+                  }}
+                />
+              </div>
+              {cpf.length === 11 && (
+                <span style={{ fontSize: '0.75rem', color: '#34D399', display: 'block', marginTop: '6px', fontWeight: 700 }}>
+                  ✓ CPF formatado com sucesso! Sincronização pronta para envio.
+                </span>
+              )}
+            </div>
+          )}
         </div>
 
         <form onSubmit={handleSubmit} style={{ display: 'flex', flexDirection: 'column', gap: '18px' }}>
@@ -556,7 +672,7 @@ const TriagemMobile = () => {
             {submitting ? (
               <>
                 <Loader2 size={24} className="animate-spin" />
-                <span>Enviando ao Enfermeiro...</span>
+                <span>Sincronizando com e-SUS PEC...</span>
               </>
             ) : (
               <>
