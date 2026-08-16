@@ -216,36 +216,23 @@ const PainelSenhas = () => {
 
                 {/* Código Gigante da Senha */}
                 <div style={{
-                  fontSize: 'clamp(140px, 17vw, 230px)',
+                  fontSize: 'clamp(140px, 17vw, 240px)',
                   fontWeight: 900,
                   lineHeight: 0.95,
                   letterSpacing: '-3px',
                   color: '#FFFFFF',
                   textShadow: '0 12px 35px rgba(0, 0, 0, 0.7)',
-                  margin: '12px 0'
+                  margin: '12px 0 20px'
                 }}>
                   {ultimaChamada.codigo}
                 </div>
-
-                {/* Nome do Paciente */}
-                {ultimaChamada.patient_name && (
-                  <div style={{
-                    background: 'rgba(255, 255, 255, 0.15)',
-                    border: '1px solid rgba(255, 255, 255, 0.25)',
-                    padding: '10px 28px', borderRadius: '16px',
-                    fontSize: '1.8rem', fontWeight: 800, color: '#F8FAFC',
-                    marginBottom: '18px'
-                  }}>
-                    {ultimaChamada.patient_name}
-                  </div>
-                )}
 
                 {/* Local de Destino em Destaque Dourado */}
                 <div style={{
                   background: '#071324',
                   border: '3px solid #FFD100',
                   borderRadius: '22px',
-                  padding: '20px 40px',
+                  padding: '24px 44px',
                   width: '92%',
                   maxWidth: '750px',
                   boxShadow: '0 15px 35px rgba(0, 0, 0, 0.6)',
@@ -341,16 +328,21 @@ const PainelSenhas = () => {
                   }}
                 >
                   <div>
-                    <div style={{ fontSize: '2.2rem', fontWeight: 900, color: '#FFF', lineHeight: 1.1 }}>
+                    <div style={{ fontSize: '2.4rem', fontWeight: 900, color: '#FFF', lineHeight: 1.1 }}>
                       {senha.codigo}
                     </div>
-                    <div style={{ fontSize: '0.95rem', color: '#94A3B8', fontWeight: 600, marginTop: '4px' }}>
-                      {senha.patient_name || senha.tipo_atendimento}
+                    <div style={{ fontSize: '0.95rem', color: '#94A3B8', fontWeight: 700, marginTop: '4px' }}>
+                      {senha.tipo_atendimento}
+                      {senha.prioridade === 1 && (
+                        <span style={{ color: '#F87171', marginLeft: '6px' }}>
+                          • {senha.sub_prioridade || 'PREFERENCIAL'}
+                        </span>
+                      )}
                     </div>
                   </div>
 
                   <div style={{ textAlign: 'right' }}>
-                    <div style={{ fontSize: '1.25rem', fontWeight: 800, color: '#FFD100' }}>
+                    <div style={{ fontSize: '1.35rem', fontWeight: 800, color: '#FFD100' }}>
                       {senha.setor_destino || 'Consultório 01'}
                     </div>
                   </div>
