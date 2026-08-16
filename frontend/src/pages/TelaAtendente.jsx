@@ -5,12 +5,21 @@ import {
   Users, Clock, AlertTriangle, ArrowRight,
   ShieldAlert, ShieldCheck, RefreshCw, Eye, X,
   Settings, Calendar, FileText, Activity, Volume2,
-  PhoneCall, ChevronRight, Zap, Check, HeartPulse
+  PhoneCall, ChevronRight, Zap, Check, HeartPulse,
+  DoorOpen, Building, Sparkles
 } from 'lucide-react';
 import filaService from '../services/filaService';
 import api from '../services/api';
 
-const SALAS_PREDEFINIDAS = [
+const GUICHES_ATENDENTE = [
+  "Guichê 01 - Recepção & Acolhimento",
+  "Guichê 02 - Triagem de Enfermagem",
+  "Guichê 03 - Atendimento ao Paciente",
+  "Guichê 04 - Farmácia & Medicamentos",
+  "Guichê 05 - Sala de Curativos"
+];
+
+const CONSULTORIOS_MEDICOS = [
   "Consultório 01 - Dra. Ana Costa (Clínica Geral)",
   "Consultório 02 - Dra. Camila Rocha (Clínica Geral)",
   "Consultório 03 - Dr. Roberto Alves (Cardiologia)",
@@ -18,7 +27,7 @@ const SALAS_PREDEFINIDAS = [
   "Consultório 05 - Dr. Marcos Vinicius (Geriatria)",
   "Sala 02 - Vacinação & Imunização",
   "Guichê 01 - Farmácia Básica",
-  "Mesa 01 - Acolhimento & Triagem de Enfermagem"
+  "Mesa 01 - Acolhimento & Triagem"
 ];
 
 // Som de alerta de emergência / risco crítico (Web Audio API)
@@ -28,7 +37,6 @@ const playEmergencyAlert = () => {
     if (!AudioContext) return;
     const ctx = new AudioContext();
     
-    // Pulso duplo de alarme clínico
     [0, 0.25, 0.5].forEach((delay) => {
       const osc = ctx.createOscillator();
       const gain = ctx.createGain();
@@ -49,9 +57,7 @@ const playEmergencyAlert = () => {
 
 const TelaAtendente = () => {
   const [activeTab, setActiveTab] = useState('fila'); // 'fila' | 'agendados' | 'risco' | 'historico'
-  const [minhaSala, setMinhaSala] = useState(SALAS_PREDEFINIDAS[1]); // Padrão Consultório 02
-  const [salaCustomizada, setSalaCustomizada] = useState('');
-  const [isEditandoSala, setIsEditandoSala] = useState(false);
+  const [meuGuiche, setMeuGuiche] = useState(GUICHES_ATENDENTE[0]); // Guichê Default da Atendente
   
   const [pacienteAtual, setPacienteAtual] = useState(null);
   const [fila, setFila] = useState([]);
@@ -68,8 +74,6 @@ const TelaAtendente = () => {
   // Modais
   const [modalTriagem, setModalTriagem] = useState(null);
   const [modalChamarSenha, setModalChamarSenha] = useState(null); // Senha selecionada para escolher sala
-
-  const salaAtiva = isEditandoSala && salaCustomizada ? salaCustomizada : minhaSala;
 
   // Polling geral a cada 1.5s
   useEffect(() => {
@@ -94,7 +98,7 @@ const TelaAtendente = () => {
           const listaTriagens = resTrg.data || [];
           setTriagens(listaTriagens);
 
-          // Verifica se há alguma triagem recente com risco crítico (VERMELHO ou LARANJA)
+          // Verifica se há alguma triagem recente com risco crítico
           const riscoCritico = listaTriagens.find(t => 
             t.classificacao_risco.includes('VERMELHO') || 
             t.classificacao_risco.includes('LARANJA') ||
@@ -123,7 +127,7 @@ const TelaAtendente = () => {
   // Chamar paciente para uma sala específica
   const handleChamarParaSala = async (senhaId = null, salaDestino = null) => {
     setLoading(true);
-    const destinoFinal = salaDestino || salaAtiva;
+    const destinoFinal = salaDestino || meuGuiche;
     try {
       const chamada = await filaService.chamarProxima(destinoFinal, senhaId);
       setPacienteAtual(chamada);
@@ -145,7 +149,7 @@ const TelaAtendente = () => {
     if (!pacienteAtual) return;
     setLoading(true);
     try {
-      const chamada = await filaService.chamarProxima(salaAtiva, pacienteAtual.id);
+      const chamada = await filaService.chamarProxima(pacienteAtual.setor_destino || meuGuiche, pacienteAtual.id);
       setPacienteAtual(chamada);
     } catch (err) {
       console.error(err);
@@ -171,6 +175,10 @@ const TelaAtendente = () => {
     if (!codigo) return null;
     return triagens.find(t => t.senha_codigo === codigo.toUpperCase());
   };
+
+  // Separação de Senhas: Agendados vs Demais Senhas da Fila
+  const senhasAgendadasConfirmadas = fila.filter(s => s.tipo_atendimento === 'AGENDADA');
+  const senhasGerais = fila.filter(s => s.tipo_atendimento !== 'AGENDADA');
 
   return (
     <div style={{
@@ -209,11 +217,11 @@ const TelaAtendente = () => {
                     {alertaRiscoAtivo.classificacao_risco}
                   </span>
                   <strong style={{ fontSize: '1.15rem', color: '#FFF' }}>
-                    🚨 ALERTA CLÍNICO: Senha {alertaRiscoAtivo.senha_codigo} apresentou sintomas de risco na Pré-Triagem!
+                    🚨 ALERTA: Senha {alertaRiscoAtivo.senha_codigo} apresentou sintomas de risco na Pré-Triagem!
                   </strong>
                 </div>
                 <p style={{ margin: '4px 0 0', fontSize: '0.95rem', color: '#FEE2E2' }}>
-                  Escala de Dor: <strong>{alertaRiscoAtivo.dor}/10</strong> • Sintomas: {alertaRiscoAtivo.falta_ar ? 'Falta de Ar • ' : ''}{alertaRiscoAtivo.sangramento ? 'Sangramento • ' : ''}{alertaRiscoAtivo.queixa ? `"${alertaRiscoAtivo.queixa}"` : 'Acolhimento Urgente'}
+                  Dor: <strong>{alertaRiscoAtivo.dor}/10</strong> • {alertaRiscoAtivo.falta_ar ? 'Falta de Ar • ' : ''}{alertaRiscoAtivo.sangramento ? 'Sangramento • ' : ''}{alertaRiscoAtivo.queixa ? `"${alertaRiscoAtivo.queixa}"` : 'Encaminhar Imediatamente'}
                 </p>
               </div>
             </div>
@@ -222,7 +230,7 @@ const TelaAtendente = () => {
               <button
                 onClick={() => {
                   const s = fila.find(f => f.codigo === alertaRiscoAtivo.senha_codigo);
-                  handleChamarParaSala(s ? s.id : null, salaAtiva);
+                  handleChamarParaSala(s ? s.id : null, meuGuiche);
                   setAlertaRiscoAtivo(null);
                 }}
                 style={{
@@ -249,7 +257,7 @@ const TelaAtendente = () => {
       </AnimatePresence>
 
       {/* ============================================================ */}
-      {/* 1. CABEÇALHO DA ESTAÇÃO DO PROFISSIONAL & CONTROLE DE SALA    */}
+      {/* 1. CABEÇALHO DA ESTAÇÃO & SELETOR DO MEU GUICHÊ DEFAULT       */}
       {/* ============================================================ */}
       <header style={{
         display: 'flex', alignItems: 'center', justifyContent: 'space-between',
@@ -263,33 +271,37 @@ const TelaAtendente = () => {
           </div>
           <div>
             <h1 style={{ fontSize: '1.4rem', fontWeight: 900, margin: 0, color: '#FFF' }}>
-              Central de Atendimento & Acolhimento
+              Mesa da Atendente / Recepção da UBS
             </h1>
             <span style={{ fontSize: '0.85rem', color: '#38BDF8', fontWeight: 700 }}>
-              e-SUS APS • Gestão de Fila, Triagem e Consultórios
+              e-SUS APS • Triagem, Direcionamento de Consultórios e Chamadas de Guichê
             </span>
           </div>
         </div>
 
-        {/* Seleção do Consultório/Guichê Atual da Atendente */}
-        <div style={{ display: 'flex', alignItems: 'center', gap: '14px' }}>
-          <Settings size={20} color="#94A3B8" />
-          <div style={{ textAlign: 'right' }}>
-            <span style={{ fontSize: '0.75rem', color: '#94A3B8', display: 'block', textTransform: 'uppercase', fontWeight: 700 }}>
-              Meu Consultório / Local de Atendimento:
+        {/* Seleção do Meu Guichê (Default) */}
+        <div style={{
+          display: 'flex', alignItems: 'center', gap: '12px',
+          background: 'rgba(56, 189, 248, 0.08)', border: '1px solid rgba(56, 189, 248, 0.3)',
+          padding: '8px 16px', borderRadius: '14px'
+        }}>
+          <Building size={22} color="#38BDF8" />
+          <div>
+            <span style={{ fontSize: '0.72rem', color: '#94A3B8', display: 'block', textTransform: 'uppercase', fontWeight: 800 }}>
+              MEU GUICHÊ DE ATENDIMENTO (PADRÃO):
             </span>
             <select
-              value={minhaSala}
-              onChange={(e) => { setMinhaSala(e.target.value); setIsEditandoSala(false); }}
+              value={meuGuiche}
+              onChange={(e) => setMeuGuiche(e.target.value)}
               style={{
                 background: '#071324', color: '#FFD100',
-                border: '2px solid #38BDF8', borderRadius: '10px',
-                padding: '8px 14px', fontSize: '0.95rem', fontWeight: 800,
+                border: '1px solid #38BDF8', borderRadius: '8px',
+                padding: '6px 12px', fontSize: '0.95rem', fontWeight: 800,
                 outline: 'none', cursor: 'pointer'
               }}
             >
-              {SALAS_PREDEFINIDAS.map((s) => (
-                <option key={s} value={s}>{s}</option>
+              {GUICHES_ATENDENTE.map((g) => (
+                <option key={g} value={g}>{g}</option>
               ))}
             </select>
           </div>
@@ -318,7 +330,7 @@ const TelaAtendente = () => {
 
         <div style={{ background: '#0B192C', border: '1px solid rgba(255,255,255,0.08)', borderRadius: '16px', padding: '16px 20px', display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
           <div>
-            <span style={{ color: '#94A3B8', fontSize: '0.85rem', fontWeight: 600 }}>Pré-Triagens no Celular</span>
+            <span style={{ color: '#94A3B8', fontSize: '0.85rem', fontWeight: 600 }}>Pré-Triagens Mobile</span>
             <div style={{ fontSize: '2rem', fontWeight: 900, color: '#34D399', marginTop: '2px' }}>{triagens.length}</div>
           </div>
           <HeartPulse size={32} color="#34D399" style={{ opacity: 0.8 }} />
@@ -350,7 +362,7 @@ const TelaAtendente = () => {
           }}
         >
           <Users size={18} />
-          <span>Fila Geral & Acolhimento ({totalAguardando})</span>
+          <span>Fila da Recepção ({totalAguardando})</span>
         </button>
 
         <button
@@ -366,7 +378,7 @@ const TelaAtendente = () => {
           }}
         >
           <Calendar size={18} />
-          <span>Pacientes Agendados de Hoje ({agendados.length})</span>
+          <span>Todos Agendados do Dia ({agendados.length})</span>
         </button>
 
         <button
@@ -382,7 +394,7 @@ const TelaAtendente = () => {
           }}
         >
           <ShieldAlert size={18} />
-          <span>Central de Risco & Pré-Triagem ({triagens.length})</span>
+          <span>Central de Risco & Manchester ({triagens.length})</span>
         </button>
 
         <button
@@ -397,128 +409,252 @@ const TelaAtendente = () => {
           }}
         >
           <CheckCircle2 size={18} />
-          <span>Histórico & Atendidos ({historicoAtendidos.length})</span>
+          <span>Histórico de Atendidos ({historicoAtendidos.length})</span>
         </button>
       </div>
 
       {/* ============================================================ */}
-      {/* 4. CONTEÚDO PRINCIPAL (COM PAINEL LATERAL DO PACIENTE ATUAL)  */}
+      {/* 4. CONTEÚDO PRINCIPAL (COM BLOCOS DISTINTOS)                  */}
       {/* ============================================================ */}
-      <div style={{ display: 'grid', gridTemplateColumns: '1.2fr 1fr', gap: '24px' }}>
+      <div style={{ display: 'grid', gridTemplateColumns: '1.25fr 1fr', gap: '24px' }}>
         
         {/* --- LADO ESQUERDO: CONTEÚDO DA ABA SELECIONADA --- */}
-        <div style={{ display: 'flex', flexDirection: 'column', gap: '16px' }}>
+        <div style={{ display: 'flex', flexDirection: 'column', gap: '20px' }}>
 
-          {/* ==================== ABA 1: FILA GERAL ==================== */}
+          {/* ==================== ABA 1: FILA GERAL COM BLOCOS DISTINTOS ==================== */}
           {activeTab === 'fila' && (
-            <div style={{ background: '#0B192C', borderRadius: '20px', padding: '20px', border: '1px solid rgba(255,255,255,0.08)' }}>
-              <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: '16px' }}>
-                <h2 style={{ fontSize: '1.15rem', fontWeight: 800, color: '#38BDF8', margin: 0 }}>
-                  Pacientes Aguardando na Recepção
-                </h2>
-                <button
-                  onClick={() => handleChamarParaSala(null, salaAtiva)}
-                  disabled={loading || totalAguardando === 0}
-                  style={{
-                    background: totalAguardando > 0 ? 'linear-gradient(90deg, #0056A8 0%, #0284C7 100%)' : '#334155',
-                    color: '#FFF', border: 'none', borderRadius: '10px',
-                    padding: '8px 16px', fontSize: '0.9rem', fontWeight: 800,
-                    cursor: totalAguardando > 0 ? 'pointer' : 'not-allowed',
-                    display: 'flex', alignItems: 'center', gap: '6px'
-                  }}
-                >
-                  <Bell size={16} />
-                  <span>Chamar Próximo da Fila</span>
-                </button>
-              </div>
+            <div style={{ display: 'flex', flexDirection: 'column', gap: '20px' }}>
 
-              <div style={{ display: 'flex', flexDirection: 'column', gap: '12px', maxHeight: '600px', overflowY: 'auto' }}>
-                {fila.length > 0 ? (
-                  fila.map((senha) => {
-                    const triagemVinculada = getTriagemDaSenha(senha.codigo);
-                    const temRisco = triagemVinculada && (triagemVinculada.dor >= 7 || triagemVinculada.falta_ar);
+              {/* --- BLOCO 1: PACIENTES AGENDADOS QUE JÁ CHEGARAM NO TOTEM --- */}
+              <div style={{
+                background: 'linear-gradient(135deg, #0B192C 0%, #0F2942 100%)',
+                border: '2px solid #38BDF8',
+                borderRadius: '20px', padding: '20px',
+                boxShadow: '0 10px 30px rgba(0, 86, 168, 0.25)'
+              }}>
+                <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: '14px', borderBottom: '1px solid rgba(56, 189, 248, 0.2)', paddingBottom: '10px' }}>
+                  <div style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
+                    <Calendar size={22} color="#FFD100" />
+                    <div>
+                      <h2 style={{ fontSize: '1.15rem', fontWeight: 900, color: '#FFD100', margin: 0 }}>
+                        1. Pacientes com Agendamento Prévio (Presença Confirmada)
+                      </h2>
+                      <span style={{ fontSize: '0.8rem', color: '#93C5FD' }}>
+                        Chegaram e digitaram o CPF no Totem. Apenas selecione a sala/consultório para onde ele vai:
+                      </span>
+                    </div>
+                  </div>
+                  <span style={{ background: '#0056A8', color: '#FFF', padding: '4px 12px', borderRadius: '8px', fontSize: '0.85rem', fontWeight: 800 }}>
+                    {senhasAgendadasConfirmadas.length} aguardando encaminhamento
+                  </span>
+                </div>
 
-                    return (
-                      <div
-                        key={senha.id}
-                        style={{
-                          background: temRisco ? 'rgba(220, 38, 38, 0.12)' : (senha.prioridade === 1 ? 'rgba(239, 68, 68, 0.06)' : 'rgba(255,255,255,0.04)'),
-                          border: temRisco ? '2px solid #EF4444' : (senha.prioridade === 1 ? '1px solid rgba(239, 68, 68, 0.3)' : '1px solid rgba(255,255,255,0.08)'),
-                          borderRadius: '16px', padding: '14px 18px',
-                          display: 'flex', alignItems: 'center', justifyContent: 'space-between'
-                        }}
-                      >
-                        <div>
-                          <div style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
-                            <span style={{ fontSize: '1.6rem', fontWeight: 900, color: '#FFF' }}>
-                              {senha.codigo}
-                            </span>
-                            {senha.prioridade === 1 && (
-                              <span style={{ background: '#DC2626', color: '#FFF', fontSize: '0.75rem', fontWeight: 800, padding: '3px 8px', borderRadius: '6px' }}>
-                                PREFERENCIAL {senha.sub_prioridade ? `• ${senha.sub_prioridade}` : ''}
+                <div style={{ display: 'flex', flexDirection: 'column', gap: '10px' }}>
+                  {senhasAgendadasConfirmadas.length > 0 ? (
+                    senhasAgendadasConfirmadas.map((senha) => {
+                      const agendamentoMatch = agendados.find(ag => ag.cpf === senha.cpf);
+                      const salaSugerida = agendamentoMatch ? `${agendamentoMatch.room} - ${agendamentoMatch.doctor_name}` : (senha.setor_destino || 'Consultório 01');
+
+                      return (
+                        <div
+                          key={senha.id}
+                          style={{
+                            background: 'rgba(7, 19, 36, 0.8)',
+                            border: '1px solid #38BDF8',
+                            borderRadius: '14px', padding: '14px 18px',
+                            display: 'flex', alignItems: 'center', justifyContent: 'space-between'
+                          }}
+                        >
+                          <div>
+                            <div style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
+                              <span style={{ fontSize: '1.6rem', fontWeight: 900, color: '#FFF' }}>
+                                {senha.codigo}
                               </span>
-                            )}
-                            {temRisco && (
-                              <span style={{ background: '#EF4444', color: '#FFF', fontSize: '0.75rem', fontWeight: 900, padding: '3px 8px', borderRadius: '6px', display: 'flex', alignItems: 'center', gap: '4px' }}>
-                                <ShieldAlert size={12} />
-                                <span>RISCO: DOR {triagemVinculada.dor}/10</span>
+                              <span style={{ background: '#0284C7', color: '#FFF', fontSize: '0.75rem', fontWeight: 800, padding: '3px 8px', borderRadius: '6px' }}>
+                                AGENDADO
                               </span>
-                            )}
+                            </div>
+
+                            <div style={{ fontSize: '1rem', fontWeight: 800, color: '#F8FAFC', marginTop: '4px' }}>
+                              {senha.patient_name || (agendamentoMatch ? agendamentoMatch.patient_name : 'Paciente Agendado')}
+                            </div>
+
+                            <div style={{ fontSize: '0.85rem', color: '#94A3B8', marginTop: '2px' }}>
+                              Consulta: <span style={{ color: '#FFD100', fontWeight: 700 }}>{salaSugerida}</span>
+                            </div>
                           </div>
 
-                          <div style={{ fontSize: '0.95rem', color: '#CBD5E1', marginTop: '4px', fontWeight: 600 }}>
-                            {senha.patient_name || senha.tipo_atendimento}
+                          {/* Botão de Encaminhar / Escolher Sala */}
+                          <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+                            <button
+                              onClick={() => handleChamarParaSala(senha.id, salaSugerida)}
+                              style={{
+                                background: 'linear-gradient(90deg, #10B981 0%, #059669 100%)',
+                                color: '#FFF', border: 'none', borderRadius: '10px',
+                                padding: '10px 16px', fontSize: '0.9rem', fontWeight: 800,
+                                cursor: 'pointer', display: 'flex', alignItems: 'center', gap: '6px',
+                                boxShadow: '0 2px 8px rgba(16, 185, 129, 0.4)'
+                              }}
+                            >
+                              <DoorOpen size={16} />
+                              <span>Encaminhar p/ {salaSugerida.split('-')[0]}</span>
+                            </button>
+
+                            <button
+                              onClick={() => setModalChamarSenha(senha)}
+                              title="Trocar para outro consultório"
+                              style={{
+                                background: '#1E293B', color: '#93C5FD',
+                                border: '1px solid rgba(56, 189, 248, 0.3)', borderRadius: '10px',
+                                padding: '10px 12px', fontSize: '0.85rem', fontWeight: 700,
+                                cursor: 'pointer'
+                              }}
+                            >
+                              Trocar Sala
+                            </button>
                           </div>
                         </div>
+                      );
+                    })
+                  ) : (
+                    <div style={{ textAlign: 'center', padding: '20px 10px', color: '#64748B', fontSize: '0.95rem' }}>
+                      Nenhum paciente agendado aguardando encaminhamento no momento.
+                    </div>
+                  )}
+                </div>
+              </div>
 
-                        <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
-                          {triagemVinculada ? (
+              {/* --- BLOCO 2: DEMAIS SENHAS GERAIS (DEMANDA ESPONTÂNEA / ACOLHIMENTO / VACINAS) --- */}
+              <div style={{
+                background: '#0B192C',
+                border: '1px solid rgba(255,255,255,0.08)',
+                borderRadius: '20px', padding: '20px'
+              }}>
+                <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: '14px', borderBottom: '1px solid rgba(255,255,255,0.08)', paddingBottom: '10px' }}>
+                  <div style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
+                    <Users size={22} color="#38BDF8" />
+                    <div>
+                      <h2 style={{ fontSize: '1.15rem', fontWeight: 900, color: '#38BDF8', margin: 0 }}>
+                        2. Fila Geral de Acolhimento & Demanda Espontânea (Sem Agendamento)
+                      </h2>
+                      <span style={{ fontSize: '0.8rem', color: '#94A3B8' }}>
+                        Chamadas para o seu guichê de atendimento ou encaminhamento para triagem/vacinas:
+                      </span>
+                    </div>
+                  </div>
+                  
+                  {/* Botão de Chamar Próximo para o MEU GUICHÊ */}
+                  <button
+                    onClick={() => handleChamarParaSala(null, meuGuiche)}
+                    disabled={loading || senhasGerais.length === 0}
+                    style={{
+                      background: senhasGerais.length > 0 ? 'linear-gradient(90deg, #0056A8 0%, #0284C7 100%)' : '#334155',
+                      color: '#FFF', border: 'none', borderRadius: '10px',
+                      padding: '8px 16px', fontSize: '0.85rem', fontWeight: 800,
+                      cursor: senhasGerais.length > 0 ? 'pointer' : 'not-allowed',
+                      display: 'flex', alignItems: 'center', gap: '6px'
+                    }}
+                  >
+                    <Bell size={15} />
+                    <span>Chamar Próximo p/ {meuGuiche.split('-')[0]}</span>
+                  </button>
+                </div>
+
+                <div style={{ display: 'flex', flexDirection: 'column', gap: '10px', maxHeight: '420px', overflowY: 'auto' }}>
+                  {senhasGerais.length > 0 ? (
+                    senhasGerais.map((senha) => {
+                      const triagemVinculada = getTriagemDaSenha(senha.codigo);
+                      const temRisco = triagemVinculada && (triagemVinculada.dor >= 7 || triagemVinculada.falta_ar);
+
+                      return (
+                        <div
+                          key={senha.id}
+                          style={{
+                            background: temRisco ? 'rgba(220, 38, 38, 0.12)' : (senha.prioridade === 1 ? 'rgba(239, 68, 68, 0.06)' : 'rgba(255,255,255,0.04)'),
+                            border: temRisco ? '2px solid #EF4444' : (senha.prioridade === 1 ? '1px solid rgba(239, 68, 68, 0.3)' : '1px solid rgba(255,255,255,0.08)'),
+                            borderRadius: '14px', padding: '12px 16px',
+                            display: 'flex', alignItems: 'center', justifyContent: 'space-between'
+                          }}
+                        >
+                          <div>
+                            <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+                              <span style={{ fontSize: '1.5rem', fontWeight: 900, color: '#FFF' }}>
+                                {senha.codigo}
+                              </span>
+                              <span style={{ background: 'rgba(255,255,255,0.1)', color: '#CBD5E1', fontSize: '0.75rem', fontWeight: 700, padding: '3px 8px', borderRadius: '6px' }}>
+                                {senha.tipo_atendimento}
+                              </span>
+                              {senha.prioridade === 1 && (
+                                <span style={{ background: '#DC2626', color: '#FFF', fontSize: '0.75rem', fontWeight: 800, padding: '3px 8px', borderRadius: '6px' }}>
+                                  PREFERENCIAL {senha.sub_prioridade ? `• ${senha.sub_prioridade}` : ''}
+                                </span>
+                              )}
+                              {temRisco && (
+                                <span style={{ background: '#EF4444', color: '#FFF', fontSize: '0.75rem', fontWeight: 900, padding: '3px 8px', borderRadius: '6px' }}>
+                                  🚨 RISCO: DOR {triagemVinculada.dor}/10
+                                </span>
+                              )}
+                            </div>
+                          </div>
+
+                          <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+                            {triagemVinculada && (
+                              <button
+                                onClick={() => setModalTriagem(triagemVinculada)}
+                                style={{
+                                  background: '#1E293B', color: '#38BDF8',
+                                  border: '1px solid rgba(56, 189, 248, 0.3)', borderRadius: '8px',
+                                  padding: '7px 12px', fontSize: '0.8rem', fontWeight: 700,
+                                  cursor: 'pointer', display: 'flex', alignItems: 'center', gap: '4px'
+                                }}
+                              >
+                                <Eye size={14} />
+                                <span>Triagem</span>
+                              </button>
+                            )}
+
+                            {/* Chamar para o Meu Guichê */}
                             <button
-                              onClick={() => setModalTriagem(triagemVinculada)}
+                              onClick={() => handleChamarParaSala(senha.id, meuGuiche)}
                               style={{
-                                background: temRisco ? 'rgba(239, 68, 68, 0.2)' : '#1E293B',
-                                color: temRisco ? '#F87171' : '#38BDF8',
-                                border: '1px solid rgba(56, 189, 248, 0.3)', borderRadius: '10px',
-                                padding: '8px 12px', fontSize: '0.85rem', fontWeight: 700,
+                                background: '#0056A8', color: '#FFF', border: 'none',
+                                borderRadius: '8px', padding: '7px 12px', fontSize: '0.8rem',
+                                fontWeight: 800, cursor: 'pointer', display: 'flex', alignItems: 'center', gap: '4px'
+                              }}
+                            >
+                              <Bell size={13} />
+                              <span>Chamar no Guichê</span>
+                            </button>
+
+                            {/* Direcionar para Consultório / Outra Sala */}
+                            <button
+                              onClick={() => setModalChamarSenha(senha)}
+                              style={{
+                                background: 'rgba(255,255,255,0.08)', color: '#FFD100',
+                                border: '1px solid rgba(255, 209, 0, 0.3)', borderRadius: '8px',
+                                padding: '7px 12px', fontSize: '0.8rem', fontWeight: 700,
                                 cursor: 'pointer', display: 'flex', alignItems: 'center', gap: '4px'
                               }}
                             >
-                              <Eye size={16} />
-                              <span>Ver Triagem</span>
+                              <DoorOpen size={13} />
+                              <span>Outra Sala...</span>
                             </button>
-                          ) : (
-                            <span style={{ fontSize: '0.75rem', color: '#64748B', padding: '0 4px' }}>Sem pré-triagem</span>
-                          )}
-
-                          {/* Botão de Chamar Escolhendo a Sala */}
-                          <button
-                            onClick={() => setModalChamarSenha(senha)}
-                            style={{
-                              background: 'linear-gradient(90deg, #0056A8 0%, #0284C7 100%)',
-                              color: '#FFF', border: 'none', borderRadius: '10px',
-                              padding: '8px 14px', fontSize: '0.85rem', fontWeight: 800,
-                              cursor: 'pointer', display: 'flex', alignItems: 'center', gap: '6px',
-                              boxShadow: '0 2px 8px rgba(0, 86, 168, 0.4)'
-                            }}
-                          >
-                            <PhoneCall size={14} />
-                            <span>Chamar para Sala...</span>
-                          </button>
+                          </div>
                         </div>
-                      </div>
-                    );
-                  })
-                ) : (
-                  <div style={{ textAlign: 'center', padding: '40px 10px', color: '#64748B' }}>
-                    <Clock size={36} style={{ margin: '0 auto 12px', opacity: 0.5 }} />
-                    <p style={{ margin: 0, fontSize: '1rem' }}>Fila limpa! Nenhum paciente aguardando.</p>
-                  </div>
-                )}
+                      );
+                    })
+                  ) : (
+                    <div style={{ textAlign: 'center', padding: '24px 10px', color: '#64748B' }}>
+                      Nenhuma senha espontânea aguardando.
+                    </div>
+                  )}
+                </div>
               </div>
+
             </div>
           )}
 
-          {/* ==================== ABA 2: AGENDADOS DE HOJE ==================== */}
+          {/* ==================== ABA 2: TODOS AGENDADOS DO DIA ==================== */}
           {activeTab === 'agendados' && (
             <div style={{ background: '#0B192C', borderRadius: '20px', padding: '20px', border: '1px solid rgba(255,255,255,0.08)' }}>
               <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: '16px' }}>
@@ -572,8 +708,8 @@ const TelaAtendente = () => {
                             fontWeight: 800, cursor: 'pointer', display: 'flex', alignItems: 'center', gap: '6px'
                           }}
                         >
-                          <PhoneCall size={14} />
-                          <span>Chamar p/ {ag.room}</span>
+                          <DoorOpen size={14} />
+                          <span>Encaminhar p/ {ag.room}</span>
                         </button>
                       ) : (
                         <span style={{ fontSize: '0.8rem', color: '#64748B', fontStyle: 'italic' }}>
@@ -704,7 +840,7 @@ const TelaAtendente = () => {
 
         </div>
 
-        {/* --- LADO DIREITO: CARD DO PACIENTE ATUAL EM CONSULTA --- */}
+        {/* --- LADO DIREITO: CARD DO PACIENTE ATUAL EM CONSULTA / GUICHÊ --- */}
         <div style={{ display: 'flex', flexDirection: 'column', gap: '20px' }}>
           <div style={{
             background: '#0B192C', border: '2px solid rgba(56, 189, 248, 0.3)',
@@ -717,7 +853,7 @@ const TelaAtendente = () => {
               margin: '0 0 16px', display: 'flex', alignItems: 'center', gap: '8px'
             }}>
               <User size={20} />
-              <span>Paciente em Atendimento no Seu Consultório</span>
+              <span>Paciente Chamado no Momento</span>
             </h2>
 
             {pacienteAtual ? (
@@ -727,7 +863,7 @@ const TelaAtendente = () => {
                   background: '#FFD100', color: '#071324', fontWeight: 900, fontSize: '0.85rem',
                   marginBottom: '12px'
                 }}>
-                  {salaAtiva.toUpperCase()}
+                  CHAMADO PARA: {(pacienteAtual.setor_destino || meuGuiche).toUpperCase()}
                 </div>
 
                 <div style={{ fontSize: '3.6rem', fontWeight: 900, color: '#38BDF8', letterSpacing: '2px', margin: '4px 0' }}>
@@ -789,10 +925,10 @@ const TelaAtendente = () => {
             ) : (
               <div style={{ textAlign: 'center', padding: '40px 16px', color: '#64748B' }}>
                 <div style={{ fontSize: '1.05rem', color: '#94A3B8', marginBottom: '16px' }}>
-                  Nenhum paciente em atendimento nesta sala no momento.
+                  Nenhum paciente chamado no momento.
                 </div>
                 <button
-                  onClick={() => handleChamarParaSala(null, salaAtiva)}
+                  onClick={() => handleChamarParaSala(null, meuGuiche)}
                   disabled={loading || totalAguardando === 0}
                   style={{
                     background: totalAguardando > 0 ? 'linear-gradient(90deg, #0056A8 0%, #0284C7 100%)' : '#334155',
@@ -804,7 +940,7 @@ const TelaAtendente = () => {
                   }}
                 >
                   <Bell size={18} />
-                  <span>{loading ? 'Chamando...' : 'Chamar Próximo Paciente'}</span>
+                  <span>{loading ? 'Chamando...' : `Chamar Próximo p/ ${meuGuiche.split('-')[0]}`}</span>
                   <ArrowRight size={16} />
                 </button>
               </div>
@@ -828,7 +964,7 @@ const TelaAtendente = () => {
               animate={{ opacity: 1, scale: 1 }}
               exit={{ opacity: 0, scale: 0.9 }}
               style={{
-                width: '100%', maxWidth: '540px', background: '#0B192C',
+                width: '100%', maxWidth: '560px', background: '#0B192C',
                 border: '2px solid rgba(56, 189, 248, 0.3)', borderRadius: '24px',
                 padding: '24px', boxShadow: '0 25px 60px rgba(0, 0, 0, 0.8)'
               }}
@@ -836,7 +972,7 @@ const TelaAtendente = () => {
               <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: '16px', borderBottom: '1px solid rgba(255,255,255,0.1)', paddingBottom: '12px' }}>
                 <div>
                   <h3 style={{ margin: 0, fontSize: '1.25rem', color: '#FFF' }}>
-                    Chamar Senha: <span style={{ color: '#38BDF8' }}>{modalChamarSenha.codigo}</span>
+                    Direcionar Senha: <span style={{ color: '#38BDF8' }}>{modalChamarSenha.codigo}</span>
                   </h3>
                   <span style={{ fontSize: '0.85rem', color: '#94A3B8' }}>
                     {modalChamarSenha.patient_name || modalChamarSenha.tipo_atendimento}
@@ -848,25 +984,25 @@ const TelaAtendente = () => {
               </div>
 
               <p style={{ color: '#CBD5E1', fontSize: '0.95rem', margin: '0 0 14px' }}>
-                Selecione o consultório ou guichê para onde o paciente deve se dirigir:
+                Selecione o consultório ou guichê para onde o paciente deve ser chamado na TV:
               </p>
 
-              <div style={{ display: 'flex', flexDirection: 'column', gap: '8px', maxHeight: '320px', overflowY: 'auto' }}>
-                {SALAS_PREDEFINIDAS.map((sala) => (
+              <div style={{ display: 'flex', flexDirection: 'column', gap: '8px', maxHeight: '340px', overflowY: 'auto' }}>
+                {CONSULTORIOS_MEDICOS.map((sala) => (
                   <button
                     key={sala}
                     onClick={() => handleChamarParaSala(modalChamarSenha.id, sala)}
                     style={{
-                      background: sala === salaAtiva ? 'rgba(56, 189, 248, 0.15)' : 'rgba(255, 255, 255, 0.04)',
-                      border: sala === salaAtiva ? '1px solid #38BDF8' : '1px solid rgba(255, 255, 255, 0.08)',
+                      background: 'rgba(255, 255, 255, 0.04)',
+                      border: '1px solid rgba(255, 255, 255, 0.08)',
                       borderRadius: '12px', padding: '12px 16px',
-                      color: sala === salaAtiva ? '#FFD100' : '#F8FAFC',
+                      color: '#F8FAFC',
                       fontSize: '0.95rem', fontWeight: 700, cursor: 'pointer',
                       textAlign: 'left', display: 'flex', alignItems: 'center', justifyContent: 'space-between'
                     }}
                   >
                     <span>{sala}</span>
-                    <PhoneCall size={16} />
+                    <DoorOpen size={16} color="#FFD100" />
                   </button>
                 ))}
               </div>
@@ -960,13 +1096,13 @@ const TelaAtendente = () => {
                   onClick={() => {
                     const s = fila.find(f => f.codigo === modalTriagem.senha_codigo);
                     setModalTriagem(null);
-                    handleChamarParaSala(s ? s.id : null, salaAtiva);
+                    handleChamarParaSala(s ? s.id : null, meuGuiche);
                   }}
                   className="action-btn-primary"
                   style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '8px' }}
                 >
                   <PhoneCall size={18} />
-                  <span>Chamar para {salaAtiva.split('-')[0]}</span>
+                  <span>Chamar para {meuGuiche.split('-')[0]}</span>
                 </button>
               </div>
             </motion.div>

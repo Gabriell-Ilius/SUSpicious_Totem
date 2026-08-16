@@ -1,32 +1,29 @@
 import React, { useState } from 'react';
-import { motion, AnimatePresence } from 'framer-motion';
+import { motion } from 'framer-motion';
+import { X, Printer, Check, QrCode, ExternalLink, Tv } from 'lucide-react';
 import { QRCodeSVG } from 'qrcode.react';
-import { X, Check, AlertCircle, Sparkles, Heart, Baby, Accessibility, ShieldCheck, Printer, QrCode, ExternalLink } from 'lucide-react';
+
+const SUB_PRIORITIES = [
+  { id: '80+', label: '80+ Anos (Prioridade Especial)' },
+  { id: 'PCD', label: 'Pessoa com Deficiência (PCD)' },
+  { id: 'Gestante', label: 'Gestante / Lactante' },
+  { id: 'TEA', label: 'Transtorno do Espectro Autista (TEA)' },
+  { id: 'Idoso', label: 'Idoso (60+ Anos)' },
+];
 
 const TicketModal = ({ service, cpf, onClose, onConfirm }) => {
-  const [priority, setPriority] = useState(0); // 0 = Normal, 1 = Preferencial
+  const [priority, setPriority] = useState(0); // 0: Normal, 1: Preferencial
   const [subPriority, setSubPriority] = useState(null);
   const [loading, setLoading] = useState(false);
   const [generatedTicket, setGeneratedTicket] = useState(null);
-  const [errorMsg, setErrorMsg] = useState(null);
-
-  const subPriorityOptions = [
-    { id: '80+', label: 'Idoso 80+ anos (Super Prioridade)', icon: Sparkles, color: '#F59E0B' },
-    { id: 'Idoso 60+', label: 'Idoso 60 a 79 anos', icon: ShieldCheck, color: '#3B82F6' },
-    { id: 'Gestante/Lactante', label: 'Gestante ou Lactante', icon: Baby, color: '#EC4899' },
-    { id: 'PCD', label: 'Pessoa com Deficiência (PCD)', icon: Accessibility, color: '#10B981' },
-    { id: 'TEA', label: 'Autismo / TEA / Doença Rara', icon: Heart, color: '#8B5CF6' },
-  ];
 
   const handleEmitTicket = async () => {
     setLoading(true);
-    setErrorMsg(null);
     try {
-      const ticket = await onConfirm(service.category, priority, cpf, subPriority);
+      const ticket = await onConfirm(service.id, priority, subPriority);
       setGeneratedTicket(ticket);
-    } catch (err) {
-      console.error(err);
-      setErrorMsg('Falha ao emitir comprovante na impressora. Procure a recepção.');
+    } catch (error) {
+      console.error('Erro ao emitir senha:', error);
     } finally {
       setLoading(false);
     }
@@ -35,17 +32,20 @@ const TicketModal = ({ service, cpf, onClose, onConfirm }) => {
   return (
     <div className="modal-overlay">
       <motion.div
-        className="modal-content-card"
         initial={{ opacity: 0, scale: 0.9, y: 20 }}
         animate={{ opacity: 1, scale: 1, y: 0 }}
-        exit={{ opacity: 0, scale: 0.9 }}
+        exit={{ opacity: 0, scale: 0.9, y: 20 }}
+        className="modal-container"
+        style={{ maxWidth: '580px', width: '92%' }}
       >
-        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '16px' }}>
-          <div style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
-            {service.icon && <service.icon size={26} color="#0056A8" />}
-            <h2 style={{ fontSize: '1.4rem', color: 'var(--text-primary)', margin: 0 }}>
+        <div className="modal-header">
+          <div>
+            <h2 style={{ fontSize: '1.4rem', fontWeight: 800, margin: 0, color: 'var(--text-primary)' }}>
               {service.title}
             </h2>
+            <span style={{ fontSize: '0.85rem', color: 'var(--text-secondary)' }}>
+              {cpf ? `CPF Identificado: ${cpf.replace(/(\d{3})(\d{3})(\d{3})(\d{2})/, "$1.$2.$3-$4")}` : 'Atendimento sem CPF'}
+            </span>
           </div>
           <button onClick={onClose} style={{ background: 'none', border: 'none', cursor: 'pointer', color: '#64748B' }}>
             <X size={24} />
@@ -78,45 +78,45 @@ const TicketModal = ({ service, cpf, onClose, onConfirm }) => {
               <motion.div
                 initial={{ opacity: 0, height: 0 }}
                 animate={{ opacity: 1, height: 'auto' }}
-                style={{ marginBottom: '20px', padding: '14px', background: '#071324', borderRadius: '12px', border: '1px solid rgba(56, 189, 248, 0.2)' }}
+                className="sub-priority-section"
+                style={{
+                  background: 'rgba(255, 255, 255, 0.05)',
+                  padding: '16px',
+                  borderRadius: '12px',
+                  border: '1px solid rgba(255, 255, 255, 0.1)',
+                  marginBottom: '20px'
+                }}
               >
-                <span style={{ fontSize: '0.85rem', fontWeight: 'bold', color: '#94A3B8', display: 'block', marginBottom: '8px' }}>
-                  Identificação do Atendimento Preferencial (Opcional):
+                <span style={{ fontSize: '0.85rem', fontWeight: 600, color: '#CBD5E1', display: 'block', marginBottom: '8px' }}>
+                  Identificação do Atendimento Prioritário (Lei 14.626/23):
                 </span>
-                <div style={{ display: 'grid', gridTemplateColumns: '1fr', gap: '8px' }}>
-                  {subPriorityOptions.map((opt) => {
-                    const isSelected = subPriority === opt.id;
-                    const IconComponent = opt.icon;
-                    return (
-                      <button
-                        key={opt.id}
-                        type="button"
-                        onClick={() => setSubPriority(isSelected ? null : opt.id)}
-                        style={{
-                          display: 'flex', alignItems: 'center', gap: '10px',
-                          padding: '10px 14px', borderRadius: '8px',
-                          border: isSelected ? `2px solid ${opt.color}` : '1px solid rgba(255, 255, 255, 0.1)',
-                          background: isSelected ? `${opt.color}25` : '#0F243E',
-                          color: '#F8FAFC', textAlign: 'left', cursor: 'pointer'
-                        }}
-                      >
-                        <IconComponent size={18} color={opt.color} />
-                        <span style={{ fontSize: '0.9rem', fontWeight: isSelected ? '700' : '500' }}>{opt.label}</span>
-                      </button>
-                    );
-                  })}
+                <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '8px' }}>
+                  {SUB_PRIORITIES.map((item) => (
+                    <button
+                      key={item.id}
+                      type="button"
+                      onClick={() => setSubPriority(item.id)}
+                      style={{
+                        padding: '10px 12px',
+                        borderRadius: '8px',
+                        border: subPriority === item.id ? '2px solid #EF4444' : '1px solid rgba(255, 255, 255, 0.1)',
+                        backgroundColor: subPriority === item.id ? 'rgba(239, 68, 68, 0.2)' : 'rgba(255, 255, 255, 0.05)',
+                        color: subPriority === item.id ? '#EF4444' : '#94A3B8',
+                        fontWeight: subPriority === item.id ? 700 : 500,
+                        fontSize: '0.85rem',
+                        cursor: 'pointer',
+                        textAlign: 'left',
+                        transition: 'all 0.15s ease'
+                      }}
+                    >
+                      {item.label}
+                    </button>
+                  ))}
                 </div>
               </motion.div>
             )}
 
-            {errorMsg && (
-              <div style={{ display: 'flex', alignItems: 'center', gap: '8px', padding: '12px', background: '#FEF2F2', border: '1px solid #F87171', borderRadius: '8px', color: '#DC2626', marginBottom: '16px' }}>
-                <AlertCircle size={20} />
-                <span style={{ fontSize: '0.9rem' }}>{errorMsg}</span>
-              </div>
-            )}
-
-            <div style={{ display: 'flex', gap: '10px' }}>
+            <div style={{ display: 'flex', gap: '12px', marginTop: '24px' }}>
               <button className="action-btn-secondary" onClick={onClose} disabled={loading}>
                 Voltar
               </button>
@@ -138,15 +138,33 @@ const TicketModal = ({ service, cpf, onClose, onConfirm }) => {
             </div>
             <h3 style={{ fontSize: '1.3rem', color: '#34D399', margin: '0 0 6px' }}>Senha Emitida com Sucesso!</h3>
             
-            <div className="ticket-number-display" style={{ fontSize: '3rem', fontWeight: 900, color: '#38BDF8', margin: '8px 0', letterSpacing: '1px' }}>
+            <div className="ticket-number-display" style={{ fontSize: '3.2rem', fontWeight: 900, color: '#38BDF8', margin: '8px 0', letterSpacing: '1px' }}>
               {generatedTicket.codigo}
             </div>
 
-            {generatedTicket.setor_destino && (
-              <div style={{ background: '#071324', border: '1px solid #FFD100', borderRadius: '10px', padding: '10px 14px', color: '#FFD100', fontWeight: 'bold', margin: '8px 0', fontSize: '1rem' }}>
-                DIRIJA-SE AO: {generatedTicket.setor_destino.toUpperCase()}
+            {/* Aviso em Destaque: Aguarde na TV */}
+            <div style={{
+              background: 'rgba(56, 189, 248, 0.12)',
+              border: '2px solid #38BDF8',
+              borderRadius: '14px',
+              padding: '14px 18px',
+              margin: '12px 0 16px',
+              color: '#FFF',
+              display: 'flex',
+              alignItems: 'center',
+              gap: '12px',
+              textAlign: 'left'
+            }}>
+              <Tv size={32} color="#FFD100" style={{ flexShrink: 0 }} />
+              <div>
+                <strong style={{ fontSize: '1rem', color: '#FFD100', display: 'block', textTransform: 'uppercase' }}>
+                  Aguarde no Painel da TV!
+                </strong>
+                <span style={{ fontSize: '0.9rem', color: '#E2E8F0' }}>
+                  Sua senha será chamada na TV com o número da sua sala ou consultório de atendimento.
+                </span>
               </div>
-            )}
+            </div>
 
             {/* QR Code na tela para a Triagem Digital / Celular */}
             <div style={{
@@ -177,7 +195,7 @@ const TicketModal = ({ service, cpf, onClose, onConfirm }) => {
             </div>
 
             <p style={{ color: '#94A3B8', fontSize: '0.9rem', margin: '8px 0' }}>
-              Retire o cupom na impressora e aguarde a chamada no painel.
+              Retire o cupom na impressora abaixo.
             </p>
             <button className="action-btn-primary" onClick={onClose} style={{ marginTop: '12px' }}>
               Concluir

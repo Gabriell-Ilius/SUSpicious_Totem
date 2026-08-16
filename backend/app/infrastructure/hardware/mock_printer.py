@@ -18,12 +18,11 @@ class MockPrinter(PrinterPort):
     ) -> bool:
         cpf_formatted = f"{cpf[:3]}.***.***-{cpf[-2:]}" if cpf and len(cpf) == 11 else (cpf or "NÃO INFORMADO")
         patient_line = f" PACIENTE: {patient_name.upper()}\n" if patient_name else ""
-        destino_line = f"   >>> DIRIJA-SE AO: {setor_destino.upper()} <<<\n" if setor_destino else ""
 
-        print("\n" + "="*44)
-        print("       UNIDADE BÁSICA DE SAÚDE (UBS)")
-        print("             SUSpicious Totem")
-        print("="*44)
+        print("\n" + "="*48)
+        print("         UNIDADE BÁSICA DE SAÚDE (UBS)")
+        print("               SUSpicious Totem")
+        print("="*48)
         print(f" DATA/HORA: {data_hora}")
         print(f" CPF PACIENTE: {cpf_formatted}")
         if patient_line:
@@ -33,13 +32,13 @@ class MockPrinter(PrinterPort):
         print("   ----------------------------------------")
         print(f"   SENHA:  [ {codigo} ]")
         print("   ----------------------------------------")
-        if destino_line:
-            print(destino_line.rstrip())
-        print("   Por favor, aguarde a chamada no painel.")
-        print("   Guarde este comprovante.")
+        print("   >>> POR FAVOR, AGUARDE NA RECEPÇÃO! <<<")
+        print("   FIQUE ATENTO AO PAINEL DA TV PARA A SUA")
+        print("   CHAMADA E A INDICAÇÃO DO CONSULTÓRIO.")
+        print("   ----------------------------------------")
         if qr_code_url:
-            print(f"   QR Code Triagem: {qr_code_url}")
-        print("="*44 + "\n")
+            print(f"   QR Code Pré-Triagem: {qr_code_url}")
+        print("="*48 + "\n")
         return True
 
     def verificar_conexao(self) -> bool:

@@ -2,10 +2,10 @@ import React, { useState, useEffect } from 'react';
 import { Routes, Route, useLocation } from 'react-router-dom';
 import { AnimatePresence } from 'framer-motion';
 import { QRCodeSVG } from 'qrcode.react';
-import {
-  Calendar, Stethoscope, Syringe, Pill,
-  QrCode, CheckCircle, Navigation, Delete,
-  ArrowRight, Keyboard, ExternalLink
+import { 
+  User, CheckCircle2, QrCode, AlertCircle, Clock, Calendar, 
+  Stethoscope, Syringe, Pill, HeartPulse, ChevronRight, 
+  ArrowLeft, Check, Navigation, ShieldCheck, Sparkles, ExternalLink, Tv
 } from 'lucide-react';
 
 import Header from './components/Header';
@@ -300,25 +300,26 @@ function TotemKiosk() {
                 </div>
               )}
 
+              {/* Aviso em Destaque: Aguarde na TV */}
               <div style={{
-                background: '#0F2942', border: '1px solid #FFD100', color: '#FFF', padding: '12px',
-                borderRadius: '12px', margin: '10px 0',
-                display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '10px'
+                background: 'rgba(56, 189, 248, 0.12)', border: '2px solid #38BDF8',
+                borderRadius: '14px', padding: '14px 18px', margin: '14px 0',
+                display: 'flex', alignItems: 'center', gap: '12px', textAlign: 'left'
               }}>
-                <Navigation size={22} color="#FFD100" />
-                <div style={{ textAlign: 'left' }}>
-                  <span style={{ fontSize: '0.75rem', textTransform: 'uppercase', letterSpacing: '1px', color: '#93C5FD', display: 'block' }}>
-                    Dirija-se a:
-                  </span>
-                  <strong style={{ fontSize: '1.05rem', color: '#FFD100' }}>
-                    {scheduledTicket.setor_destino || scheduledInfo?.consultorio}
+                <Tv size={32} color="#FFD100" style={{ flexShrink: 0 }} />
+                <div>
+                  <strong style={{ fontSize: '1rem', color: '#FFD100', display: 'block', textTransform: 'uppercase' }}>
+                    Aguarde no Painel da TV!
                   </strong>
+                  <span style={{ fontSize: '0.9rem', color: '#E2E8F0' }}>
+                    Sua presença foi confirmada! Fique atento à TV: sua senha será chamada com o consultório do médico.
+                  </span>
                 </div>
               </div>
 
               {scheduledInfo?.horario && (
-                <p style={{ fontSize: '0.9rem', color: '#94A3B8', marginBottom: '10px' }}>
-                  Horário: <strong style={{ color: '#F8FAFC' }}>{scheduledInfo.horario}</strong>
+                <p style={{ fontSize: '0.9rem', color: '#94A3B8', marginBottom: '8px' }}>
+                  Consulta marcada: <strong style={{ color: '#F8FAFC' }}>{scheduledInfo.medico} ({scheduledInfo.especialidade})</strong>
                 </p>
               )}
 

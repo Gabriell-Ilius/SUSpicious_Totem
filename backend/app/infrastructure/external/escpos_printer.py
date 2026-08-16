@@ -1,18 +1,14 @@
 import logging
 from typing import Optional
 from app.application.ports.printer_port import PrinterPort
-from app.core.config import settings
 
 logger = logging.getLogger(__name__)
 
 class EscPosPrinter(PrinterPort):
-    def __init__(self):
-        try:
-            self.id_vendor = int(settings.PRINTER_VENDOR_ID, 16)
-            self.id_product = int(settings.PRINTER_PRODUCT_ID, 16)
-        except Exception:
-            self.id_vendor = 0x04b8
-            self.id_product = 0x0202
+    """
+    Driver de impressão térmica ESC/POS para Raspberry Pi via USB.
+    Gera tickets estilizados do SUS com QR Code e aviso de espera na TV.
+    """
 
     def imprimir_senha(
         self,
@@ -28,14 +24,19 @@ class EscPosPrinter(PrinterPort):
     ) -> bool:
         try:
             from escpos.printer import Usb
-            p = Usb(self.id_vendor, self.id_product, timeout=1000, profile="TM-T20")
+            # IDs de fornecedor/produto comuns em impressoras térmicas ESC/POS (Epson, POS58, Bematech)
+            # timeout=1000 previne travamentos se a impressora for desconectada
+            p = Usb(0x04b8, 0x0202, timeout=1000, in_ep=0x81, out_ep=0x02)
             
-            p.set(align='center', font='a', width=1, height=1)
-            p.text("UNIDADE BASICA DE SAUDE (UBS)\n")
+            p.set(align='center', font='a', width=2, height=2)
+            p.text("UNIDADE BASICA DE SAUDE\n")
             p.text("SUSpicious Totem\n\n")
-            
-            p.text(f"Data: {data_hora}\n")
-            p.text(f"CPF: {cpf or 'N/A'}\n")
+
+            p.set(align='left', font='a', width=1, height=1)
+            p.text(f"Data/Hora: {data_hora}\n")
+            if cpf:
+                cpf_masked = f"{cpf[:3]}.***.***-{cpf[-2:]}" if len(cpf) == 11 else cpf
+                p.text(f"CPF: {cpf_masked}\n")
             if patient_name:
                 p.text(f"Paciente: {patient_name.upper()}\n")
             p.text(f"Demanda: {tipo}\n")
@@ -44,17 +45,19 @@ class EscPosPrinter(PrinterPort):
             p.set(align='center', font='a', width=3, height=3)
             p.text(f"{codigo}\n\n")
 
-            if setor_destino:
-                p.set(align='center', font='a', width=2, height=2)
-                p.text(f"DIRIJA-SE AO:\n{setor_destino.upper()}\n\n")
-
             p.set(align='center', font='a', width=1, height=1)
+            p.text("----------------------------------------\n")
+            p.text("POR FAVOR, AGUARDE NA RECEPCAO!\n")
+            p.text("FIQUE ATENTO AO PAINEL DA TV PARA A SUA\n")
+            p.text("CHAMADA E A INDICACAO DO CONSULTORIO.\n")
+            p.text("----------------------------------------\n\n")
+
             target_qr = qr_code_url or (f"http://192.168.15.34:5173/triagem/{senha_id}" if senha_id else None)
             if target_qr:
                 p.qr(target_qr, size=6)
-                p.text("\nEscaneie para Triagem Digital\n")
+                p.text("\nEscaneie para Pre-Triagem Digital\n")
 
-            p.text("\nAguarde ser chamado no painel.\n\n\n")
+            p.text("\n\n\n")
             p.cut()
             logger.info(f"EscPosPrinter: Senha {codigo} impressa com sucesso (USB).")
             return True
@@ -62,7 +65,7 @@ class EscPosPrinter(PrinterPort):
             logger.error(f"EscPosPrinter: Erro na impressora física USB ({e}). Usando fallback mock.")
             from app.infrastructure.hardware.mock_printer import MockPrinter
             mock = MockPrinter()
-            return mock.imprimir_senha(codigo, tipo, data_hora, senha_id, setor_destino, prioridade, cpf, patient_name, target_qr)
+            return mock.imprimir_senha(codigo, tipo, data_hora, senha_id, setor_destino, prioridade, cpf, patient_name, qr_code_url)
 
     def verificar_conexao(self) -> bool:
         return True
