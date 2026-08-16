@@ -1,40 +1,12 @@
 import React, { useState, useEffect, useRef } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
-import { Activity, Clock, Bell, Users, Volume2, ArrowRight, CheckCircle2, Trash2, ShieldAlert, Sparkles, Star } from 'lucide-react';
+import {
+  Activity, Clock, Bell, Users, Volume2, VolumeX,
+  ArrowRight, CheckCircle2, Trash2, ShieldAlert,
+  Sparkles, Star
+} from 'lucide-react';
 import filaService from '../services/filaService';
-
-// Som de chamada hospitalar "Ding-Dong" (Web Audio API)
-const playHospitalChime = () => {
-  try {
-    const AudioContext = window.AudioContext || window.webkitAudioContext;
-    if (!AudioContext) return;
-    const ctx = new AudioContext();
-    
-    const osc1 = ctx.createOscillator();
-    const gain1 = ctx.createGain();
-    osc1.type = 'sine';
-    osc1.frequency.setValueAtTime(587.33, ctx.currentTime); // D5
-    gain1.gain.setValueAtTime(0.3, ctx.currentTime);
-    gain1.gain.exponentialRampToValueAtTime(0.001, ctx.currentTime + 0.5);
-    osc1.connect(gain1);
-    gain1.connect(ctx.destination);
-    osc1.start(ctx.currentTime);
-    osc1.stop(ctx.currentTime + 0.5);
-
-    const osc2 = ctx.createOscillator();
-    const gain2 = ctx.createGain();
-    osc2.type = 'sine';
-    osc2.frequency.setValueAtTime(880, ctx.currentTime + 0.2); // A5
-    gain2.gain.setValueAtTime(0.35, ctx.currentTime + 0.2);
-    gain2.gain.exponentialRampToValueAtTime(0.001, ctx.currentTime + 0.9);
-    osc2.connect(gain2);
-    gain2.connect(ctx.destination);
-    osc2.start(ctx.currentTime + 0.2);
-    osc2.stop(ctx.currentTime + 0.9);
-  } catch (e) {
-    console.log("Audio play prevented", e);
-  }
-};
+import { playHospitalChime, speakChamada, unlockAudio, getAudioContext } from '../utils/audio';
 
 const PainelSenhas = () => {
   const [ultimaChamada, setUltimaChamada] = useState(null);
@@ -42,7 +14,17 @@ const PainelSenhas = () => {
   const [totalAguardando, setTotalAguardando] = useState(0);
   const [time, setTime] = useState(new Date());
   const [calling, setCalling] = useState(false);
-  const prevChamadaIdRef = useRef(null);
+  const [audioHabilitado, setAudioHabilitado] = useState(false);
+  const [vozAtiva, setVozAtiva] = useState(true);
+  
+  const prevChamadaSignatureRef = useRef(null);
+
+  // Desbloqueia áudio ao clicar em qualquer lugar da tela
+  const handleAtivarAudio = () => {
+    unlockAudio();
+    playHospitalChime();
+    setAudioHabilitado(true);
+  };
 
   // Relógio do painel (atualiza a cada 1s)
   useEffect(() => {
@@ -61,11 +43,17 @@ const PainelSenhas = () => {
           const current = data.ultimas_chamadas[0];
           const history = data.ultimas_chamadas.slice(1, 6);
 
-          if (current.id !== prevChamadaIdRef.current) {
-            if (prevChamadaIdRef.current !== null) {
+          // Assinatura única da chamada (ID + Código + Horário) para disparar som até mesmo em rechamadas
+          const signature = `${current.id}-${current.codigo}-${current.data_hora_chamada || ''}`;
+
+          if (signature !== prevChamadaSignatureRef.current) {
+            if (prevChamadaSignatureRef.current !== null) {
               playHospitalChime();
+              if (vozAtiva) {
+                speakChamada(current.codigo, current.setor_destino);
+              }
             }
-            prevChamadaIdRef.current = current.id;
+            prevChamadaSignatureRef.current = signature;
           }
 
           setUltimaChamada(current);
@@ -73,6 +61,7 @@ const PainelSenhas = () => {
         } else {
           setUltimaChamada(null);
           setHistoricoChamadas([]);
+          prevChamadaSignatureRef.current = null;
         }
       } catch (error) {
         console.error("Erro ao buscar dados do painel:", error);
@@ -82,18 +71,22 @@ const PainelSenhas = () => {
     fetchFila();
     const interval = setInterval(fetchFila, 1000);
     return () => clearInterval(interval);
-  }, []);
+  }, [vozAtiva]);
 
   // Função para chamar a próxima senha do banco
   const handleChamarProxima = async () => {
     setCalling(true);
     try {
+      unlockAudio();
       await filaService.chamarProxima();
       playHospitalChime();
       const data = await filaService.consultarFilas();
       if (data.ultimas_chamadas && data.ultimas_chamadas.length > 0) {
         setUltimaChamada(data.ultimas_chamadas[0]);
         setHistoricoChamadas(data.ultimas_chamadas.slice(1, 6));
+        if (vozAtiva) {
+          speakChamada(data.ultimas_chamadas[0].codigo, data.ultimas_chamadas[0].setor_destino);
+        }
       }
       setTotalAguardando(data.total_aguardando || 0);
     } catch (err) {
@@ -110,7 +103,7 @@ const PainelSenhas = () => {
       setUltimaChamada(null);
       setHistoricoChamadas([]);
       setTotalAguardando(0);
-      prevChamadaIdRef.current = null;
+      prevChamadaSignatureRef.current = null;
     } catch (err) {
       console.error("Erro ao resetar fila:", err);
     }
@@ -120,12 +113,37 @@ const PainelSenhas = () => {
   const formatDate = (d) => d.toLocaleDateString('pt-BR', { weekday: 'long', day: 'numeric', month: 'long', year: 'numeric' });
 
   return (
-    <div style={{
-      display: 'flex', flexDirection: 'column',
-      height: '100vh', width: '100vw',
-      backgroundColor: '#071324', color: '#FFFFFF',
-      fontFamily: "'Inter', sans-serif", overflow: 'hidden'
-    }}>
+    <div
+      onClick={handleAtivarAudio}
+      style={{
+        display: 'flex', flexDirection: 'column',
+        height: '100vh', width: '100vw',
+        backgroundColor: '#071324', color: '#FFFFFF',
+        fontFamily: "'Inter', sans-serif", overflow: 'hidden'
+      }}
+    >
+      {/* ============================================================ */}
+      {/* 0. BANNER DE DESBLOQUEIO DE ÁUDIO DO NAVEGADOR               */}
+      {/* ============================================================ */}
+      {!audioHabilitado && (
+        <div
+          onClick={handleAtivarAudio}
+          style={{
+            background: 'linear-gradient(90deg, #D97706 0%, #B45309 100%)',
+            color: '#FFF', padding: '10px 20px', textAlign: 'center',
+            fontWeight: 800, fontSize: '0.95rem', cursor: 'pointer',
+            display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '10px',
+            boxShadow: '0 4px 15px rgba(217, 119, 6, 0.5)', zIndex: 100
+          }}
+        >
+          <Volume2 size={22} className="animate-bounce" />
+          <span>🔊 Clique aqui (ou em qualquer lugar da tela) para habilitar o Bip e Voz do Painel da TV!</span>
+          <span style={{ background: '#FFF', color: '#B45309', padding: '2px 10px', borderRadius: '6px', fontSize: '0.8rem', fontWeight: 900 }}>
+            ATIVAR SOM
+          </span>
+        </div>
+      )}
+
       {/* ============================================================ */}
       {/* 1. CABEÇALHO DA TV                                            */}
       {/* ============================================================ */}
@@ -157,8 +175,27 @@ const PainelSenhas = () => {
           </div>
         </div>
 
-        {/* Data e Hora */}
+        {/* Data, Hora e Controles de Som */}
         <div style={{ display: 'flex', alignItems: 'center', gap: '24px' }}>
+          <button
+            onClick={(e) => {
+              e.stopPropagation();
+              handleAtivarAudio();
+            }}
+            title="Toca o som de teste de chamada"
+            style={{
+              background: 'rgba(56, 189, 248, 0.15)',
+              border: '1px solid #38BDF8',
+              color: '#38BDF8',
+              borderRadius: '10px', padding: '8px 14px',
+              fontSize: '0.85rem', fontWeight: 800,
+              cursor: 'pointer', display: 'flex', alignItems: 'center', gap: '6px'
+            }}
+          >
+            <Volume2 size={18} />
+            <span>Testar Bip</span>
+          </button>
+
           <div style={{ textAlign: 'right' }}>
             <div style={{ fontSize: '1.85rem', fontWeight: 900, color: '#FFD100', letterSpacing: '1px' }}>
               {formatClock(time)}
@@ -389,14 +426,29 @@ const PainelSenhas = () => {
         display: 'flex', alignItems: 'center', justifyContent: 'space-between',
         padding: '0 40px', fontSize: '0.85rem', color: '#64748B'
       }}>
-        <div style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
-          <span style={{ width: '10px', height: '10px', borderRadius: '50%', background: '#22C55E', display: 'inline-block' }}></span>
-          <span>Transmissão em Tempo Real</span>
+        <div style={{ display: 'flex', alignItems: 'center', gap: '16px' }}>
+          <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+            <span style={{ width: '10px', height: '10px', borderRadius: '50%', background: '#22C55E', display: 'inline-block' }}></span>
+            <span>Transmissão em Tempo Real</span>
+          </div>
+
+          <label style={{ display: 'flex', alignItems: 'center', gap: '6px', cursor: 'pointer', color: '#94A3B8' }} onClick={(e) => e.stopPropagation()}>
+            <input
+              type="checkbox"
+              checked={vozAtiva}
+              onChange={(e) => setVozAtiva(e.target.checked)}
+              style={{ accentColor: '#38BDF8' }}
+            />
+            <span>Voz de Acessibilidade (Fala a Senha)</span>
+          </label>
         </div>
 
         <div style={{ display: 'flex', alignItems: 'center', gap: '14px' }}>
           <button
-            onClick={handleResetarFila}
+            onClick={(e) => {
+              e.stopPropagation();
+              handleResetarFila();
+            }}
             title="Zera o histórico e a fila"
             style={{
               background: 'rgba(239, 68, 68, 0.15)',

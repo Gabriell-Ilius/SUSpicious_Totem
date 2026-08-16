@@ -10,6 +10,7 @@ import {
 } from 'lucide-react';
 import filaService from '../services/filaService';
 import api from '../services/api';
+import { playEmergencyAlert, unlockAudio } from '../utils/audio';
 
 const GUICHES_ATENDENTE = [
   "Guichê 01 - Recepção & Acolhimento",
@@ -29,31 +30,6 @@ const CONSULTORIOS_MEDICOS = [
   "Guichê 01 - Farmácia Básica",
   "Mesa 01 - Acolhimento & Triagem"
 ];
-
-// Som de alerta de emergência / risco crítico (Web Audio API)
-const playEmergencyAlert = () => {
-  try {
-    const AudioContext = window.AudioContext || window.webkitAudioContext;
-    if (!AudioContext) return;
-    const ctx = new AudioContext();
-    
-    [0, 0.25, 0.5].forEach((delay) => {
-      const osc = ctx.createOscillator();
-      const gain = ctx.createGain();
-      osc.type = 'sawtooth';
-      osc.frequency.setValueAtTime(800, ctx.currentTime + delay);
-      osc.frequency.exponentialRampToValueAtTime(1200, ctx.currentTime + delay + 0.15);
-      gain.gain.setValueAtTime(0.25, ctx.currentTime + delay);
-      gain.gain.exponentialRampToValueAtTime(0.001, ctx.currentTime + delay + 0.18);
-      osc.connect(gain);
-      gain.connect(ctx.destination);
-      osc.start(ctx.currentTime + delay);
-      osc.stop(ctx.currentTime + delay + 0.2);
-    });
-  } catch (e) {
-    console.log("Audio prevented", e);
-  }
-};
 
 const TelaAtendente = () => {
   const [activeTab, setActiveTab] = useState('fila'); // 'fila' | 'agendados' | 'risco' | 'historico'
