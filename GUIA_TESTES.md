@@ -70,3 +70,50 @@ Todos estes CPFs possuem consultas válidas para o dia de **HOJE** e são fácei
 3. Veja a lista de pacientes aguardando, clique em **`[ 🩺 Triagem ]`** para ver o que o paciente preencheu no celular;
 4. Clique em **`[ 📞 Chamar para Minha Sala ]`**;
 5. Na aba da **TV**, veja o painel tocar o aviso sonoro hospitalar *"Ding-Dong"* e estampar a senha convocando o paciente exatamente para o seu consultório!
+
+---
+
+## 📡 4. Configuração Multi-Dispositivos no Dia do Pitch (Topologia Real)
+
+No dia da apresentação, você pode usar o **Raspberry Pi como Servidor Central** e conectar todos os outros dispositivos na mesma rede Wi-Fi (ou no Roteador 4G/Hotspot do seu celular):
+
+```
+                       ┌──────────────────────────────┐
+                       │  ROTEADOR WI-FI / HOTSPOT   │
+                       └──────────────┬───────────────┘
+                                      │
+          ┌───────────────────────────┼───────────────────────────┐
+          │                           │                           │
+          ▼                           ▼                           ▼
+┌──────────────────┐        ┌──────────────────┐        ┌──────────────────┐
+│  RASPBERRY PI    │        │  PC 1 / PROJETOR │        │  PC 2 (MÉDICO)   │
+│  (Servidor +     │        │  (Painel TV)     │        │  (Atendente)     │
+│   Totem Físico)  │        │                  │        │                  │
+│                  │        │                  │        │                  │
+│ http://localhost │        │ http://<IP>:8000 │        │ http://<IP>:8000 │
+│      :8000       │        │     /painel      │        │   /atendente     │
+└──────────────────┘        └──────────────────┘        └──────────────────┘
+          │
+          │ (Escaneia QR Code)
+          ▼
+┌──────────────────┐
+│ SMARTPHONE       │
+│ (Pré-Triagem)    │
+│                  │
+│ http://<IP>:8000 │
+│ /triagem/<SENHA> │
+└──────────────────┘
+```
+
+### Como Descobrir o IP do Raspberry Pi no dia:
+No terminal do Raspberry Pi conectado ao Wi-Fi, digite:
+```bash
+hostname -I
+# Exemplo retornado: 192.168.1.50
+```
+
+Com esse IP, abra no navegador dos outros computadores:
+- **No PC do Projetor / TV:** `http://192.168.1.50:8000/painel` (coloque em Tela Cheia pressionando `F11`);
+- **No Notebook do Médico / Atendente:** `http://192.168.1.50:8000/atendente`;
+- **No Celular dos jurados / apresentadores:** Aponte a câmera para o QR Code da tela do totem!
+
