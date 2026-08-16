@@ -39,6 +39,10 @@ class SenhaRepository(SenhaRepositoryPort):
         self.session.refresh(senha)
         return senha
 
+    def buscar_por_id(self, senha_id: str) -> Optional[Senha]:
+        statement = select(Senha).where(Senha.id == senha_id)
+        return self.session.exec(statement).first()
+
     def buscar_proxima_senha(self) -> Optional[Senha]:
         statement = select(Senha).where(Senha.status == StatusSenha.AGUARDANDO).order_by(
             Senha.prioridade.desc(),

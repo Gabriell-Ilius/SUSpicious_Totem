@@ -13,6 +13,7 @@ import ServiceCard from './components/ServiceCard';
 import TicketModal from './components/TicketModal';
 import PainelSenhas from './pages/PainelSenhas';
 import TriagemMobile from './pages/TriagemMobile';
+import TelaAtendente from './pages/TelaAtendente';
 import ErrorPrinter from './pages/ErrorPrinter';
 import senhaService from './services/senhaService';
 
@@ -414,6 +415,10 @@ function App() {
 
   if (location.pathname === '/painel') {
     return <PainelSenhas />;
+  }
+
+  if (location.pathname === '/atendente' || location.pathname === '/guiche') {
+    return <TelaAtendente />;
   }
 
   if (location.pathname.startsWith('/triagem')) {

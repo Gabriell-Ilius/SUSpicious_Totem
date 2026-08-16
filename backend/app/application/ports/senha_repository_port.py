@@ -16,6 +16,11 @@ class SenhaRepositoryPort(ABC):
         ...
 
     @abstractmethod
+    def buscar_por_id(self, senha_id: str) -> Optional[Senha]:
+        """Busca uma senha pelo seu ID único."""
+        ...
+
+    @abstractmethod
     def buscar_proxima_senha(self) -> Optional[Senha]:
         """Busca a próxima senha da fila, respeitando prioridade e ordem de chegada."""
         ...
@@ -26,11 +31,16 @@ class SenhaRepositoryPort(ABC):
         ...
 
     @abstractmethod
-    def listar_ultimas_chamadas(self, limite: int = 4) -> list[Senha]:
+    def listar_ultimas_chamadas(self, limite: int = 6) -> list[Senha]:
         """Retorna as últimas senhas chamadas (histórico para o painel)."""
         ...
         
     @abstractmethod
     def listar_nao_sincronizadas(self) -> list[Senha]:
         """Retorna todas as senhas que ainda não foram sincronizadas com e-SUS."""
+        ...
+
+    @abstractmethod
+    def limpar_todas_senhas(self) -> int:
+        """Limpa todas as senhas do banco de dados."""
         ...

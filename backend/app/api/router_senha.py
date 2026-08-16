@@ -2,7 +2,7 @@ from fastapi import APIRouter, Depends, HTTPException
 from typing import Optional
 from pydantic import BaseModel
 from sqlmodel import Session
-from app.domain.senha import Senha, TipoAtendimento
+from app.domain.senha import Senha, StatusSenha, TipoAtendimento
 from app.application.use_cases.gerar_senha import GerarSenhaUseCase
 from app.application.use_cases.verificar_agendamento import VerificarAgendamento
 from app.application.use_cases.chamar_proxima_senha import ChamarProximaSenhaUseCase
@@ -18,6 +18,10 @@ class GerarSenhaRequest(BaseModel):
     cpf: Optional[str] = None
     prioridade: int = 0
     sub_prioridade: Optional[str] = None
+
+class ChamarSenhaRequest(BaseModel):
+    setor_destino: Optional[str] = None
+    senha_id: Optional[str] = None
 
 router = APIRouter(prefix="/senhas", tags=["senhas"])
 
@@ -45,11 +49,32 @@ def gerar_senha(request: GerarSenhaRequest, uc: GerarSenhaUseCase = Depends(get_
     return senha
 
 @router.post("/proxima", response_model=Senha)
-def chamar_proxima_senha(uc: ChamarProximaSenhaUseCase = Depends(get_chamar_proxima_senha_uc)):
-    senha = uc.execute()
+def chamar_proxima_senha(
+    request: Optional[ChamarSenhaRequest] = None,
+    uc: ChamarProximaSenhaUseCase = Depends(get_chamar_proxima_senha_uc)
+):
+    """
+    Chama a próxima senha da fila (ou uma específica) direcionando para o guichê/consultório informado.
+    """
+    setor = request.setor_destino if request else None
+    senha_id = request.senha_id if request else None
+    senha = uc.execute(setor_destino=setor, senha_id=senha_id)
     if not senha:
         raise HTTPException(status_code=404, detail="Não há senhas aguardando.")
     return senha
+
+@router.post("/{senha_id}/concluir")
+def concluir_atendimento(senha_id: str, session: Session = Depends(get_session)):
+    """
+    Finaliza o atendimento de uma senha.
+    """
+    repo = SenhaRepository(session)
+    senha = repo.buscar_por_id(senha_id)
+    if not senha:
+        raise HTTPException(status_code=404, detail="Senha não encontrada.")
+    senha.status = StatusSenha.ATENDIDA
+    repo.salvar(senha)
+    return {"message": "Atendimento concluído com sucesso!", "senha": senha}
 
 @router.post("/reset")
 def resetar_senhas(session: Session = Depends(get_session)):
