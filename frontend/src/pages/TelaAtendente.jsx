@@ -486,13 +486,22 @@ const TelaAtendente = () => {
                     senhasAgendadasConfirmadas.map((senha) => {
                       const agendamentoMatch = agendados.find(ag => ag.cpf === senha.cpf);
                       const salaSugerida = agendamentoMatch ? `${agendamentoMatch.room} - ${agendamentoMatch.doctor_name}` : (senha.setor_destino || 'Consultório 01');
+                      const triagemVinculada = getTriagemDaSenha(senha.codigo);
+                      const temRisco = triagemVinculada && (
+                        triagemVinculada.dor >= 7 || 
+                        triagemVinculada.falta_ar || 
+                        triagemVinculada.sangramento || 
+                        triagemVinculada.fala_movimento ||
+                        triagemVinculada.classificacao_risco.includes('VERMELHO') ||
+                        triagemVinculada.classificacao_risco.includes('LARANJA')
+                      );
 
                       return (
                         <div
                           key={senha.id}
                           style={{
-                            background: 'rgba(7, 19, 36, 0.8)',
-                            border: '1px solid #38BDF8',
+                            background: temRisco ? 'rgba(220, 38, 38, 0.15)' : 'rgba(7, 19, 36, 0.8)',
+                            border: temRisco ? '2px solid #EF4444' : '1px solid #38BDF8',
                             borderRadius: '14px', padding: '14px 18px',
                             display: 'flex', alignItems: 'center', justifyContent: 'space-between'
                           }}
@@ -505,6 +514,11 @@ const TelaAtendente = () => {
                               <span style={{ background: '#0284C7', color: '#FFF', fontSize: '0.75rem', fontWeight: 800, padding: '3px 8px', borderRadius: '6px' }}>
                                 AGENDADO
                               </span>
+                              {temRisco && (
+                                <span style={{ background: '#EF4444', color: '#FFF', fontSize: '0.75rem', fontWeight: 900, padding: '3px 8px', borderRadius: '6px' }}>
+                                  🚨 {triagemVinculada.classificacao_risco} • DOR {triagemVinculada.dor}/10
+                                </span>
+                              )}
                             </div>
 
                             <div style={{ fontSize: '1rem', fontWeight: 800, color: '#F8FAFC', marginTop: '4px' }}>
@@ -596,13 +610,20 @@ const TelaAtendente = () => {
                   {senhasGerais.length > 0 ? (
                     senhasGerais.map((senha) => {
                       const triagemVinculada = getTriagemDaSenha(senha.codigo);
-                      const temRisco = triagemVinculada && (triagemVinculada.dor >= 7 || triagemVinculada.falta_ar);
+                      const temRisco = triagemVinculada && (
+                        triagemVinculada.dor >= 7 || 
+                        triagemVinculada.falta_ar || 
+                        triagemVinculada.sangramento || 
+                        triagemVinculada.fala_movimento ||
+                        triagemVinculada.classificacao_risco.includes('VERMELHO') ||
+                        triagemVinculada.classificacao_risco.includes('LARANJA')
+                      );
 
                       return (
                         <div
                           key={senha.id}
                           style={{
-                            background: temRisco ? 'rgba(220, 38, 38, 0.12)' : (senha.prioridade === 1 ? 'rgba(239, 68, 68, 0.06)' : 'rgba(255,255,255,0.04)'),
+                            background: temRisco ? 'rgba(220, 38, 38, 0.15)' : (senha.prioridade === 1 ? 'rgba(239, 68, 68, 0.06)' : 'rgba(255,255,255,0.04)'),
                             border: temRisco ? '2px solid #EF4444' : (senha.prioridade === 1 ? '1px solid rgba(239, 68, 68, 0.3)' : '1px solid rgba(255,255,255,0.08)'),
                             borderRadius: '14px', padding: '12px 16px',
                             display: 'flex', alignItems: 'center', justifyContent: 'space-between'
@@ -623,7 +644,7 @@ const TelaAtendente = () => {
                               )}
                               {temRisco && (
                                 <span style={{ background: '#EF4444', color: '#FFF', fontSize: '0.75rem', fontWeight: 900, padding: '3px 8px', borderRadius: '6px' }}>
-                                  🚨 RISCO: DOR {triagemVinculada.dor}/10
+                                  🚨 {triagemVinculada.classificacao_risco} • DOR {triagemVinculada.dor}/10
                                 </span>
                               )}
                             </div>

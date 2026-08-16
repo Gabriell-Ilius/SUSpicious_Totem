@@ -56,16 +56,7 @@ app = FastAPI(
     redoc_url="/redoc"
 )
 
-app.include_router(api_router, prefix="/api")
-
-# Servir os arquivos estáticos do frontend em modo de produção (se compilado)
-frontend_dist = os.path.join(os.path.dirname(__file__), "..", "frontend", "dist")
-if os.path.exists(frontend_dist):
-    app.mount("/", StaticFiles(directory=frontend_dist, html=True), name="frontend")
-else:
-    logging.warning("Diretório frontend/dist não encontrado. Servindo apenas a API.")
-
-# CORS — permite acesso do Kiosk UI local
+# CORS — permite acesso do Totem Kiosk, celular e múltiplos computadores na rede local
 app.add_middleware(
     CORSMiddleware,
     allow_origins=["*"],
@@ -73,6 +64,15 @@ app.add_middleware(
     allow_methods=["*"],
     allow_headers=["*"],
 )
+
+app.include_router(api_router, prefix="/api")
+
+# Servir os arquivos estáticos do frontend em modo de produção (se compilado)
+frontend_dist = os.path.join(os.path.dirname(__file__), "..", "frontend", "dist")
+if os.path.exists(frontend_dist):
+    app.mount("/static_dist", StaticFiles(directory=frontend_dist, html=True), name="frontend")
+else:
+    logging.warning("Diretório frontend/dist não encontrado. Servindo apenas a API.")
 
 @app.get("/health", tags=["Sistema"])
 async def health_check():
