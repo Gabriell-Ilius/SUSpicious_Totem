@@ -74,17 +74,22 @@ const TelaAtendente = () => {
           const listaTriagens = resTrg.data || [];
           setTriagens(listaTriagens);
 
-          // Verifica se há alguma triagem recente com risco crítico
+          // Verifica se há alguma triagem recente com risco crítico de pacientes QUE ESTÃO ATUALMENTE NA FILA
+          const senhasAguardandoSet = new Set((dataFila.aguardando || dataFila.senhas || []).map(s => s.codigo));
           const riscoCritico = listaTriagens.find(t => 
-            t.classificacao_risco.includes('VERMELHO') || 
-            t.classificacao_risco.includes('LARANJA') ||
-            t.dor >= 7 || t.falta_ar || t.sangramento || t.fala_movimento
+            senhasAguardandoSet.has(t.senha_codigo) && (
+              t.classificacao_risco.includes('VERMELHO') || 
+              t.classificacao_risco.includes('LARANJA') ||
+              t.dor >= 7 || t.falta_ar || t.sangramento || t.fala_movimento
+            )
           );
 
           if (riscoCritico && riscoCritico.id !== prevRiscoIdRef.current) {
             setAlertaRiscoAtivo(riscoCritico);
             playEmergencyAlert();
             prevRiscoIdRef.current = riscoCritico.id;
+          } else if (!riscoCritico) {
+            setAlertaRiscoAtivo(null);
           }
         } catch (e) {
           console.log("Erro ao buscar triagens", e);
@@ -162,10 +167,21 @@ const TelaAtendente = () => {
     }
   };
 
-  // Encontra pré-triagem vinculada a um código de senha
-  const getTriagemDaSenha = (codigo) => {
+  // Encontra pré-triagem vinculada a um código de senha (validando se pertence a esta rodada de atendimento)
+  const getTriagemDaSenha = (codigo, dataEmissao) => {
     if (!codigo) return null;
-    return triagens.find(t => t.senha_codigo === codigo.toUpperCase());
+    const matches = triagens.filter(t => t.senha_codigo === codigo.toUpperCase());
+    if (matches.length === 0) return null;
+    const latest = matches[0];
+    if (dataEmissao && latest.data_hora) {
+      const tTime = new Date(latest.data_hora).getTime();
+      const sTime = new Date(dataEmissao).getTime();
+      // Se a triagem foi registrada mais de 3 minutos antes da emissão desta senha, é de uma rodada anterior
+      if (sTime - tTime > 180000) {
+        return null;
+      }
+    }
+    return latest;
   };
 
   // Separação de Senhas: Agendados vs Demais Senhas da Fila
@@ -462,7 +478,7 @@ const TelaAtendente = () => {
                     senhasAgendadasConfirmadas.map((senha) => {
                       const agendamentoMatch = agendados.find(ag => ag.cpf === senha.cpf);
                       const salaSugerida = agendamentoMatch ? `${agendamentoMatch.room} - ${agendamentoMatch.doctor_name}` : (senha.setor_destino || 'Consultório 01');
-                      const triagemVinculada = getTriagemDaSenha(senha.codigo);
+                      const triagemVinculada = getTriagemDaSenha(senha.codigo, senha.data_hora_emissao);
                       const temRisco = triagemVinculada && (
                         triagemVinculada.dor >= 7 || 
                         triagemVinculada.falta_ar || 
@@ -585,7 +601,7 @@ const TelaAtendente = () => {
                 <div style={{ display: 'flex', flexDirection: 'column', gap: '10px', maxHeight: '420px', overflowY: 'auto' }}>
                   {senhasGerais.length > 0 ? (
                     senhasGerais.map((senha) => {
-                      const triagemVinculada = getTriagemDaSenha(senha.codigo);
+                      const triagemVinculada = getTriagemDaSenha(senha.codigo, senha.data_hora_emissao);
                       const temRisco = triagemVinculada && (
                         triagemVinculada.dor >= 7 || 
                         triagemVinculada.falta_ar || 

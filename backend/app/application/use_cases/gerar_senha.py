@@ -62,11 +62,20 @@ class GerarSenhaUseCase:
             paciente = self.validar_cpf_uc.execute(clean_cpf)
             if paciente:
                 paciente_id = paciente.id
-
         setor_destino, detected_patient_name = self._calcular_setor_destino(tipo, clean_cpf)
         codigo = self.senha_repo.gerar_codigo_senha(tipo, prioridade)
-
         qr_url = f"http://192.168.15.34:5173/triagem/{codigo}" if tipo in (TipoAtendimento.TRIAGEM_DIGITAL, TipoAtendimento.ESPONTANEA) else None
+
+        # Limpa triagens antigas/órfãs deste mesmo código para evitar herança de risco de testes anteriores
+        if self.session:
+            from app.domain.triagem import Triagem
+            old_trgs = list(self.session.exec(select(Triagem).where(Triagem.senha_codigo == codigo)).all())
+            for ot in old_trgs:
+                self.session.delete(ot)
+            try:
+                self.session.commit()
+            except Exception:
+                self.session.rollback()
 
         nova_senha = Senha(
             codigo=codigo,
